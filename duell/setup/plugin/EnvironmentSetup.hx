@@ -29,7 +29,7 @@ class EnvironmentSetup
     private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.zip";
     private static var javaJDKURL = "http://www.oracle.com/technetwork/java/javase/downloads/jdk6u37-downloads-1859587.html";
 
-/// RESULTING VARIABLES
+    /// RESULTING VARIABLES
     private var androidSDKPath : String = null;
     private var androidNDKPath : String = null;
     private var apacheANTPath : String = null;
@@ -89,7 +89,7 @@ class EnvironmentSetup
 
     private function downloadAndroidSDK()
     {
-/// variable setup
+        /// variable setup
         var downloadPath = "";
         var defaultInstallPath = "";
         var ignoreRootFolder = "android-sdk";
@@ -115,10 +115,10 @@ class EnvironmentSetup
 
         var downloadAnswer = AskHelper.askYesOrNo("Download the android SDK");
 
-/// ask for the instalation path
+        /// ask for the instalation path
         androidSDKPath = AskHelper.askString("Android SDK Location", defaultInstallPath);
 
-/// clean up a bit
+        /// clean up a bit
         androidSDKPath = PathHelper.unescape(androidSDKPath);
         androidSDKPath = StringHelper.strip(androidSDKPath);
 
@@ -127,16 +127,16 @@ class EnvironmentSetup
 
         if(downloadAnswer)
         {
-/// the actual download
+            /// the actual download
             DownloadHelper.downloadFile(downloadPath);
 
-/// create the directory
+            /// create the directory
             PathHelper.mkdir(androidSDKPath);
 
-/// the extraction
+            /// the extraction
             ExtractionHelper.extractFile(Path.withoutDirectory(downloadPath), androidSDKPath, ignoreRootFolder);
 
-/// set appropriate permissions
+            /// set appropriate permissions
             if(PlatformHelper.hostPlatform != Platform.WINDOWS)
             {
                 ProcessHelper.runCommand("", "chmod", ["-R", "777", androidSDKPath], false);
@@ -158,15 +158,15 @@ class EnvironmentSetup
 
         var rawPackageList = packageListOutput.split("\n");
 
-/// filter the actual package lines, lines starting like " 1-" or " 12-"
+        /// filter the actual package lines, lines starting like " 1-" or " 12-"
         var r = ~/^ *[0-9]+\-.*$/;
         rawPackageList = rawPackageList.filter(function(str) { return r.match(str); });
 
-/// filter the packages we want
+        /// filter the packages we want
         r = ~/(Android SDK Tools|Android SDK Platform|Android SDK Build-tools|SDK Platform Android 4.4.2, API 19|SDK Platform Android 4.1.2, API 16)/;
         var packageListWithNames = rawPackageList.filter(function(str) { return r.match(str); });
 
-/// retrieve only the number
+        /// retrieve only the number
         var packageNumberList = packageListWithNames.map(function(str) { return str.substr(0, str.indexOf("-")).ltrim(); });
 
         if(packageNumberList.length != 0)
@@ -179,8 +179,8 @@ class EnvironmentSetup
             LogHelper.println("No packages to download.");
         }
 
-/// NOT SURE WHAT THIS IS FOR
-/*
+        /// NOT SURE WHAT THIS IS FOR
+        /*
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 
 			ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
@@ -192,7 +192,7 @@ class EnvironmentSetup
 
     private function downloadAndroidNDK()
     {
-/// variable setup
+        /// variable setup
         var downloadPath = "";
         var defaultInstallPath = "";
         var ignoreRootFolder = "android-ndk-r8b";
@@ -213,13 +213,13 @@ class EnvironmentSetup
             defaultInstallPath = "/opt/android-ndk";
         }
 
-/// check if the user wants to download the android ndk
+        /// check if the user wants to download the android ndk
         var downloadAnswer = AskHelper.askYesOrNo("Download the android NDK");
 
-/// ask for the instalation path
+        /// ask for the instalation path
         androidNDKPath = AskHelper.askString("Android NDK Location", defaultInstallPath);
 
-/// clean up a bit
+        /// clean up a bit
         androidNDKPath = PathHelper.unescape(androidNDKPath);
         androidNDKPath = StringHelper.strip(androidNDKPath);
 
@@ -228,20 +228,20 @@ class EnvironmentSetup
 
         if(downloadAnswer)
         {
-/// the actual download
+            /// the actual download
             DownloadHelper.downloadFile(downloadPath);
 
-/// create the directory
+            /// create the directory
             PathHelper.mkdir(androidNDKPath);
 
-/// the extraction
+            /// the extraction
             ExtractionHelper.extractFile(Path.withoutDirectory(downloadPath), androidNDKPath, ignoreRootFolder);
         }
     }
 
     private function downloadApacheAnt()
     {
-/// variable setup
+        /// variable setup
         var downloadPath = "";
         var defaultInstallPath = "";
         var ignoreRootFolder = "apache-ant-1.9.2";
@@ -257,29 +257,28 @@ class EnvironmentSetup
             defaultInstallPath = "/opt/apache-ant";
         }
 
-/// check if the user wants to download apache ant
+        /// check if the user wants to download apache ant
         var downloadAnswer = AskHelper.askYesOrNo("Download Apache Ant");
 
-/// ask for the instalation path
+        /// ask for the instalation path
         apacheANTPath = AskHelper.askString("Apache Ant Location", defaultInstallPath);
 
-/// clean up a bit
+        /// clean up a bit
         apacheANTPath = PathHelper.unescape(apacheANTPath);
         apacheANTPath = StringHelper.strip(apacheANTPath);
 
         if(apacheANTPath == "")
             apacheANTPath = defaultInstallPath;
 
-        if(downloadAnswer
-        )
+        if(downloadAnswer)
         {
-/// the actual download
+            /// the actual download
             DownloadHelper.downloadFile(downloadPath);
 
-/// create the directory
+            /// create the directory
             PathHelper.mkdir(apacheANTPath);
 
-/// the extraction
+            /// the extraction
             ExtractionHelper.extractFile(Path.withoutDirectory(downloadPath), apacheANTPath, ignoreRootFolder);
         }
     }
@@ -313,7 +312,7 @@ class EnvironmentSetup
 
             javaJDKPath = AskHelper.askString("Java JDK Location", defaultInstallPath);
 
-/// clean up a bit
+            /// clean up a bit
             javaJDKPath = PathHelper.unescape(javaJDKPath);
             javaJDKPath = StringHelper.strip(javaJDKPath);
 
