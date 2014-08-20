@@ -330,7 +330,7 @@ class EnvironmentSetup
             LogHelper.error("Could not find the home folder, no HOME variable is set. Can't find hxcpp_config.xml");
         }
 
-        var hxcppXML = new HXCPPConfigXML(hxcppConfigPath);
+        var hxcppXML = HXCPPConfigXML.getConfig(hxcppConfigPath);
 
         var existingDefines : Map<String, String> = hxcppXML.getDefines();
 
