@@ -121,6 +121,8 @@ class EnvironmentSetup
         /// clean up a bit
         androidSDKPath = PathHelper.unescape(androidSDKPath);
         androidSDKPath = StringHelper.strip(androidSDKPath);
+        androidSDKPath = FileSystem.fullPath(androidSDKPath);
+
 
         if(androidSDKPath == "")
             androidSDKPath = defaultInstallPath;
@@ -222,6 +224,7 @@ class EnvironmentSetup
         /// clean up a bit
         androidNDKPath = PathHelper.unescape(androidNDKPath);
         androidNDKPath = StringHelper.strip(androidNDKPath);
+        androidNDKPath = FileSystem.fullPath(androidNDKPath);
 
         if(androidNDKPath == "")
             androidNDKPath = defaultInstallPath;
@@ -266,6 +269,7 @@ class EnvironmentSetup
         /// clean up a bit
         apacheANTPath = PathHelper.unescape(apacheANTPath);
         apacheANTPath = StringHelper.strip(apacheANTPath);
+        apacheANTPath = FileSystem.fullPath(apacheANTPath);
 
         if(apacheANTPath == "")
             apacheANTPath = defaultInstallPath;
@@ -315,6 +319,7 @@ class EnvironmentSetup
             /// clean up a bit
             javaJDKPath = PathHelper.unescape(javaJDKPath);
             javaJDKPath = StringHelper.strip(javaJDKPath);
+            javaJDKPath = FileSystem.fullPath(javaJDKPath);
 
             if(javaJDKPath == "")
                 javaJDKPath = defaultInstallPath;
