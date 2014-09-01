@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="::APP.PACKAGE::" android:versionCode="::APP.BUILD_NUMBER::" android:versionName="::APP.VERSION::" android:installLocation="::PLATFORM.INSTALL_LOCATION::">
+	
+	::foreach PLATFORM.USES::
+	<uses-feature android::(":")::::NAME::="::VALUE::" android:required="::if (REQUIRED)::true::else::false::end::" />::end::
+	::foreach PLATFORM.PERMISSIONS::
+	<uses-permission android:name="::__current__::" />::end::
+
+	<supports-screens ::foreach PLATFORM.SUPPORTS_SCREENS:: android:::NAME::="::VALUE::"
+					  ::end::/>
+	
+	<uses-sdk android:minSdkVersion="::PLATFORM.MINIMUM_SDK_VERSION::" android:targetSdkVersion="::PLATFORM.TARGET_SDK_VERSION::"/>
+	
+	<application android:label="::APP.TITLE::" android:debuggable="::if (PLATFORM.DEBUG)::true::else::false::end::" android:icon="@drawable/icon">
+		
+		<activity android:name="MainActivity" 
+				  android:label="::APP.TITLE::" 
+				  ::foreach PLATFORM.ACTIVITY_PARAMETERS::
+				  android:::NAME::="::VALUE::"::end::>
+			
+			<intent-filter>
+				
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+
+				::foreach PLATFORM.MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS::
+				::__current__::::end::
+				
+				
+			</intent-filter>
+
+			::foreach PLATFORM.MANIFEST_MAIN_ACTIVITY_SECTIONS::
+			::__current__::::end::
+
+			
+		</activity>
+
+		::foreach PLATFORM.MANIFEST_APPLICATION_SECTIONS::
+		::__current__::::end::
+		
+	</application>
+	
+</manifest>
