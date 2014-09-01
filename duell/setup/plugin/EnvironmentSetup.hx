@@ -9,6 +9,7 @@ import duell.helpers.LogHelper;
 import duell.helpers.StringHelper;
 import duell.helpers.ProcessHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
+import duell.helpers.DuellConfigHelper;
 
 import duell.objects.HXCPPConfigXML;
 
@@ -94,22 +95,21 @@ class EnvironmentSetup
         var defaultInstallPath = "";
         var ignoreRootFolder = "android-sdk";
 
+        defaultInstallPath = haxe.io.Path.join([DuellConfigHelper.getDuellConfigFolderLocation(), "SDKs", "android-sdk"]);
+
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
             downloadPath = androidWindowsSDKPath;
-            defaultInstallPath = "C:\\Development\\Android SDK";
 
         }
         else if (PlatformHelper.hostPlatform == Platform.LINUX)
         {
             downloadPath = androidLinuxSDKPath;
-            defaultInstallPath = "/opt/android-sdk";
             ignoreRootFolder = "android-sdk-linux";
         }
         else if (PlatformHelper.hostPlatform == Platform.MAC)
         {
             downloadPath = androidMacSDKPath;
-            defaultInstallPath = "/opt/android-sdk";
             ignoreRootFolder = "android-sdk-mac";
         }
 
@@ -119,13 +119,12 @@ class EnvironmentSetup
         androidSDKPath = AskHelper.askString("Android SDK Location", defaultInstallPath);
 
         /// clean up a bit
-        androidSDKPath = PathHelper.unescape(androidSDKPath);
-        androidSDKPath = StringHelper.strip(androidSDKPath);
-        androidSDKPath = FileSystem.fullPath(androidSDKPath);
-
+        androidSDKPath = androidSDKPath.trim();
 
         if(androidSDKPath == "")
             androidSDKPath = defaultInstallPath;
+
+        androidSDKPath = resolvePath(androidSDKPath);
 
         if(downloadAnswer)
         {
@@ -199,20 +198,19 @@ class EnvironmentSetup
         var defaultInstallPath = "";
         var ignoreRootFolder = "android-ndk-r8b";
 
+        defaultInstallPath = haxe.io.Path.join([DuellConfigHelper.getDuellConfigFolderLocation(), "SDKs", "android-ndk"]);
+
         if(PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
             downloadPath = androidWindowsNDKPath;
-            defaultInstallPath = "C:\\Development\\Android NDK";
         }
         else if (PlatformHelper.hostPlatform == Platform.LINUX)
         {
             downloadPath = androidLinuxNDKPath;
-            defaultInstallPath = "/opt/android-ndk";
         }
         else
         {
             downloadPath = androidMacNDKPath;
-            defaultInstallPath = "/opt/android-ndk";
         }
 
         /// check if the user wants to download the android ndk
@@ -222,12 +220,12 @@ class EnvironmentSetup
         androidNDKPath = AskHelper.askString("Android NDK Location", defaultInstallPath);
 
         /// clean up a bit
-        androidNDKPath = PathHelper.unescape(androidNDKPath);
-        androidNDKPath = StringHelper.strip(androidNDKPath);
-        androidNDKPath = FileSystem.fullPath(androidNDKPath);
+        androidNDKPath = androidNDKPath.trim();
 
         if(androidNDKPath == "")
             androidNDKPath = defaultInstallPath;
+
+        androidNDKPath = resolvePath(androidNDKPath);
 
         if(downloadAnswer)
         {
@@ -249,15 +247,15 @@ class EnvironmentSetup
         var defaultInstallPath = "";
         var ignoreRootFolder = "apache-ant-1.9.2";
 
+        defaultInstallPath = haxe.io.Path.join([DuellConfigHelper.getDuellConfigFolderLocation(), "SDKs", "apache-ant"]);
+
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
             downloadPath = apacheAntWindowsPath;
-            defaultInstallPath = "C:\\Development\\Apache Ant";
         }
         else
         {
             downloadPath = apacheAntUnixPath;
-            defaultInstallPath = "/opt/apache-ant";
         }
 
         /// check if the user wants to download apache ant
@@ -267,12 +265,12 @@ class EnvironmentSetup
         apacheANTPath = AskHelper.askString("Apache Ant Location", defaultInstallPath);
 
         /// clean up a bit
-        apacheANTPath = PathHelper.unescape(apacheANTPath);
-        apacheANTPath = StringHelper.strip(apacheANTPath);
-        apacheANTPath = FileSystem.fullPath(apacheANTPath);
+        apacheANTPath = apacheANTPath.trim();
 
         if(apacheANTPath == "")
             apacheANTPath = defaultInstallPath;
+
+        apacheANTPath = resolvePath(apacheANTPath);
 
         if(downloadAnswer)
         {
@@ -292,14 +290,8 @@ class EnvironmentSetup
         if (PlatformHelper.hostPlatform != Platform.MAC)
         {
             var defaultInstallPath;
-            if(PlatformHelper.hostPlatform == Platform.WINDOWS)
-            {
-                defaultInstallPath = "C:\\Program Files\\Java\\jdk1.7.0\\";
-            }
-            else /// Linux
-            {
-                defaultInstallPath = "/opt/jdk";
-            }
+
+            defaultInstallPath = haxe.io.Path.join([DuellConfigHelper.getDuellConfigFolderLocation(), "SDKs", "jdk"]);
 
             var answer = AskHelper.askYesOrNo("Download and install the Java JDK");
 
@@ -317,12 +309,12 @@ class EnvironmentSetup
             javaJDKPath = AskHelper.askString("Java JDK Location", defaultInstallPath);
 
             /// clean up a bit
-            javaJDKPath = PathHelper.unescape(javaJDKPath);
-            javaJDKPath = StringHelper.strip(javaJDKPath);
-            javaJDKPath = FileSystem.fullPath(javaJDKPath);
+            javaJDKPath = javaJDKPath.trim();
 
             if(javaJDKPath == "")
                 javaJDKPath = defaultInstallPath;
+
+            javaJDKPath = resolvePath(javaJDKPath);
         }
     }
 
@@ -406,5 +398,15 @@ class EnvironmentSetup
         defines.set("ANDROID_SETUP", "YES");
 
         return defines;
+    }
+
+    private function resolvePath(path : String) : String
+    {
+        path = PathHelper.unescape(path);
+        
+        if (PathHelper.isPathRooted(path))
+            return path;
+
+        return Path.join([Sys.getCwd(), path]);
     }
 }
