@@ -471,7 +471,7 @@ class PlatformBuild
 	{
 		var args = ["logcat"];
 		
-		ProcessHelper.runCommand(adbPath, "adb", args.concat(["-c"]));
+		ProcessHelper.runCommand(adbPath, "./adb", args.concat(["-c"]));
 	}
 
 	private function runLogcat()
@@ -480,7 +480,7 @@ class PlatformBuild
 
 		if (isFullLogcat) 
 		{
-			ProcessHelper.runCommand(adbPath, "adb", args);
+			ProcessHelper.runCommand(adbPath, "./adb", args);
 		} 
 		else if (isDebug) 
 		{
@@ -492,11 +492,11 @@ class PlatformBuild
 				filter += " " + tag + ":D";
 			}
 			
-			ProcessHelper.runCommand(adbPath, "adb", args.concat([filter]));
+			ProcessHelper.runCommand(adbPath, "./adb", args.concat([filter]));
 		}
 		else 
 		{
-			ProcessHelper.runCommand(adbPath, "adb", args.concat (["*:S trace:I"]));
+			ProcessHelper.runCommand(adbPath, "./adb", args.concat (["*:S trace:I"]));
 		}
 	}
 }
