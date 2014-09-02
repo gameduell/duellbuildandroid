@@ -85,17 +85,8 @@ class PlatformXMLParser
 				case 'activity-parameter':
 					parseActivityParameterElement(element);
 
-				case 'key-store':
-					parseKeyStoreElement(element);
-
-				case 'key-store-alias':
-					parseKeyStoreAliasElement(element);
-
-				case 'key-store-password':
-					parseKeyStorePasswordElement(element);
-
-				case 'key-store-alias-password':
-					parseKeyStoreAliasPasswordElement(element);
+				case 'application-parameter':
+					parseApplicationParameterElement(element);
 
 				case 'manifest-main-activity-section':
 					parseManifestMainActivitySectionElement(element);
@@ -209,6 +200,7 @@ class PlatformXMLParser
 
 	private static function parseActivityExtensionElement(element : Fast)
 	{
+		throw "UNTESTED EXTENSIONS";
 		var name = null;
 		if (element.has.name)
 		{
@@ -219,6 +211,7 @@ class PlatformXMLParser
 
 	private static function parseJavaLibElement(element : Fast):Void
 	{
+		throw "UNTESTED JAVA LIBS";
 		if (element.has.path)
 		{
 			var path = resolvePath(element.att.path);
@@ -235,6 +228,7 @@ class PlatformXMLParser
 
 	private static function parseJavaSourceElement(element : Fast)
 	{
+		throw "UNTESTED JAVA SOURCES";
 		if (element.has.path)
 		{
 			var path = resolvePath(element.att.path);
@@ -301,35 +295,24 @@ class PlatformXMLParser
 		}
 	}
 
-	private static function parseKeyStoreElement(element : Fast)
+	private static function parseApplicationParameterElement(element : Fast)
 	{
+		var name = null;
+		var value = null;
+
 		if (element.has.name)
 		{
-			PlatformConfiguration.getData().KEY_STORE = element.att.name;
+			name = element.att.name;
 		}
-	}
 
-	private static function parseKeyStoreAliasElement(element : Fast)
-	{
-		if (element.has.name)
-		{
-			PlatformConfiguration.getData().KEY_STORE_ALIAS = element.att.name;
-		}
-	}
-
-	private static function parseKeyStorePasswordElement(element : Fast)
-	{
 		if (element.has.value)
 		{
-			PlatformConfiguration.getData().KEY_STORE_PASSWORD = element.att.value;
+			value = element.att.value;
 		}
-	}
 
-	private static function parseKeyStoreAliasPasswordElement(element : Fast)
-	{
-		if (element.has.value)
+		if (element != null && value != null)
 		{
-			PlatformConfiguration.getData().KEY_STORE_ALIAS_PASSWORD = element.att.value;
+			addUniqueKeyValueToKeyValueArray(PlatformConfiguration.getData().APPLICATION_PARAMETERS, name, value);
 		}
 	}
 

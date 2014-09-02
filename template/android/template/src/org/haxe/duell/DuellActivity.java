@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.Math;
 import java.lang.Runnable;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -38,8 +39,10 @@ import org.haxe.HXCPP;
 
 public class DuellActivity extends Activity { 
 	
-	private static DuellActivity activity;
-	public static DuellActivity getInstance () {	return activity; }
+	private static WeakReference<DuellActivity> activity = new WeakReference<DuellActivity>(null);
+	public static DuellActivity getInstance () { 
+		return activity.get(); 
+	}
 
 	private static List<Extension> extensions;
 	
@@ -47,7 +50,7 @@ public class DuellActivity extends Activity {
 		
 		super.onCreate (state);
 		
-		activity = this;
+		activity = new WeakReference<DuellActivity>(this);
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
@@ -80,7 +83,8 @@ public class DuellActivity extends Activity {
 	}
 	
 	// IMMERSIVE MODE SUPPORT
-	::if (PLATFORM.FULLSCREEN)::::if (PLATFORM.TARGET_SDK_VERSION >= 19)::
+	::if (PLATFORM.FULLSCREEN)::
+	::if (PLATFORM.TARGET_SDK_VERSION >= 19)::
 	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -103,7 +107,8 @@ public class DuellActivity extends Activity {
 			| View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 	}
 	
-	::end::::end::
+	::end::
+	::end::
 	
 	@Override protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		
@@ -132,7 +137,6 @@ public class DuellActivity extends Activity {
 		
 		activity = null;
 		super.onDestroy ();
-
 	}
 	
 	

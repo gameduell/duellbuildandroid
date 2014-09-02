@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="::APP.PACKAGE::" android:versionCode="::APP.BUILD_NUMBER::" android:versionName="::APP.VERSION::" android:installLocation="::PLATFORM.INSTALL_LOCATION::">
 	
 	::foreach PLATFORM.USES::
-	<uses-feature android::(":")::::NAME::="::VALUE::" android:required="::if (REQUIRED)::true::else::false::end::" />::end::
+	<uses-feature android:::NAME::="::VALUE::" android:required="::if (REQUIRED)::true::else::false::end::" />::end::
 	::foreach PLATFORM.PERMISSIONS::
 	<uses-permission android:name="::__current__::" />::end::
 
@@ -11,7 +11,11 @@
 	
 	<uses-sdk android:minSdkVersion="::PLATFORM.MINIMUM_SDK_VERSION::" android:targetSdkVersion="::PLATFORM.TARGET_SDK_VERSION::"/>
 	
-	<application android:label="::APP.TITLE::" android:debuggable="::if (PLATFORM.DEBUG)::true::else::false::end::" android:icon="@drawable/icon">
+	<application android:label="::APP.TITLE::" 
+				 android:icon="@drawable/icon"
+				 ::foreach PLATFORM.APPLICATION_PARAMETERS::
+				 android:::NAME::="::VALUE::"::end::
+				 >
 		
 		<activity android:name="MainActivity" 
 				  android:label="::APP.TITLE::" 

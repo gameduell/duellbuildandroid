@@ -28,11 +28,12 @@ typedef PlatformConfigurationData = {
 	MINIMUM_SDK_VERSION : Int,
 	DEBUG : Bool,
 	ACTIVITY_PARAMETERS : KeyValueArray,
+	APPLICATION_PARAMETERS : KeyValueArray,
 	INSTALL_LOCATION : String,
-	KEY_STORE : String, ///optional
-	KEY_STORE_ALIAS : String, ///optional
-	KEY_STORE_PASSWORD : String, ///optional
-	KEY_STORE_ALIAS_PASSWORD : String, ///optional
+	KEY_STORE : String, ///unused for now
+	KEY_STORE_ALIAS : String, ///unused for now
+	KEY_STORE_PASSWORD : String, ///unused for now
+	KEY_STORE_ALIAS_PASSWORD : String, ///unused for now
 
 	/// THESE ARE PURE XML STRINGS THAT ARE EMBEDDED IN THE MANIFEST
 	MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : Array<String>,
@@ -42,64 +43,58 @@ typedef PlatformConfigurationData = {
 
 class PlatformConfiguration
 {
-	public static var _configuration : PlatformConfigurationData = null;
-	private static var _parsingDefines : Array<String> = ["android", "cpp"];
+	private static var _configuration : PlatformConfigurationData = null;
 	public static function getData() : PlatformConfigurationData
 	{
 		if (_configuration == null)
-			initConfig();
+			_configuration = getDefaultConfig();
 		return _configuration;
 	}
 
 	public static function getConfigParsingDefines() : Array<String>
 	{
-		return _parsingDefines;
+		return ["android", "cpp"];
 	}
 
-	public static function addParsingDefine(str : String)
+	private static function getDefaultConfig() : PlatformConfigurationData
 	{
-		_parsingDefines.push(str);
-	}
+		return  {
+					PLATFORM_NAME : "android",
+					ICON_PATH : "Icon/android",
+					ARCHS : ["armv7"],
+					HXCPP_COMPILATION_ARGS : [],
+					ACTIVITY_EXTENSIONS : [],
+					JAVA_LIBS : [],
+					JARS : [],
+					JAVA_SOURCES : [{ NAME : "HXCPP", 
+									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
+									  }],
+					FULLSCREEN : true,
+					TARGET_SDK_VERSION : 19,
+					INSTALL_LOCATION : "auto",
+					SUPPORTS_SCREENS : [
+									{NAME : "smallScreens", VALUE : "true"},
+									{NAME : "normalScreens", VALUE : "true"},
+									{NAME : "largeScreens", VALUE : "true"},
+									{NAME : "xlargeScreens", VALUE : "true"},
+									],
+					USES : [],
+					PERMISSIONS : [],
+					MINIMUM_SDK_VERSION : 14,
+					DEBUG : false,
+					ACTIVITY_PARAMETERS : [
+									{NAME : "launchMode", VALUE : "singleTask"},
+									{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
+													],
+					APPLICATION_PARAMETERS : [],
+					KEY_STORE : null, ///unused for now
+					KEY_STORE_ALIAS : null, ///unused for now
+					KEY_STORE_PASSWORD : null, ///unused for now
+					KEY_STORE_ALIAS_PASSWORD : null, ///unused for now
 
-	private static function initConfig()
-	{
-		_configuration = 
-		{
-			PLATFORM_NAME : "android",
-			ICON_PATH : "Icon/android",
-			ARCHS : ["armv7"],
-			HXCPP_COMPILATION_ARGS : [],
-			ACTIVITY_EXTENSIONS : [],
-			JAVA_LIBS : [],
-			JARS : [],
-			JAVA_SOURCES : [{ NAME : "HXCPP", 
-							  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
-							  }],
-			FULLSCREEN : true,
-			TARGET_SDK_VERSION : 19,
-			INSTALL_LOCATION : "auto",
-			SUPPORTS_SCREENS : [
-							{NAME : "smallScreens", VALUE : "true"},
-							{NAME : "normalScreens", VALUE : "true"},
-							{NAME : "largeScreens", VALUE : "true"},
-							{NAME : "xlargeScreens", VALUE : "true"},
-							],
-			USES : [],
-			PERMISSIONS : [],
-			MINIMUM_SDK_VERSION : 14,
-			DEBUG : false,
-			ACTIVITY_PARAMETERS : [
-							{NAME : "launchMode", VALUE : "singleTask"},
-							{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
-											],
-			KEY_STORE : null, ///optional
-			KEY_STORE_ALIAS : null, ///optional
-			KEY_STORE_PASSWORD : null, ///optional
-			KEY_STORE_ALIAS_PASSWORD : null, ///optional
-
-			MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
-			MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
-			MANIFEST_APPLICATION_SECTIONS : [],
-		};
+					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
+					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
+					MANIFEST_APPLICATION_SECTIONS : [],
+				};
 	}
 }

@@ -32,7 +32,6 @@ class PlatformBuild
 	var projectDirectory : String;
 	var duellBuildAndroidPath : String;
 	var isDebug : Bool = false;
-	var isSimulator : Bool = false;
 	var isBuildNDLL : Bool = true;
 	var isFullLogcat : Bool = false;
 	var isSignedRelease : Bool = false;
@@ -53,6 +52,7 @@ class PlatformBuild
 	{
 		var hxcppConfig = HXCPPConfigXML.getConfig(HXCPPConfigXMLHelper.getProbableHXCPPConfigLocation());
 		var defines : Map<String, String> = hxcppConfig.getDefines();
+
 		if (!defines.exists("ANDROID_SDK"))
 			throw "ANDROID_SDK not set in hxcpp config, did you run duell setup android correctly?";
 
@@ -75,17 +75,13 @@ class PlatformBuild
 			{
 				isDebug = true;
 			}
-			else if (arg == "-simulator")
-			{
-				isSimulator = true;
-			}
 			else if (arg == "-nondllbuild")
 			{
 				isBuildNDLL = false;
 			}
 			else if (arg == "-fulllogcat")
 			{
-				isFullLogcat = false;
+				isFullLogcat = true;
 			}
 			else if (arg == "-signedrelease")
 			{
@@ -95,16 +91,11 @@ class PlatformBuild
 
 		if (isDebug)
 		{
-			PlatformConfiguration.addParsingDefine("debug");
+			Configuration.addParsingDefine("debug");
 		}
 		else
 		{
-			PlatformConfiguration.addParsingDefine("release");
-		}
-
-		if (isSimulator)
-		{
-			PlatformConfiguration.addParsingDefine("simulator");
+			Configuration.addParsingDefine("release");
 		}
 	}
 
@@ -112,21 +103,25 @@ class PlatformBuild
     {
 		var projectXML = DuellProjectXML.getConfig();
 		projectXML.parse();
-
-		trace(haxe.format.JsonPrinter.print(Configuration.getData()));
     }
+
+	/// =========
+	/// PREPARE BUILD
+	/// =========
 
     public function prepareBuild()
     {		
+    	if (PlatformConfiguration.getData().ARCHS.indexOf("x86") != -1)
+    		throw "x86 is not currently supported, its implemented, but currently not functioning well";
+
     	/// Set variables
-		targetDirectory = Configuration.getData().OUTPUT + "/" + "android";
-		projectDirectory = targetDirectory + "/bin/";
+		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
+		projectDirectory = Path.join([targetDirectory, "bin"]);
 		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
 
 		/// Additional Configuration
-
-		convertDuellAndHaxelibsIntoHaxeCompilationFlags();
 		addHXCPPLibs();
+		convertDuellAndHaxelibsIntoHaxeCompilationFlags();
 		convertParsingDefinesToCompilationDefines();
 
 		prepareAndroidBuild();		
@@ -242,9 +237,9 @@ class PlatformBuild
 		{
 			var arch = ["armv6", "armv7", "x86"][archID];
 
-			var argsForBuild = [["-Dandroid", "-Dandroid-9"],
-								["-Dandroid", "-Dandroid-9", "-DHXCPP_ARMV7"],
-								["-Dandroid", "-Dandroid-9", "-DHXCPP_X86"]][archID];
+			var argsForBuild = [["-Dandroid"],
+								["-Dandroid", "-DHXCPP_ARMV7"],
+								["-Dandroid", "-DHXCPP_X86"]][archID];
 
 			if (isDebug)
 			{
@@ -369,21 +364,14 @@ class PlatformBuild
 		}
 	}
 
+	/// =========
+	/// BUILD
+	/// =========
 
 	public function build()
 	{
 		buildHaxe();
-		
-		var ant = Path.join([antPath, "bin", "ant"]);
-		
-		var build = "debug";
-		
-		if (isSignedRelease) /// not yet done
-		{
-			build = "release";
-		}
-		
-		ProcessHelper.runCommand(projectDirectory, ant, [build]);
+		runAnt();
 	}
 
 	private function buildHaxe()
@@ -394,13 +382,13 @@ class PlatformBuild
 		{
 			var arch = ["armv6", "armv7", "x86"][archID];
 
-			var argsForBuildCpp = [["-Dandroid", "-Dandroid-9"],
-								   ["-Dandroid", "-Dandroid-9", "-DHXCPP_ARMV7"],
-								   ["-Dandroid", "-Dandroid-9", "-DHXCPP_X86"]][archID];
+			var argsForBuildCpp = [["-Dandroid"],
+								   ["-Dandroid", "-DHXCPP_ARMV7"],
+								   ["-Dandroid", "-DHXCPP_X86"]][archID];
 
-            var argsForBuildHaxe = [["-D", "android", "-D", "android-9", "-cpp", "build"],
-            						["-D", "android", "-D", "android-9", "-cpp", "build", "-D", "HXCPP_ARMV7"],
-            						["-D", "android", "-D", "android-9", "-cpp", "build", "-D", "HXCPP_X86"],
+            var argsForBuildHaxe = [["-D", "android", "-cpp", "build"],
+            						["-D", "android", "-cpp", "build", "-D", "HXCPP_ARMV7"],
+            						["-D", "android", "-cpp", "build", "-D", "HXCPP_X86"],
             						][archID];
 
 			if (isDebug)
@@ -426,7 +414,6 @@ class PlatformBuild
 			
 			PathHelper.mkdir(destFolderArch);
 
-
 			ProcessHelper.runCommand(Path.join([targetDirectory, "haxe"]), "haxe", ["Build.hxml"].concat(argsForBuildHaxe));
 
     		var result = duell.helpers.ProcessHelper.runCommand(Path.join([targetDirectory, "haxe", "build"]), "haxelib", ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp));
@@ -434,13 +421,30 @@ class PlatformBuild
 			if (result != 0)
 				throw "Problem building haxe library";
 			
-			var releaseLib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
-			var releaseDest = Path.join([destFolderArch, "libHaxeApplication.so"]);
+			var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
+			var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
 
-			FileHelper.copyIfNewer(releaseLib, releaseDest);
+			FileHelper.copyIfNewer(lib, dest);
 		}
 	}
 
+	private function runAnt()
+	{
+		var ant = Path.join([antPath, "bin", "ant"]);
+		
+		var build = "debug";
+		
+		if (isSignedRelease) /// not yet done
+		{
+			build = "release";
+		}
+		
+		ProcessHelper.runCommand(projectDirectory, ant, [build]);
+	}
+
+	/// =========
+	/// RUN
+	/// =========
 	public function run()
 	{
 		install();
@@ -492,7 +496,7 @@ class PlatformBuild
 		}
 		else 
 		{
-			ProcessHelper.runCommand(adbPath, "adb", args.concat ([ "*:S trace:I" ]));
+			ProcessHelper.runCommand(adbPath, "adb", args.concat (["*:S trace:I"]));
 		}
 	}
 }
