@@ -295,16 +295,24 @@ class PlatformBuild
 		var debugDest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + "-debug" + ".so"]);
 		
 		/// Release doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
-		if (!FileSystem.exists(releaseLib)) 
+		if (!isDebug && !FileSystem.exists(releaseLib))
 		{
 			releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + ".so"]);
+		}
+		
+		/// Debug doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
+		if (isDebug && !FileSystem.exists(debugLib)) 
+		{
 			debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + "-debug" + ".so"]);
 		}
 
 		/// Copy!
-		FileHelper.copyIfNewer(releaseLib, releaseDest);
+		if (!isDebug)
+		{
+			FileHelper.copyIfNewer(releaseLib, releaseDest);
+		}
 		
-		if (FileSystem.exists(debugLib) && debugLib != releaseLib) 
+		if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib) 
 		{
 			FileHelper.copyIfNewer (debugLib, debugDest);
 		} 
@@ -314,6 +322,7 @@ class PlatformBuild
 			FileSystem.deleteFile(debugDest);
 		}
 	}
+
 
 	private function handleJars() : Void
 	{
