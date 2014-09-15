@@ -291,8 +291,7 @@ class PlatformBuild
 			debugLib = releaseLib;
 		}
 
-		var releaseDest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + ".so"]);
-		var debugDest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + "-debug" + ".so"]);
+		var dest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + ".so"]);
 		
 		/// Release doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
 		if (!isDebug && !FileSystem.exists(releaseLib))
@@ -309,17 +308,12 @@ class PlatformBuild
 		/// Copy!
 		if (!isDebug)
 		{
-			FileHelper.copyIfNewer(releaseLib, releaseDest);
+			FileHelper.copyIfNewer(releaseLib, dest);
 		}
 		
 		if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib) 
 		{
-			FileHelper.copyIfNewer (debugLib, debugDest);
-		} 
-		else if (FileSystem.exists(debugDest)) 
-		{
-			/// If debug wasn't supposed to be there
-			FileSystem.deleteFile(debugDest);
+			FileHelper.copyIfNewer (debugLib, dest);
 		}
 	}
 
@@ -348,8 +342,7 @@ class PlatformBuild
 
 			if (FileSystem.isDirectory(javaSource.PATH))
 			{
-				/// we use the template helper for convenience, there should be a function in FileHelper to do this.
-				TemplateHelper.recursiveCopyTemplatedFiles(javaSource.PATH, Path.join([projectDirectory, "src"]), {}, null);
+				TemplateHelper.recursiveCopyTemplatedFiles(javaSource.PATH, Path.join([projectDirectory, "src"]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
 			}
 			else
 			{
@@ -368,8 +361,7 @@ class PlatformBuild
 			if (!FileSystem.exists(haxe.io.Path.join([javaLib.PATH, "project.properties"])))
 				throw "Java Lib path is missing project.properties file. " + javaLib;
 
-			/// we use the template helper for convenience, there should be a function in FileHelper to do this.
-			TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), {}, null);
+			TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
 		}
 	}
 

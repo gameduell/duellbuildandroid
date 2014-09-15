@@ -200,7 +200,6 @@ class PlatformXMLParser
 
 	private static function parseActivityExtensionElement(element : Fast)
 	{
-		throw "UNTESTED EXTENSIONS";
 		var name = null;
 		if (element.has.name)
 		{
@@ -211,7 +210,6 @@ class PlatformXMLParser
 
 	private static function parseJavaLibElement(element : Fast):Void
 	{
-		throw "UNTESTED JAVA LIBS";
 		if (element.has.path)
 		{
 			var path = resolvePath(element.att.path);
@@ -228,7 +226,6 @@ class PlatformXMLParser
 
 	private static function parseJavaSourceElement(element : Fast)
 	{
-		throw "UNTESTED JAVA SOURCES";
 		if (element.has.path)
 		{
 			var path = resolvePath(element.att.path);

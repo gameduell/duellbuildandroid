@@ -60,7 +60,7 @@ class PlatformConfiguration
 	{
 		return  {
 					PLATFORM_NAME : "android",
-					ICON_PATH : "Icon/android",
+					ICON_PATH : "Icons/android",
 					ARCHS : ["armv7"],
 					HXCPP_COMPILATION_ARGS : [],
 					ACTIVITY_EXTENSIONS : [],

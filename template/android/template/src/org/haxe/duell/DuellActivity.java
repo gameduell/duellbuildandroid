@@ -30,6 +30,9 @@ import java.lang.reflect.Constructor;
 import java.lang.Math;
 import java.lang.Runnable;
 import java.lang.ref.WeakReference;
+import java.lang.Thread;
+import java.lang.StackTraceElement;
+import java.lang.Exception;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -40,6 +43,10 @@ import org.haxe.HXCPP;
 public class DuellActivity extends Activity { 
 	
 	private static WeakReference<DuellActivity> activity = new WeakReference<DuellActivity>(null);
+
+	///post to this handler any java to haxe communication.
+	public static Handler callbackHandler;
+
 	public static DuellActivity getInstance () { 
 		return activity.get(); 
 	}
@@ -51,6 +58,8 @@ public class DuellActivity extends Activity {
 		super.onCreate (state);
 		
 		activity = new WeakReference<DuellActivity>(this);
+
+		callbackHandler = new Handler();
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
@@ -65,6 +74,7 @@ public class DuellActivity extends Activity {
 			System.loadLibrary("::NAME::");
 	   	::end::
 		HXCPP.run ("HaxeApplication");
+
 		
 		if (extensions == null) {
 			
