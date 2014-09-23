@@ -1,57 +1,35 @@
 package org.haxe.duell;
 
+import org.haxe.duell.MainHaxeThreadHandler;
 
 import android.app.Activity;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
-import dalvik.system.DexClassLoader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.Math;
-import java.lang.Runnable;
 import java.lang.ref.WeakReference;
-import java.lang.Thread;
-import java.lang.StackTraceElement;
-import java.lang.Exception;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.List;
-import org.haxe.duell.Extension;
 import org.haxe.HXCPP;
 
-public class DuellActivity extends Activity { 
-	
-	private static WeakReference<DuellActivity> activity = new WeakReference<DuellActivity>(null);
 
-	///post to this handler any java to haxe communication.
-	public static Handler callbackHandler;
+public class DuellActivity extends Activity{ 
+	
+	private static WeakReference<DuellActivity> activity;
+
+	private Handler mainJavaThreadHandler;
+
+	private MainHaxeThreadHandler mainHaxeThreadHandler; 
+
+	/// libraries that initialize a view, may choose to set this, so that other libraries can act upon this
+	public WeakReference<View> mainView;
 
 	public static DuellActivity getInstance () { 
 		return activity.get(); 
 	}
 
-	private static List<Extension> extensions;
+	private final List<Extension> extensions = new ArrayList<Extension> ();
 	
 	protected void onCreate (Bundle state) {
 		
@@ -59,30 +37,37 @@ public class DuellActivity extends Activity {
 		
 		activity = new WeakReference<DuellActivity>(this);
 
-		callbackHandler = new Handler();
+		mainView = new WeakReference<View>(null);
+
+		mainJavaThreadHandler = new Handler();
+
+		final Handler finalJavaHandler = mainJavaThreadHandler;
+
+		mainHaxeThreadHandler = new MainHaxeThreadHandler() {
+
+			@Override
+			public void queueRunnableOnMainHaxeThread(Runnable runObj)
+			{
+				finalJavaHandler.post(runObj);
+			}
+
+		};
 		
 		requestWindowFeature (Window.FEATURE_NO_TITLE);
 		
 		::if PLATFORM.FULLSCREEN::
-			::if (PLATFORM.TARGET_SDK_VERSION < 19)::
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
-					| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-			::end::
+		::if (PLATFORM.TARGET_SDK_VERSION < 19)::
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		::end::
 		::end::
 
 	   	::foreach NDLLS::
-			System.loadLibrary("::NAME::");
-	   	::end::
+		System.loadLibrary("::NAME::");::end::
 		HXCPP.run ("HaxeApplication");
 
-		
-		if (extensions == null) {
+		::foreach PLATFORM.ACTIVITY_EXTENSIONS::
+		extensions.add(new ::__current__:: ());::end::
 			
-			extensions = new ArrayList<Extension> ();
-			::foreach PLATFORM.ACTIVITY_EXTENSIONS::
-			extensions.add(new ::NAME:: ());::end::
-			
-		}
 		
 		for (Extension extension : extensions) {
 			
@@ -92,10 +77,10 @@ public class DuellActivity extends Activity {
 		
 	}
 	
-	// IMMERSIVE MODE SUPPORT
 	::if (PLATFORM.FULLSCREEN)::
 	::if (PLATFORM.TARGET_SDK_VERSION >= 19)::
 	
+	// IMMERSIVE MODE SUPPORT
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
@@ -264,7 +249,7 @@ public class DuellActivity extends Activity {
 	::end::
 	
 	
-	public static void registerExtension (Extension extension) {
+	public void registerExtension (Extension extension) {
 		
 		if (extensions.indexOf (extension) == -1) {
 			
@@ -273,6 +258,24 @@ public class DuellActivity extends Activity {
 		}
 		
 	}
+
+	/// post to this queue any java to haxe communication on the main thread.
+	/// may be set by extension to be something else, for example, the opengl library can setMainThreadHandler
+	/// to be processed in the gl thread because it is generally preferable to communicate with haxe by that.
+	/// defaults to itself
+	public void queueOnHaxeThread(Runnable run)
+	{
+		mainHaxeThreadHandler.queueRunnableOnMainHaxeThread(run);
+	}
 	
-	
+	/// if you want to force some callback to be executed on the main thread
+	public void queueOnMainThread(Runnable run)
+	{
+		mainJavaThreadHandler.post(run);
+	}
+
+	public void setMainHaxeThreadHandler(MainHaxeThreadHandler handler)
+	{
+		mainHaxeThreadHandler = handler;
+	}
 }
