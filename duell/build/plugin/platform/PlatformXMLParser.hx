@@ -164,7 +164,7 @@ class PlatformXMLParser
 
 	private static function parseUsesElement(element : Fast)
 	{		
-		var name = null;
+		var name = "name";
 		var value = null;
 		var required = null;
 
@@ -184,7 +184,7 @@ class PlatformXMLParser
 		}
 
 
-		if (element != null && value != null && required != null)
+		if (value != null && required != null)
 		{
 			PlatformConfiguration.getData().USES.push({NAME : name, VALUE : value, REQUIRED : required});
 		}
