@@ -15,6 +15,7 @@ import duell.helpers.LogHelper;
 import duell.helpers.FileHelper;
 import duell.helpers.ProcessHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
+import duell.helpers.PlatformHelper;
 import duell.objects.HXCPPConfigXML;
 
 import duell.objects.DuellLib;
@@ -454,21 +455,21 @@ class PlatformBuild
 	{
 		var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isSignedRelease ? "release" : "debug") + ".apk"])];
 		
-		ProcessHelper.runCommand(adbPath, "./adb", args);
+		ProcessHelper.runCommand(adbPath, "adb", args);
 	}
 
 	private function runActivity()
 	{
 		var args = ["shell", "am", "start", "-a", "android.intent.action.MAIN", "-n", Configuration.getData().APP.PACKAGE + "/" + Configuration.getData().APP.PACKAGE + "." + "MainActivity"];
 		
-		ProcessHelper.runCommand(adbPath, "./adb", args);
+		ProcessHelper.runCommand(adbPath, "adb", args);
 	}
 
 	private function clearLogcat()
 	{
 		var args = ["logcat"];
 		
-		ProcessHelper.runCommand(adbPath, "./adb", args.concat(["-c"]));
+		ProcessHelper.runCommand(adbPath, "adb", args.concat(["-c"]));
 	}
 
 	private function runLogcat()
@@ -477,7 +478,7 @@ class PlatformBuild
 
 		if (isFullLogcat) 
 		{
-			ProcessHelper.runCommand(adbPath, "./adb", args);
+			ProcessHelper.runCommand(adbPath, "adb", args);
 		} 
 		else if (isDebug) 
 		{
@@ -489,11 +490,11 @@ class PlatformBuild
 				filter += " " + tag + ":D";
 			}
 			
-			ProcessHelper.runCommand(adbPath, "./adb", args.concat([filter]));
+			ProcessHelper.runCommand(adbPath, "adb", args.concat([filter]));
 		}
 		else 
 		{
-			ProcessHelper.runCommand(adbPath, "./adb", args.concat (["*:S trace:I"]));
+			ProcessHelper.runCommand(adbPath, "adb", args.concat (["*:S trace:I"]));
 		}
 	}
 }
