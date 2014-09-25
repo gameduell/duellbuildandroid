@@ -155,7 +155,7 @@ class EnvironmentSetup
             return;
         }
 
-        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "./android", ["list", "sdk"]); /// numbers "taken from android list sdk --all"
+        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "android", ["list", "sdk"]); /// numbers "taken from android list sdk --all"
 
         var rawPackageList = packageListOutput.split("\n");
 
@@ -173,7 +173,7 @@ class EnvironmentSetup
         if(packageNumberList.length != 0)
         {
             LogHelper.info("Will download " + packageListWithNames.join(", "));
-            ProcessHelper.runCommand(androidSDKPath + "/tools/", "./android", ["update", "sdk", "--no-ui", "--filter", packageNumberList.join(",")]); /// numbers "taken from android list sdk --all"
+            ProcessHelper.runCommand(androidSDKPath + "/tools/", "android", ["update", "sdk", "--no-ui", "--filter", packageNumberList.join(",")]); /// numbers "taken from android list sdk --all"
         }
         else
         {
