@@ -157,6 +157,7 @@ class EnvironmentSetup
 
         var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "android", ["list", "sdk", "--all"]); /// numbers "taken from android list sdk --all"
 
+        trace(packageListOutput);
         var rawPackageList = packageListOutput.split("\n");
 
         /// filter the actual package lines, lines starting like " 1-" or " 12-"
