@@ -13,6 +13,7 @@ import duell.helpers.TemplateHelper;
 import duell.helpers.PathHelper;
 import duell.helpers.LogHelper;
 import duell.helpers.FileHelper;
+import duell.helpers.TestHelper;
 import duell.helpers.ProcessHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
 import duell.helpers.PlatformHelper;
@@ -27,11 +28,13 @@ import haxe.io.Path;
 class PlatformBuild
 {
 	public var requiredSetups = ["android"];
+	public static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
 
 	/// VARIABLES SET AFTER PARSING
 	var targetDirectory : String;
 	var projectDirectory : String;
 	var duellBuildAndroidPath : String;
+	var fullTestResultPath : String;
 	var isDebug : Bool = false;
 	var isBuildNDLL : Bool = true;
 	var isFullLogcat : Bool = false;
@@ -117,6 +120,7 @@ class PlatformBuild
 
     	/// Set variables
 		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
+		fullTestResultPath = Path.join([targetDirectory, TEST_RESULT_FILENAME]);
 		projectDirectory = Path.join([targetDirectory, "bin"]);
 		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
 
@@ -496,5 +500,12 @@ class PlatformBuild
 		{
 			ProcessHelper.runCommand(adbPath, "adb", args.concat (["*:S trace:I"]));
 		}
+	}
+
+
+	public function test()
+	{
+		neko.vm.Thread.create(run);
+		TestHelper.runListenerServer(10, 8181, fullTestResultPath);
 	}
 }
