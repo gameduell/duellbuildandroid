@@ -147,7 +147,7 @@ class EnvironmentSetup
 
     private function setupAndroidSDK()
     {
-        var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 19, Platform-tools and tools)");
+        var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 19, Platform-tools, API16 system image, and tools)");
 
         if(!install)
         {
