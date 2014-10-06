@@ -155,7 +155,7 @@ class EnvironmentSetup
             return;
         }
 
-        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "android", ["list", "sdk"]); /// numbers "taken from android list sdk --all"
+        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "android", ["list", "sdk", "--all"]); /// numbers "taken from android list sdk --all"
 
         var rawPackageList = packageListOutput.split("\n");
 
@@ -164,7 +164,7 @@ class EnvironmentSetup
         rawPackageList = rawPackageList.filter(function(str) { return r.match(str); });
 
         /// filter the packages we want
-        r = ~/(Android SDK Tools|Android SDK Platform|Android SDK Build-tools|SDK Platform Android 4.4.2, API 19|SDK Platform Android 4.1.2, API 16)/;
+        r = ~/(Android SDK Tools|Android SDK Platform|Android SDK Build-tools|SDK Platform Android 4.4.2, API 19|SDK Platform Android 4.1.2, API 16|ARM EABI v7a System Image, Android API 16, revision 3)/;
         var packageListWithNames = rawPackageList.filter(function(str) { return r.match(str); });
 
         /// retrieve only the number
