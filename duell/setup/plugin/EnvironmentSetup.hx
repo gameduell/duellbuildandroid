@@ -155,9 +155,25 @@ class EnvironmentSetup
             return;
         }
 
-        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "./android", ["list", "sdk", "--all"]); /// numbers "taken from android list sdk --all"
+        downloadPackages(~/(Android SDK Tools|Android SDK Platform|Android SDK Build-tools, revision 20|SDK Platform Android 4.4.2, API 19|SDK Platform Android 4.1.2, API 16)/);
 
-        trace(packageListOutput);
+        /// TWICE BECAUSE SYSTEM IMAGES ONLY APPEAR AFTER THE SDK IS INSTALLED
+        downloadPackages(~/(ARM EABI v7a System Image, Android API 19)/);
+
+        /// NOT SURE WHAT THIS IS FOR
+        /*
+        if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
+
+            ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
+            ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+
+        }
+        */
+    }
+
+    private function downloadPackages(regex : EReg)
+    {
+        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "./android", ["list", "sdk", "--all"]); /// numbers "taken from android list sdk --all"
         var rawPackageList = packageListOutput.split("\n");
 
         /// filter the actual package lines, lines starting like " 1-" or " 12-"
@@ -165,8 +181,7 @@ class EnvironmentSetup
         rawPackageList = rawPackageList.filter(function(str) { return r.match(str); });
 
         /// filter the packages we want
-        r = ~/(Android SDK Tools|Android SDK Platform|Android SDK Build-tools|SDK Platform Android 4.4.2, API 19|SDK Platform Android 4.1.2, API 16|ARM EABI v7a System Image, Android API 16, revision 3)/;
-        var packageListWithNames = rawPackageList.filter(function(str) { return r.match(str); });
+        var packageListWithNames = rawPackageList.filter(function(str) { return regex.match(str); });
 
         /// retrieve only the number
         var packageNumberList = packageListWithNames.map(function(str) { return str.substr(0, str.indexOf("-")).ltrim(); });
@@ -174,22 +189,12 @@ class EnvironmentSetup
         if(packageNumberList.length != 0)
         {
             LogHelper.info("Will download " + packageListWithNames.join(", "));
-            ProcessHelper.runCommand(androidSDKPath + "/tools/", "./android", ["update", "sdk", "--no-ui", "--filter", packageNumberList.join(",")]); /// numbers "taken from android list sdk --all"
+            ProcessHelper.runCommand(androidSDKPath + "/tools/", "./android", ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")]); /// numbers "taken from android list sdk --all"
         }
         else
         {
             LogHelper.println("No packages to download.");
         }
-
-        /// NOT SURE WHAT THIS IS FOR
-        /*
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
-
-			ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-			ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
-
-		}
-		*/
     }
 
     private function downloadAndroidNDK()
