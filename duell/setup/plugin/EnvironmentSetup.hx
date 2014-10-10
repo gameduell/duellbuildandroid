@@ -155,9 +155,11 @@ class EnvironmentSetup
             return;
         }
 
-        downloadPackages(~/(Android SDK Tools|Android SDK Platform|Android SDK Build-tools, revision 20|SDK Platform Android 4.4.2, API 19|SDK Platform Android 4.1.2, API 16)/);
-
-        /// TWICE BECAUSE SYSTEM IMAGES ONLY APPEAR AFTER THE SDK IS INSTALLED
+        downloadPackages(~/(Android SDK Tools)/);
+        downloadPackages(~/(Android SDK Platform)/);
+        downloadPackages(~/(Android SDK Build-tools, revision 20)/);
+        downloadPackages(~/(SDK Platform Android 4.4.2, API 19)/);
+        downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
         downloadPackages(~/(ARM EABI v7a System Image, Android API 19)/);
 
         /// NOT SURE WHAT THIS IS FOR
