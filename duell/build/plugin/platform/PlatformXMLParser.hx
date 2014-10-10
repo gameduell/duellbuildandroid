@@ -64,8 +64,8 @@ class PlatformXMLParser
 				case 'uses':
 					parseUsesElement(element);
 
-				case 'permissions':
-					parsePermissionsElement(element);
+				case 'permission':
+					parsePermissionElement(element);
 
 				case 'activity-extension':
 					parseActivityExtensionElement(element);
@@ -190,8 +190,8 @@ class PlatformXMLParser
 		}
 	}
 
-	private static function parsePermissionsElement(element : Fast)
-	{		
+	private static function parsePermissionElement(element : Fast)
+	{	
 		if (element.has.name)
 		{
 			PlatformConfiguration.getData().PERMISSIONS.push(element.att.name);

@@ -91,6 +91,10 @@ class PlatformBuild
 			{
 				isSignedRelease = true;
 			}
+			else if (arg == "-test")
+			{
+				Configuration.addParsingDefine("test");
+			}
 		}
 
 		if (isDebug)
@@ -120,7 +124,7 @@ class PlatformBuild
 
     	/// Set variables
 		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
-		fullTestResultPath = Path.join([targetDirectory, TEST_RESULT_FILENAME]);
+		fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
 		projectDirectory = Path.join([targetDirectory, "bin"]);
 		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
 
@@ -505,7 +509,20 @@ class PlatformBuild
 
 	public function test()
 	{
-		neko.vm.Thread.create(run);
-		TestHelper.runListenerServer(10, 8181, fullTestResultPath);
+		/// DELETE PREVIOUS TEST
+		if (sys.FileSystem.exists(fullTestResultPath))
+		{
+			sys.FileSystem.deleteFile(fullTestResultPath);
+		}
+
+		/// CREATE TARGET FOLDER
+		PathHelper.mkdir(Path.directory(fullTestResultPath));
+
+		/// RUN THE APP
+		install();
+		runActivity();
+		
+		/// RUN THE LISTENER
+		TestHelper.runListenerServer(60, 8181, fullTestResultPath);
 	}
 }
