@@ -21,6 +21,7 @@ import duell.objects.HXCPPConfigXML;
 
 import duell.objects.DuellLib;
 import duell.objects.Haxelib;
+import duell.objects.DuellProcess;
 
 import sys.FileSystem;
 import haxe.io.Path;
@@ -462,48 +463,92 @@ class PlatformBuild
 	private function install()
 	{
 		var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isSignedRelease ? "release" : "debug") + ".apk"])];
-		
-		ProcessHelper.runCommand(adbPath, "adb", args);
+
+		var adbProcess = new DuellProcess(
+										adbPath,
+										"adb", 
+										args, 
+										{
+											systemCommand : false, 
+											timeout : 0, 
+											loggingPrefix : "",
+											logOnlyIfVerbose : false
+										});
+		adbProcess.blockUntilFinished();
 	}
 
 	private function runActivity()
 	{
 		var args = ["shell", "am", "start", "-a", "android.intent.action.MAIN", "-n", Configuration.getData().APP.PACKAGE + "/" + Configuration.getData().APP.PACKAGE + "." + "MainActivity"];
 		
-		ProcessHelper.runCommand(adbPath, "adb", args);
+		var adbProcess = new DuellProcess(
+										adbPath,
+										"adb", 
+										args, 
+										{
+											systemCommand : false, 
+											timeout : 0, 
+											loggingPrefix : "",
+											logOnlyIfVerbose : false
+										});
+		adbProcess.blockUntilFinished();
 	}
 
 	private function clearLogcat()
 	{
 		var args = ["logcat"];
-		
-		ProcessHelper.runCommand(adbPath, "adb", args.concat(["-c"]));
+
+		var adbProcess = new DuellProcess(
+										adbPath,
+										"adb", 
+										args.concat(["-c"]), 
+										{
+											systemCommand : false, 
+											timeout : 0, 
+											loggingPrefix : "",
+											logOnlyIfVerbose : false
+										});
+		adbProcess.blockUntilFinished();
 	}
 
 	private function runLogcat()
 	{
 		var args = ["logcat"];
 
-		if (isFullLogcat) 
+
+		if (!isFullLogcat) 
 		{
-			ProcessHelper.runCommand(adbPath, "adb", args);
-		} 
-		else if (isDebug) 
-		{
-			var filter = "*:E";
-			var includeTags = ["duell", "Main", "DuellActivity", "GLThread", "trace"];
-			
-			for (tag in includeTags) 
+			if (isDebug) 
 			{
-				filter += " " + tag + ":D";
+				var filter = "*:E";
+				var includeTags = ["duell", "Main", "DuellActivity", "GLThread", "trace"];
+				
+				for (tag in includeTags) 
+				{
+					filter += " " + tag + ":D";
+				}
+				args = args.concat([filter]);
 			}
-			
-			ProcessHelper.runCommand(adbPath, "adb", args.concat([filter]));
+			else 
+			{
+				args = args.concat (["*:S trace:I"]);
+			}
 		}
-		else 
-		{
-			ProcessHelper.runCommand(adbPath, "adb", args.concat (["*:S trace:I"]));
-		}
+
+
+		var adbProcess = new DuellProcess(
+										adbPath,
+										"adb", 
+										args, 
+										{
+											systemCommand : false, 
+											timeout : 0, 
+											loggingPrefix : "",
+											logOnlyIfVerbose : false
+										});
+
+
+		adbProcess.blockUntilFinished();
 	}
 
 
