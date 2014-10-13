@@ -565,7 +565,7 @@ class PlatformBuild
 
 		/// RUN THE APP
 		install();
-		neko.vm.Thread.create(function(){Sys.sleep(5); runActivity;);
+		neko.vm.Thread.create(function(){Sys.sleep(5); runActivity;});
 		
 		/// RUN THE LISTENER
 		TestHelper.runListenerServer(60, 8181, fullTestResultPath);
