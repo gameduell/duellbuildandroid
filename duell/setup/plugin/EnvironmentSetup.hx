@@ -155,8 +155,8 @@ class EnvironmentSetup
             return;
         }
 
-        downloadPackages(~/(Android SDK Tools)/);
         downloadPackages(~/(Android SDK Platform)/);
+        downloadPackages(~/(Android SDK Tools)/);
         downloadPackages(~/(Android SDK Build-tools, revision 20)/);
         downloadPackages(~/(SDK Platform Android 4.4.2, API 19)/);
         downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
