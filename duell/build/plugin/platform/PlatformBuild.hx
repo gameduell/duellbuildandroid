@@ -470,7 +470,7 @@ class PlatformBuild
 										args, 
 										{
 											systemCommand : false, 
-											timeout : 0, 
+											timeout : 60, 
 											loggingPrefix : "",
 											logOnlyIfVerbose : false
 										});
@@ -487,7 +487,7 @@ class PlatformBuild
 										args, 
 										{
 											systemCommand : false, 
-											timeout : 0, 
+											timeout : 60, 
 											loggingPrefix : "",
 											logOnlyIfVerbose : false
 										});
