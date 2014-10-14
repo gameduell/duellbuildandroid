@@ -469,9 +469,7 @@ class PlatformBuild
 										"adb", 
 										args, 
 										{
-											systemCommand : false, 
 											timeout : 60, 
-											loggingPrefix : "",
 											logOnlyIfVerbose : false
 										});
 		adbProcess.blockUntilFinished();
@@ -486,9 +484,7 @@ class PlatformBuild
 										"adb", 
 										args, 
 										{
-											systemCommand : false, 
 											timeout : 60, 
-											loggingPrefix : "",
 											logOnlyIfVerbose : false
 										});
 		adbProcess.blockUntilFinished();
@@ -503,9 +499,6 @@ class PlatformBuild
 										"adb", 
 										args.concat(["-c"]), 
 										{
-											systemCommand : false, 
-											timeout : 0, 
-											loggingPrefix : "",
 											logOnlyIfVerbose : false
 										});
 		adbProcess.blockUntilFinished();
@@ -541,9 +534,6 @@ class PlatformBuild
 										"adb", 
 										args, 
 										{
-											systemCommand : false, 
-											timeout : 0, 
-											loggingPrefix : "",
 											logOnlyIfVerbose : false
 										});
 
