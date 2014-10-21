@@ -30,6 +30,7 @@ class PlatformBuild
 {
 	public var requiredSetups = ["android"];
 	public static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
+	private static inline var DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP = 1;
 
 	/// VARIABLES SET AFTER PARSING
 	var targetDirectory : String;
@@ -470,9 +471,11 @@ class PlatformBuild
 										args, 
 										{
 											timeout : 60, 
-											logOnlyIfVerbose : false
+											logOnlyIfVerbose : false,
+											shutdownOnError : true,
+											block : true,
+											processDocumentingName : "Installing on Device"
 										});
-		adbProcess.blockUntilFinished();
 	}
 
 	private function runActivity()
@@ -485,9 +488,11 @@ class PlatformBuild
 										args, 
 										{
 											timeout : 60, 
-											logOnlyIfVerbose : false
+											logOnlyIfVerbose : false,
+											shutdownOnError : true,
+											block : true,
+											processDocumentingName : "Running Activity"
 										});
-		adbProcess.blockUntilFinished();
 	}
 
 	private function clearLogcat()
@@ -499,9 +504,11 @@ class PlatformBuild
 										"adb", 
 										args.concat(["-c"]), 
 										{
-											logOnlyIfVerbose : false
+											logOnlyIfVerbose : false,
+											shutdownOnError : true,
+											block : true,
+											processDocumentingName : "Logcat"
 										});
-		adbProcess.blockUntilFinished();
 	}
 
 	private function runLogcat()
@@ -534,11 +541,10 @@ class PlatformBuild
 										"adb", 
 										args, 
 										{
-											logOnlyIfVerbose : false
+											logOnlyIfVerbose : false,
+											block : true,
+											processDocumentingName : "Logcat"
 										});
-
-
-		adbProcess.blockUntilFinished();
 	}
 
 
@@ -555,7 +561,12 @@ class PlatformBuild
 
 		/// RUN THE APP
 		install();
-		neko.vm.Thread.create(function(){Sys.sleep(5); runActivity();});
+		neko.vm.Thread.create(function()
+			{
+				Sys.sleep(DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP); 
+				runActivity();
+			}
+		);
 		
 		/// RUN THE LISTENER
 		TestHelper.runListenerServer(60, 8181, fullTestResultPath);
