@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin>
+	<documentation>
+    Use this plugin to setup the android platform. It downloads the SDK, NDK and ant. It also installs the necessary android packages for basic usage.
+	</documentation>
+	<configuration>
+	</configuration>
+</plugin>
+
+
