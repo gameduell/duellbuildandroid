@@ -22,6 +22,7 @@ import duell.objects.HXCPPConfigXML;
 import duell.objects.DuellLib;
 import duell.objects.Haxelib;
 import duell.objects.DuellProcess;
+import duell.objects.Arguments;
 
 import sys.FileSystem;
 import haxe.io.Path;
@@ -75,28 +76,24 @@ class PlatformBuild
 
 	private function checkArguments()
 	{	
-		for (arg in Sys.args())
+		if (Arguments.isSet("-debug"))
 		{
-			if (arg == "-debug")
-			{
-				isDebug = true;
-			}
-			else if (arg == "-nondllbuild")
-			{
-				isBuildNDLL = false;
-			}
-			else if (arg == "-fulllogcat")
-			{
-				isFullLogcat = true;
-			}
-			else if (arg == "-signedrelease")
-			{
-				isSignedRelease = true;
-			}
-			else if (arg == "-test")
-			{
-				Configuration.addParsingDefine("test");
-			}
+			isDebug = true;
+		}
+
+		if (Arguments.isSet("-fulllogcat"))
+		{
+			isFullLogcat = true;
+		}
+		
+		if (Arguments.isSet("-signedrelease"))
+		{
+			isSignedRelease = true;
+		}
+		
+		if (Arguments.isSet("-test"))
+		{
+			Configuration.addParsingDefine("test");
 		}
 
 		if (isDebug)
@@ -124,11 +121,7 @@ class PlatformBuild
     	if (PlatformConfiguration.getData().ARCHS.indexOf("x86") != -1)
     		throw "x86 is not currently supported, its implemented, but currently not functioning well";
 
-    	/// Set variables
-		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
-		fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
-		projectDirectory = Path.join([targetDirectory, "bin"]);
-		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
+    	prepareVariables();
 
 		/// Additional Configuration
 		addHXCPPLibs();
@@ -136,6 +129,15 @@ class PlatformBuild
 		convertParsingDefinesToCompilationDefines();
 
 		prepareAndroidBuild();		
+    }
+
+    private function prepareVariables()
+    {
+    	/// Set variables
+		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
+		fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
+		projectDirectory = Path.join([targetDirectory, "bin"]);
+		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
     }
 
 	private function addHXCPPLibs()
@@ -547,7 +549,9 @@ class PlatformBuild
 										});
 	}
 
-
+	/// =========
+	/// TEST
+	/// =========
 	public function test()
 	{
 		/// DELETE PREVIOUS TEST
@@ -570,5 +574,24 @@ class PlatformBuild
 		
 		/// RUN THE LISTENER
 		TestHelper.runListenerServer(60, 8181, fullTestResultPath);
+	}
+
+	/// =========
+	/// PUBLISH
+	/// =========
+	public function publish()
+	{
+		throw "Publish is not yet implemented";
+	}
+
+	/// =========
+	/// FAST
+	/// =========
+	public function fast()
+	{
+		parse();
+		prepareVariables();
+		build();
+		run();
 	}
 }
