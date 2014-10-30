@@ -592,6 +592,10 @@ class PlatformBuild
 		parse();
 		prepareVariables();
 		build();
-		run();
+
+		if (Arguments.isSet("-test"))
+			test()
+		else
+			run();
 	}
 }
