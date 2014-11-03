@@ -30,6 +30,7 @@ import haxe.io.Path;
 class PlatformBuild
 {
 	public var requiredSetups = ["android"];
+	public var supportedHostPlatforms = [LINUX, WINDOWS, MAC];
 	public static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
 	private static inline var DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP = 1;
 
