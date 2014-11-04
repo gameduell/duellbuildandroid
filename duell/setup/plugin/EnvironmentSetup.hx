@@ -54,6 +54,10 @@ class EnvironmentSetup
             LogHelper.info("------\x1b[0m");
             LogHelper.info("");
 
+            setupJDKInstallation();
+
+            LogHelper.println("");
+
             downloadAndroidSDK();
 
             LogHelper.println("");
@@ -67,10 +71,6 @@ class EnvironmentSetup
             LogHelper.println("");
 
             downloadApacheAnt();
-
-            LogHelper.println("");
-
-            setupJDKInstallation();
 
             LogHelper.println("");
 
