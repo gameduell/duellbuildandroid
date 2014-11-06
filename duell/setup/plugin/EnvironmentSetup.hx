@@ -7,11 +7,12 @@ import duell.helpers.ExtractionHelper;
 import duell.helpers.PathHelper;
 import duell.helpers.LogHelper;
 import duell.helpers.StringHelper;
-import duell.helpers.ProcessHelper;
+import duell.helpers.CommandHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
 import duell.helpers.DuellConfigHelper;
 
 import duell.objects.HXCPPConfigXML;
+import duell.objects.DuellProcess;
 
 import haxe.io.Path;
 import sys.FileSystem;
@@ -140,7 +141,7 @@ class EnvironmentSetup
             /// set appropriate permissions
             if(PlatformHelper.hostPlatform != Platform.WINDOWS)
             {
-                ProcessHelper.runCommand("", "chmod", ["-R", "777", androidSDKPath], false);
+                CommandHelper.runCommand("", "chmod", ["-R", "777", androidSDKPath], {errorMessage: "setting permissions on the android sdk"});
             }
         }
     }
@@ -166,8 +167,8 @@ class EnvironmentSetup
         /*
         if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 
-            ProcessHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-            ProcessHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+            CommandHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
+            CommandHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
 
         }
         */
@@ -175,7 +176,8 @@ class EnvironmentSetup
 
     private function downloadPackages(regex : EReg)
     {
-        var packageListOutput = ProcessHelper.runProcess(androidSDKPath + "/tools/", "./android", ["list", "sdk", "--all"]); /// numbers "taken from android list sdk --all"
+        /// numbers "taken from android list sdk --all"
+        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", "android", ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download"}).getCompleteStdout().toString(); 
         var rawPackageList = packageListOutput.split("\n");
 
         /// filter the actual package lines, lines starting like " 1-" or " 12-"
@@ -191,7 +193,9 @@ class EnvironmentSetup
         if(packageNumberList.length != 0)
         {
             LogHelper.info("Will download " + packageListWithNames.join(", "));
-            ProcessHelper.runCommand(androidSDKPath + "/tools/", "./android", ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")]); /// numbers "taken from android list sdk --all"
+
+            /// numbers "taken from android list sdk --all"
+            CommandHelper.runCommand(androidSDKPath + "/tools/", "./android", ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages"}); 
         }
         else
         {
@@ -310,7 +314,7 @@ class EnvironmentSetup
 
                 if (secondAnswer)
                 {
-                    ProcessHelper.openURL(javaJDKURL);
+                    CommandHelper.openURL(javaJDKURL);
                 }
             }
 
