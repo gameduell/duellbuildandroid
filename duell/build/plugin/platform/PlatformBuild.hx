@@ -14,7 +14,7 @@ import duell.helpers.PathHelper;
 import duell.helpers.LogHelper;
 import duell.helpers.FileHelper;
 import duell.helpers.TestHelper;
-import duell.helpers.ProcessHelper;
+import duell.helpers.CommandHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
 import duell.helpers.PlatformHelper;
 import duell.objects.HXCPPConfigXML;
@@ -277,7 +277,7 @@ class PlatformBuild
 			{
 				if (isBuildNDLL)
 				{
-	        		var result = duell.helpers.ProcessHelper.runCommand(Path.directory(ndll.BUILD_FILE_PATH), "haxelib", ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH)].concat(argsForBuild));
+	        		var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH)].concat(argsForBuild), {errorMessage: "building ndll"});
 
 					if (result != 0)
 						LogHelper.error("Problem building ndll " + ndll.NAME);
@@ -425,12 +425,9 @@ class PlatformBuild
 			
 			PathHelper.mkdir(destFolderArch);
 
-			ProcessHelper.runCommand(Path.join([targetDirectory, "haxe"]), "haxe", ["Build.hxml"].concat(argsForBuildHaxe));
+			CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ["Build.hxml"].concat(argsForBuildHaxe), {errorMessage: "compiling the haxe code into c++"});
 
-    		var result = duell.helpers.ProcessHelper.runCommand(Path.join([targetDirectory, "haxe", "build"]), "haxelib", ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp));
-
-			if (result != 0)
-				throw "Problem building haxe library";
+    		CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
 			
 			var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
 			var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
@@ -450,7 +447,7 @@ class PlatformBuild
 			build = "release";
 		}
 		
-		ProcessHelper.runCommand(projectDirectory, ant, [build]);
+		CommandHelper.runCommand(projectDirectory, ant, [build], {errorMessage: "compiling the .apk"});
 	}
 
 	/// =========
@@ -477,7 +474,7 @@ class PlatformBuild
 											logOnlyIfVerbose : false,
 											shutdownOnError : true,
 											block : true,
-											processDocumentingName : "Installing on Device"
+											errorMessage : "installing on device"
 										});
 	}
 
@@ -494,7 +491,7 @@ class PlatformBuild
 											logOnlyIfVerbose : false,
 											shutdownOnError : true,
 											block : true,
-											processDocumentingName : "Running Activity"
+											errorMessage : "running the app on the device"
 										});
 	}
 
@@ -510,7 +507,7 @@ class PlatformBuild
 											logOnlyIfVerbose : false,
 											shutdownOnError : true,
 											block : true,
-											processDocumentingName : "Logcat"
+											errorMessage : "clearing logcat"
 										});
 	}
 
@@ -546,7 +543,7 @@ class PlatformBuild
 										{
 											logOnlyIfVerbose : false,
 											block : true,
-											processDocumentingName : "Logcat"
+											errorMessage : "running logcat"
 										});
 	}
 
