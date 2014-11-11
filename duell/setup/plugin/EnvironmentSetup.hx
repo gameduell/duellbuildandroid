@@ -148,36 +148,55 @@ class EnvironmentSetup
 
     private function setupAndroidSDK()
     {
-        var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 19, Platform-tools, API16 system image, and tools)");
-
-        if(!install)
+        if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
-            LogHelper.println ("Please then make sure Android API 16 and SDK Platform-tools are installed");
-            return;
+            LogHelper.info("Please run SDK Manager inside the android SDK and install API16 and 19, Platform-tools, API16 system image, and tools.");
+            var install = AskHelper.askYesOrNo("Are these packages installed?");
+
+            if(!install)
+            {
+                LogHelper.println ("Please then make sure Android API 16 and SDK Platform-tools are installed");
+                return;
+            }
         }
+        else
+        {
+            var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 19, Platform-tools, API16 system image, and tools)");
 
-        downloadPackages(~/(Android SDK Platform)/);
-        downloadPackages(~/(Android SDK Tools)/);
-        downloadPackages(~/(Android SDK Build-tools, revision 20)/);
-        downloadPackages(~/(SDK Platform Android 4.4.2, API 19)/);
-        downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
-        downloadPackages(~/(ARM EABI v7a System Image, Android API 19)/);
+            if(!install)
+            {
+                LogHelper.println ("Please then make sure Android API 16 and SDK Platform-tools are installed");
+                return;
+            }
 
-        /// NOT SURE WHAT THIS IS FOR
-        /*
-        if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
+            downloadPackages(~/(Android SDK Platform)/);
+            downloadPackages(~/(Android SDK Tools)/);
+            downloadPackages(~/(Android SDK Build-tools, revision 20)/);
+            downloadPackages(~/(SDK Platform Android 4.4.2, API 19)/);
+            downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
+            downloadPackages(~/(ARM EABI v7a System Image, Android API 19)/);
 
-            CommandHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-            CommandHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+            /// NOT SURE WHAT THIS IS FOR
+            /*
+            if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
 
+                CommandHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
+                CommandHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
+
+            }
+            */
         }
-        */
     }
 
     private function downloadPackages(regex : EReg)
     {
+        var androidExec = "android";
+        if (PlatformHelper.hostPlatform == Platform.WINDOWS)
+        {
+            androidExec = "android.bat";
+        }
         /// numbers "taken from android list sdk --all"
-        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", "android", ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download", systemCommand:false}).getCompleteStdout().toString(); 
+        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", androidExec, ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download", systemCommand:false}).getCompleteStdout().toString(); 
         var rawPackageList = packageListOutput.split("\n");
 
         /// filter the actual package lines, lines starting like " 1-" or " 12-"
@@ -195,7 +214,7 @@ class EnvironmentSetup
             LogHelper.info("Will download " + packageListWithNames.join(", "));
 
             /// numbers "taken from android list sdk --all"
-            CommandHelper.runCommand(androidSDKPath + "/tools/", "./android", ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages"}); 
+            CommandHelper.runCommand(androidSDKPath + "/tools/", androidExec, ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages"}); 
         }
         else
         {
@@ -299,35 +318,14 @@ class EnvironmentSetup
 
     private function setupJDKInstallation()
     {
-        if (PlatformHelper.hostPlatform != Platform.MAC)
+        var javaHome = Sys.getEnv("JAVA_HOME");
+
+        if (javaHome == null || javaHome == "")
         {
-            var defaultInstallPath;
-
-            defaultInstallPath = haxe.io.Path.join([DuellConfigHelper.getDuellConfigFolderLocation(), "SDKs", "jdk"]);
-
-            var answer = AskHelper.askYesOrNo("Download and install the Java JDK");
-
-            if (answer)
-            {
-                LogHelper.println ("You must visit the Oracle website to download the Java 6 JDK for your platform");
-                var secondAnswer = AskHelper.askYesOrNo("Would you like to go there now?");
-
-                if (secondAnswer)
-                {
-                    CommandHelper.openURL(javaJDKURL);
-                }
-            }
-
-            javaJDKPath = AskHelper.askString("Java JDK Location", defaultInstallPath);
-
-            /// clean up a bit
-            javaJDKPath = javaJDKPath.trim();
-
-            if(javaJDKPath == "")
-                javaJDKPath = defaultInstallPath;
-
-            javaJDKPath = resolvePath(javaJDKPath);
+            LogHelper.error("Java is not installed or the JAVA_HOME environment variable is not set. Please install java and set the JAVA_HOME variable.");
         }
+
+        javaJDKPath = javaHome;
     }
 
     private function setupHXCPP()
