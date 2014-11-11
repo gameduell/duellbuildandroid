@@ -214,7 +214,7 @@ class EnvironmentSetup
             LogHelper.info("Will download " + packageListWithNames.join(", "));
 
             /// numbers "taken from android list sdk --all"
-            CommandHelper.runCommand(androidSDKPath + "/tools/", androidExec, ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages"}); 
+            CommandHelper.runCommand(androidSDKPath + "/tools/", androidExec, ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages", systemCommand:false}); 
         }
         else
         {
