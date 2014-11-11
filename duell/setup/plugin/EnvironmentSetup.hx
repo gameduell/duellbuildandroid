@@ -177,7 +177,7 @@ class EnvironmentSetup
     private function downloadPackages(regex : EReg)
     {
         /// numbers "taken from android list sdk --all"
-        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", "android", ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download"}).getCompleteStdout().toString(); 
+        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", "android", ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download", systemCommand:false}).getCompleteStdout().toString(); 
         var rawPackageList = packageListOutput.split("\n");
 
         /// filter the actual package lines, lines starting like " 1-" or " 12-"
