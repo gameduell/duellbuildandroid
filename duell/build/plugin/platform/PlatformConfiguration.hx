@@ -69,7 +69,7 @@ class PlatformConfiguration
 					JAVA_SOURCES : [{ NAME : "HXCPP", 
 									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
 									  }],
-					FULLSCREEN : true,
+					FULLSCREEN : false,
 					TARGET_SDK_VERSION : 19,
 					INSTALL_LOCATION : "auto",
 					SUPPORTS_SCREENS : [

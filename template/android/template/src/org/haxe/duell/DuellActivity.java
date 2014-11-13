@@ -53,7 +53,7 @@ public class DuellActivity extends Activity{
 
 		};
 		
-		requestWindowFeature (Window.FEATURE_NO_TITLE);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		::if PLATFORM.FULLSCREEN::
 		::if (PLATFORM.TARGET_SDK_VERSION < 19)::
