@@ -397,7 +397,7 @@ class PlatformBuild
 								   ["-Dandroid", "-DHXCPP_ARMV7"],
 								   ["-Dandroid", "-DHXCPP_X86"]][archID];
 
-			argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().HXCPP_COMPILATION_ARGS);
+			argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().PLATFORM.HXCPP_COMPILATION_ARGS);
 
             var argsForBuildHaxe = [["-D", "android", "-cpp", "build"],
             						["-D", "android", "-cpp", "build", "-D", "HXCPP_ARMV7"],
