@@ -573,7 +573,7 @@ class PlatformBuild
 		);
 		
 		/// RUN THE LISTENER
-		TestHelper.runListenerServer(60, 8181, fullTestResultPath);
+		TestHelper.runListenerServer(300, 8181, fullTestResultPath);
 	}
 
 	/// =========
