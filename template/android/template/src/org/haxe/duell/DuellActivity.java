@@ -232,8 +232,21 @@ public class DuellActivity extends Activity{
 		}
 		
 	}
-	
-	
+
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+
+		super.onSaveInstanceState(outState);
+
+		for (Extension extension : extensions) {
+
+			extension.onSaveInstanceState(outState);
+
+		}
+	}
+
+
 	::if (PLATFORM.TARGET_SDK_VERSION >= 14)::
 	@Override public void onTrimMemory (int level) {
 		

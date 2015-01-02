@@ -105,6 +105,21 @@ public class Extension {
 
 
 	/**
+	 * This method is called before an activity may be killed so that when it comes back some time in the future it can
+	 * restore its state.
+	 *
+	 * If called, this method will occur before onStop(). There are no guarantees about whether it will occur before or
+	 * after onPause().
+	 *
+	 * @param outState Bundle in which to place your saved state.
+	 */
+	public void onSaveInstanceState(Bundle outState) {
+
+
+	}
+
+
+	/**
 	 * Called when the operating system has determined that it is a good time for a process to trim unneeded memory from
 	 * its process.
 	 * <p/>
