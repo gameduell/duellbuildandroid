@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2003-2015 GameDuell GmbH, All Rights Reserved
+  ~ This document is strictly confidential and sole property of GameDuell GmbH, Berlin, Germany
+  -->
+<resources>
+    ::foreach PLATFORM.STRING_RESOURCES::<string name="::NAME::">::VALUE::</string>::end::
+</resources>

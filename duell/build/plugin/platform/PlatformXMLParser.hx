@@ -82,6 +82,9 @@ class PlatformXMLParser
 				case 'supports-screen':
 					parseSupportsScreenElement(element);
 
+				case 'string-resource':
+					parseStringResourceElement(element);
+
 				case 'activity-parameter':
 					parseActivityParameterElement(element);
 
@@ -268,6 +271,27 @@ class PlatformXMLParser
 		if (element != null && value != null)
 		{
 			addUniqueKeyValueToKeyValueArray(PlatformConfiguration.getData().SUPPORTS_SCREENS, name, value);
+		}
+	}
+
+	private static function parseStringResourceElement(element : Fast)
+	{
+		var name = null;
+		var value = null;
+
+		if (element.has.name)
+		{
+			name = element.att.name;
+		}
+
+		if (element.has.value)
+		{
+			value = element.att.value;
+		}
+
+		if (element != null && value != null)
+		{
+			addUniqueKeyValueToKeyValueArray(PlatformConfiguration.getData().STRING_RESOURCES, name, value);
 		}
 	}
 

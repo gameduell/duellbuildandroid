@@ -27,6 +27,7 @@ typedef PlatformConfigurationData = {
 	SUPPORTS_SCREENS : KeyValueArray,
 	MINIMUM_SDK_VERSION : Int,
 	DEBUG : Bool,
+	STRING_RESOURCES : KeyValueArray,
 	ACTIVITY_PARAMETERS : KeyValueArray,
 	APPLICATION_PARAMETERS : KeyValueArray,
 	INSTALL_LOCATION : String,
@@ -76,12 +77,13 @@ class PlatformConfiguration
 									{NAME : "smallScreens", VALUE : "true"},
 									{NAME : "normalScreens", VALUE : "true"},
 									{NAME : "largeScreens", VALUE : "true"},
-									{NAME : "xlargeScreens", VALUE : "true"},
+									{NAME : "xlargeScreens", VALUE : "true"}
 									],
 					USES : [],
 					PERMISSIONS : [],
 					MINIMUM_SDK_VERSION : 14,
 					DEBUG : false,
+					STRING_RESOURCES : [],
 					ACTIVITY_PARAMETERS : [
 									{NAME : "launchMode", VALUE : "singleTask"},
 									{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
@@ -94,7 +96,7 @@ class PlatformConfiguration
 
 					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
 					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
-					MANIFEST_APPLICATION_SECTIONS : [],
+					MANIFEST_APPLICATION_SECTIONS : []
 				};
 	}
 }
