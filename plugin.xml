@@ -15,7 +15,6 @@
 		<elem name="hxcpp-compilation-arg">
 			Use this tag if you want to pass an additional compilation argument to the hxcpp compilation of the generated c++ code. E.g.: &lt;hxcpp-compilation-arg value="-DSOMETHING" /&gt;. 
 		</elem>
-
 		
 		<elem name="install-location">
 			Use this to specify the install location. By default it is auto. E.g.: &lt;install-location value="preferExternal" /&gt;. 
@@ -42,33 +41,37 @@
 		</elem>
 
 		<elem name="activity-extension">
-			Uses this to specify a class as being an activity extension that will then receive Activity callbacks. This is used together with inserting java classes into the final app. E.g.: &lt;activity-extension name=&quot;com.superlib.SuperLibDelegate&quot; /&gt;. 
+			Use this to specify a class as being an activity extension that will then receive Activity callbacks. This is used together with inserting java classes into the final app. E.g.: &lt;activity-extension name=&quot;com.superlib.SuperLibDelegate&quot; /&gt;. 
 		</elem>
 
 		<elem name="java-lib">
-			Uses this to specify a java library reference. Usually this is not needed unless a specific external library requests that it be included as a library and not as a jar or sources. E.g.: &lt;java-lib name=&quot;superlib&quot; path=&quot;path/to/lib&quot; /&gt;. 
+			Use this to specify a java library reference. Usually this is not needed unless a specific external library requests that it be included as a library and not as a jar or sources. E.g.: &lt;java-lib name=&quot;superlib&quot; path=&quot;path/to/lib&quot; /&gt;. 
 		</elem>
 
 		<elem name="java-source">
-			Uses this to add a folder that contains java sources to be compiled. This should be the top level folder in case the sources are organized in packages. E.g.: &lt;java-source path=&quot;path/to/lib&quot; /&gt;. 
+			Use this to add a folder that contains java sources to be compiled. This should be the top level folder in case the sources are organized in packages. E.g.: &lt;java-source path=&quot;path/to/lib&quot; /&gt;. 
 		</elem>
 
 		<elem name="jar">
-			Uses this to add a jar. E.g.: &lt;jar path=&quot;path/to/jar&quot; /&gt;. 
+			Use this to add a jar. E.g.: &lt;jar path=&quot;path/to/jar&quot; /&gt;. 
 		</elem>
 
 		<elem name="supports-screen">
-			Uses this specify that your app supports a specific screen type. E.g.: &lt;supports-screen name=&quot;smallScreens&quot; value=&quot;true&quot; /&gt;. 
+			Use this to specify that your app supports a specific screen type. E.g.: &lt;supports-screen name=&quot;smallScreens&quot; value=&quot;true&quot; /&gt;. 
 		</elem>
 
 		<elem name="activity-parameter">
-			Uses this specify an android manifest activity parameter. E.g.: &lt;activity-parameter name=&quot;theme&quot; value=&quot;@android:style/Theme.NoTitleBar.Fullscreen&quot; /&gt;. 
+			Use this to specify an android manifest activity parameter. E.g.: &lt;activity-parameter name=&quot;theme&quot; value=&quot;@android:style/Theme.NoTitleBar.Fullscreen&quot; /&gt;. 
 		</elem>
 
 		<elem name="application-parameter">
-			Uses this specify an android manifest application parameter. E.g.: &lt;application-parameter name=&quot;largeHeap&quot; value=&quot;true&quot; /&gt;. 
+			Use this to specify an android manifest application parameter. E.g.: &lt;application-parameter name=&quot;largeHeap&quot; value=&quot;true&quot; /&gt;. 
 		</elem>
 
+		<elem name="string-resource">
+			Use this to add a string resource. E.g.: &lt;string-resource name=&quot;facebook_app_id&quot; value=&quot;1234567&quot; /&gt;.
+		</elem>
+		
 		<elem name="manifest-main-activity-section">
 			This is an advanced android configuration possibility. The xml that is contained inside this element will be directly copied into the manifest in main activity section. Use this if none of the previous configuration elements allow the setting you need.
 		</elem>
