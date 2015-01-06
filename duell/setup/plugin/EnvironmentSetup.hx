@@ -150,18 +150,18 @@ class EnvironmentSetup
     {
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
-            LogHelper.info("Please run SDK Manager inside the android SDK and install API16 and 19, Platform-tools, API16 system image, and tools.");
+            LogHelper.info("Please run SDK Manager inside the android SDK and install API16 and 21, Platform-tools, API21 system image, and tools.");
             var install = AskHelper.askYesOrNo("Are these packages installed?");
 
             if(!install)
             {
-                LogHelper.println ("Please then make sure Android API 16 and SDK Platform-tools are installed");
+                LogHelper.println("Please then make sure Android API16 and 21, Platform-tools and API21 system image are installed");
                 return;
             }
         }
         else
         {
-            var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 19, Platform-tools, API16 system image, and tools)");
+            var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 21, Platform-tools, API21 system image, and tools)");
 
             if(!install)
             {
@@ -171,10 +171,10 @@ class EnvironmentSetup
 
             downloadPackages(~/(Android SDK Platform)/);
             downloadPackages(~/(Android SDK Tools)/);
-            downloadPackages(~/(Android SDK Build-tools, revision 20)/);
-            downloadPackages(~/(SDK Platform Android 4.4.2, API 19)/);
+            downloadPackages(~/(Android SDK Build-tools, revision 21.1.2)/);
+            downloadPackages(~/(SDK Platform Android 5.0.1, API 21)/);
             downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
-            downloadPackages(~/(ARM EABI v7a System Image, Android API 19)/);
+            downloadPackages(~/(ARM EABI v7a System Image, Android API 21)/);
 
             /// NOT SURE WHAT THIS IS FOR
             /*
