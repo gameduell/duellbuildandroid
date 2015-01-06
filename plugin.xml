@@ -21,7 +21,7 @@
 		</elem>
 		
 		<elem name="target-sdk">
-			Use this to specify a target android sdk. By default it is 19. E.g.: &lt;target-sdk value="20" /&gt;. 
+			Use this to specify a target android sdk. By default it is 21. Please don't change :( E.g.: &lt;target-sdk value="20" /&gt;.
 		</elem>
 
 		<elem name="minimum-sdk">
