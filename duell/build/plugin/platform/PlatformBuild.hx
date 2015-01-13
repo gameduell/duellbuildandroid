@@ -40,6 +40,7 @@ class PlatformBuild
 	var duellBuildAndroidPath : String;
 	var fullTestResultPath : String;
 	var isDebug : Bool = false;
+	var isNDKGDB : Bool = false;
 	var isBuildNDLL : Bool = true;
 	var isFullLogcat : Bool = false;
 	var isSignedRelease : Bool = false;
@@ -67,7 +68,12 @@ class PlatformBuild
 		if (!defines.exists("ANT_HOME"))
 			throw "ANT_HOME not set in hxcpp config, did you run duell setup android correctly?";
 
+		if (!defines.exists("ANDROID_NDK_ROOT"))
+			throw "ANDROID_NDK_DIR not set in hxcpp config, did you run duell setup android correctly?";
+
 		Sys.putEnv("ANDROID_SDK", defines.get("ANDROID_SDK"));
+
+		Configuration.getData().PLATFORM.NDK_PATH = defines.get("ANDROID_NDK_ROOT");
 
 		adbPath = Path.join([defines.get("ANDROID_SDK"), "platform-tools"]);
 		androidPath = Path.join([defines.get("ANDROID_SDK"), "tools"]);
@@ -80,6 +86,11 @@ class PlatformBuild
 		if (Arguments.isSet("-debug"))
 		{
 			isDebug = true;
+		}
+
+		if (Arguments.isSet("-ndkgdb"))
+		{
+			isNDKGDB = true;
 		}
 
 		if (Arguments.isSet("-fulllogcat"))
@@ -127,7 +138,13 @@ class PlatformBuild
 		/// Additional Configuration
 		addHXCPPLibs();
 		convertDuellAndHaxelibsIntoHaxeCompilationFlags();
+		addArchitectureInfoToHaxeCompilationFlags();
 		convertParsingDefinesToCompilationDefines();
+
+		if (isDebug)
+			addDebuggingInformation();
+
+		convertArchsToArchABIs();
 
 		prepareAndroidBuild();		
     }
@@ -177,6 +194,43 @@ class PlatformBuild
 				continue;
 
 			Configuration.getData().HAXE_COMPILE_ARGS.push("-D " + define);
+		}
+	}
+
+	private function addDebuggingInformation()
+	{
+		Configuration.getData().PLATFORM.APPLICATION_PARAMETERS.push({NAME : "debuggable", VALUE : "true"});
+		Configuration.getData().HAXE_COMPILE_ARGS.push("-debug");
+	}
+
+	private function convertArchsToArchABIs()
+	{
+		for (arch in Configuration.getData().PLATFORM.ARCHS)
+		{
+			switch (arch)
+			{
+				case "armv6":
+					Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi");
+				case "armv7":
+					Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi-v7a");
+				case "x86":
+					Configuration.getData().PLATFORM.ARCH_ABIS.push("x86");
+			}
+		}
+	}
+
+	private function addArchitectureInfoToHaxeCompilationFlags()
+	{
+		for (arch in Configuration.getData().PLATFORM.ARCHS)
+		{
+			switch (arch)
+			{
+				case "armv6":
+				case "armv7":
+					Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
+				case "x86":
+					Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
+			}
 		}
 	}
 
@@ -254,6 +308,7 @@ class PlatformBuild
 			if (isDebug)
 			{
 				argsForBuild.push("-Ddebug");
+
 			}
 
 			var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
@@ -387,6 +442,9 @@ class PlatformBuild
 
 	private function buildHaxe()
 	{
+
+		CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ["Build.hxml"], {errorMessage: "compiling the haxe code into c++"});
+
 	    var destFolder = Path.join([projectDirectory, "libs"]);
 
 		for (archID in 0...3) 
@@ -399,16 +457,6 @@ class PlatformBuild
 
 			argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().PLATFORM.HXCPP_COMPILATION_ARGS);
 
-            var argsForBuildHaxe = [["-D", "android", "-cpp", "build"],
-            						["-D", "android", "-cpp", "build", "-D", "HXCPP_ARMV7"],
-            						["-D", "android", "-cpp", "build", "-D", "HXCPP_X86"],
-            						][archID];
-
-			if (isDebug)
-			{
-				argsForBuildCpp.push("-Ddebug");
-				argsForBuildHaxe.push("-debug");
-			}
 
 			var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
 
@@ -424,10 +472,40 @@ class PlatformBuild
 				}
 				continue; 
 			}
-			
+
 			PathHelper.mkdir(destFolderArch);
 
-			CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ["Build.hxml"].concat(argsForBuildHaxe), {errorMessage: "compiling the haxe code into c++"});
+
+			var gdbSetupOrig = Path.join([duellBuildAndroidPath, "template", "android", "gdb.setup"]);
+			var gdbSetupDest = Path.join([destFolderArch, "gdb.setup"]);
+
+            var gdbServerPath = ["android-arm", "android-arm", "android-x86"][archID];
+            var gdbServerOrigPath = Path.join([Configuration.getData().PLATFORM.NDK_PATH, "prebuilt", gdbServerPath, "gdbserver", "gdbserver"]);
+            var gdbServerDestPath = Path.join([destFolderArch, "gdbserver"]);
+
+			if (isDebug)
+			{
+				argsForBuildCpp.push("-Ddebug");
+				FileHelper.copyIfNewer(gdbServerOrigPath,
+									   gdbServerDestPath);
+
+				TemplateHelper.copyTemplateFile(gdbSetupOrig, 
+												gdbSetupDest, 
+												Configuration.getData(), 
+												Configuration.getData().TEMPLATE_FUNCTIONS);
+			}
+			else
+			{
+				if (FileSystem.exists(gdbServerDestPath))
+				{
+					FileSystem.deleteFile(gdbServerDestPath);
+				}			
+				if (FileSystem.exists(gdbSetupDest))
+				{
+					FileSystem.deleteFile(gdbSetupDest);
+				}
+			}
+
 
     		CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
 			
@@ -459,8 +537,15 @@ class PlatformBuild
 	{
 		install();
 		clearLogcat();
-		runActivity();
-		runLogcat();
+		if (!isNDKGDB)
+		{
+			runActivity();
+			runLogcat();
+		}
+		else
+		{
+			runNDKGDB();
+		}
 	} 
 
 	private function install()
@@ -547,6 +632,17 @@ class PlatformBuild
 											block : true,
 											errorMessage : "running logcat"
 										});
+	}
+
+	private function runNDKGDB()
+	{
+		CommandHelper.runCommand(Configuration.getData().PLATFORM.NDK_PATH, 
+								 "ndk-gdb", 
+								 ["--project=" + projectDirectory, "--verbose", "--start", "--force"], 
+								 {
+								 	errorMessage: "running ndk-gdb",
+								 	systemCommand: false
+								 });
 	}
 
 	/// =========

@@ -40,6 +40,10 @@ typedef PlatformConfigurationData = {
 	MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : Array<String>,
 	MANIFEST_MAIN_ACTIVITY_SECTIONS : Array<String>,
 	MANIFEST_APPLICATION_SECTIONS : Array<String>,
+
+	/// generated
+	ARCH_ABIS : Array<String>,
+	NDK_PATH : String
 }
 
 class PlatformConfiguration
@@ -96,7 +100,10 @@ class PlatformConfiguration
 
 					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
 					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
-					MANIFEST_APPLICATION_SECTIONS : []
+					MANIFEST_APPLICATION_SECTIONS : [],
+
+					ARCH_ABIS : [],
+					NDK_PATH : ""
 				};
 	}
 }

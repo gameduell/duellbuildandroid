@@ -1,0 +1,8 @@
+
+::foreach (PLATFORM.ARCH_ABIS)::
+set solib-search-path libs/::__current__::::end::
+
+directory ::OUTPUT::/android/haxe/build/src
+directory ::OUTPUT::/android/haxe/build/include
+directory ::PLATFORM.NDK_PATH::/platforms/android-14/arch-arm/usr/include
+directory ::PLATFORM.NDK_PATH::/sources/cxx-stl/system
