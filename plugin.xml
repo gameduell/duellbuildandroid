@@ -104,6 +104,12 @@
 		</documentation>
 	</arg>
 
+	<arg name="-ndkgdb" type="void">
+		<documentation>
+			Use this argument if you want to launch gdb on the running app. Debug is option is automatically set for this.
+		</documentation>
+	</arg>
+
 
 </plugin>
 
