@@ -141,6 +141,7 @@ class PlatformBuild
 		convertDuellAndHaxelibsIntoHaxeCompilationFlags();
 		addArchitectureInfoToHaxeCompilationFlags();
 		convertParsingDefinesToCompilationDefines();
+		forceDeprecationWarnings();
 
 		if (isDebug)
 			addDebuggingInformation();
@@ -196,6 +197,11 @@ class PlatformBuild
 
 			Configuration.getData().HAXE_COMPILE_ARGS.push("-D " + define);
 		}
+	}
+
+	private function forceDeprecationWarnings(): Void
+	{
+		Configuration.getData().HAXE_COMPILE_ARGS.push("-D deprecation-warnings");
 	}
 
 	private function addDebuggingInformation()
