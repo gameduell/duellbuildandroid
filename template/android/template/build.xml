@@ -3,7 +3,7 @@
 	
 	<property environment="env"/>
 	<property name="sdk.dir" value="${env.ANDROID_SDK}"/>
-	
+
 	<property file="local.properties"/>
 	<property file="ant.properties"/>
 	<property file="project.properties"/>

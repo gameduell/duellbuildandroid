@@ -91,6 +91,9 @@ class PlatformXMLParser
 				case 'application-parameter':
 					parseApplicationParameterElement(element);
 
+				case 'keystore':
+					parseKeystoreElement(element);
+
 				case 'manifest-main-activity-section':
 					parseManifestMainActivitySectionElement(element);
 
@@ -334,6 +337,29 @@ class PlatformXMLParser
 		if (element != null && value != null)
 		{
 			addUniqueKeyValueToKeyValueArray(PlatformConfiguration.getData().APPLICATION_PARAMETERS, name, value);
+		}
+	}
+
+	private static function parseKeystoreElement(element : Fast)
+	{
+		if (element.has.path)
+		{
+			PlatformConfiguration.getData().KEY_STORE = element.att.path;
+
+			if (element.has.alias)
+			{
+				PlatformConfiguration.getData().KEY_STORE_ALIAS = element.att.alias;
+			}
+
+			if (element.has.password)
+			{
+				PlatformConfiguration.getData().KEY_STORE_PASSWORD = element.att.password;
+			}
+
+			if (element.has.aliasPassword)
+			{
+				PlatformConfiguration.getData().KEY_STORE_ALIAS_PASSWORD = element.att.aliasPassword;
+			}
 		}
 	}
 
