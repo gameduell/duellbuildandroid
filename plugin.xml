@@ -37,8 +37,12 @@
 		</elem>
 
 		<elem name="permission">
-			Use this to specify that permissions for your app. E.g.: &lt;permission value=&quot;android.permission.RECEIVE_SMS&quot; /&gt;. 
+			Use this to specify permissions for your app (using uses-permission). E.g.: &lt;permission name=&quot;android.permission.RECEIVE_SMS&quot; /&gt;.
 		</elem>
+
+        <elem name="raw-permission">
+            Use this to specify permissions for your app (using permission). E.g.: &lt;raw-permission name=&quot;com.gameduell.test.permission.C2D_MESSAGE&quot; level=&quot;signature&quot; /&gt;.
+        </elem>
 
 		<elem name="activity-extension">
 			Use this to specify a class as being an activity extension that will then receive Activity callbacks. This is used together with inserting java classes into the final app. E.g.: &lt;activity-extension name=&quot;com.superlib.SuperLibDelegate&quot; /&gt;. 

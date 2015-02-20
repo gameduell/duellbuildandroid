@@ -6,6 +6,9 @@
 	::foreach PLATFORM.PERMISSIONS::
 	<uses-permission android:name="::__current__::" />::end::
 
+    ::foreach PLATFORM.RAW_PERMISSIONS::
+    <permission android:name="::NAME::" android:protectionLevel="::LEVEL::" />::end::
+
 	<supports-screens ::foreach PLATFORM.SUPPORTS_SCREENS:: android:::NAME::="::VALUE::"
 					  ::end::/>
 	

@@ -67,6 +67,9 @@ class PlatformXMLParser
 				case 'permission':
 					parsePermissionElement(element);
 
+                case 'raw-permission':
+                    parseRawPermissionElement(element);
+
 				case 'activity-extension':
 					parseActivityExtensionElement(element);
 
@@ -203,6 +206,14 @@ class PlatformXMLParser
 			PlatformConfiguration.getData().PERMISSIONS.push(element.att.name);
 		}
 	}
+
+    private static function parseRawPermissionElement(element : Fast)
+    {
+        if (element.has.name && element.has.level)
+        {
+            PlatformConfiguration.getData().RAW_PERMISSIONS.push({NAME : element.att.name, LEVEL : element.att.level});
+        }
+    }
 
 	private static function parseActivityExtensionElement(element : Fast)
 	{

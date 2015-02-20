@@ -24,6 +24,7 @@ typedef PlatformConfigurationData = {
 	TARGET_SDK_VERSION : Int,
 	USES : Array<{ NAME : String, VALUE : String, REQUIRED : Bool }>,
 	PERMISSIONS : Array<String>,
+    RAW_PERMISSIONS: Array<{ NAME : String, LEVEL : String}>,
 	SUPPORTS_SCREENS : KeyValueArray,
 	MINIMUM_SDK_VERSION : Int,
 	DEBUG : Bool,
@@ -31,10 +32,10 @@ typedef PlatformConfigurationData = {
 	ACTIVITY_PARAMETERS : KeyValueArray,
 	APPLICATION_PARAMETERS : KeyValueArray,
 	INSTALL_LOCATION : String,
-	KEY_STORE : String, ///unused for now
-	KEY_STORE_ALIAS : String, ///unused for now
-	KEY_STORE_PASSWORD : String, ///unused for now
-	KEY_STORE_ALIAS_PASSWORD : String, ///unused for now
+	KEY_STORE : String,
+	KEY_STORE_ALIAS : String,
+	KEY_STORE_PASSWORD : String,
+	KEY_STORE_ALIAS_PASSWORD : String,
 
 	/// THESE ARE PURE XML STRINGS THAT ARE EMBEDDED IN THE MANIFEST
 	MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : Array<String>,
@@ -84,6 +85,7 @@ class PlatformConfiguration
 									{NAME : "xlargeScreens", VALUE : "true"}
 									],
 					USES : [],
+                    RAW_PERMISSIONS: [],
 					PERMISSIONS : [],
 					MINIMUM_SDK_VERSION : 14,
 					DEBUG : false,
@@ -93,10 +95,10 @@ class PlatformConfiguration
 									{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
 													],
 					APPLICATION_PARAMETERS : [],
-					KEY_STORE : null, ///unused for now
-					KEY_STORE_ALIAS : null, ///unused for now
-					KEY_STORE_PASSWORD : null, ///unused for now
-					KEY_STORE_ALIAS_PASSWORD : null, ///unused for now
+					KEY_STORE : null,
+					KEY_STORE_ALIAS : null,
+					KEY_STORE_PASSWORD : null,
+					KEY_STORE_ALIAS_PASSWORD : null,
 
 					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
 					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
