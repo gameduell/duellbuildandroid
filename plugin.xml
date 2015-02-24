@@ -5,8 +5,12 @@
 	</documentation>
 	<configuration>
 		<elem name="icon">
-			Use this to configure where the icon files are. By default they are searched in current_project_path/Icons/android. The naming and sizing is strict. To know them, just do a "duell create emptyProject" and see the icons that are on the default project. E.g.: &lt;icon path="Iconys/android" /&gt;. 
+			Use this to configure where the icon files are. By default they are searched in current_project_path/Icons/android. The naming and sizing is strict. To know them, just do a "duell create emptyProject" and see the icons that are on the default project. E.g.: &lt;icon path="Iconys/android" /&gt;.
 		</elem>
+
+        <elem name="app-icon">
+            Use this to specify the icon name, as if you were inputting it as @drawable/icon. By default it is specified as "icon". E.g.: &lt;app-icon drawable="app_icon" /&gt;.
+        </elem>
 
 		<elem name="architecture">
 			Use this tag to specify an architecture that the app should be built with. Currently only armv7 is working. By default armv7 is used, and is the only currently working. We have however the possibility to have other architectures like x86 and mips, but it is currently malfunctioning. E.g.: &lt;architecture name="x86" /&gt;. 

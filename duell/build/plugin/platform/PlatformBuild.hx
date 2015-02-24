@@ -279,23 +279,22 @@ class PlatformBuild
 			return;
 		}
 
-		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi" ];
+		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi" ];
 
-		for (icon in iconTypes) 
+		for (iconType in iconTypes)
 		{
-			var destinationPath = haxe.io.Path.join([projectDirectory, "res", "drawable-" + icon]);
-			var iconDestinationPath = haxe.io.Path.join([destinationPath, "icon.png"]);
-			var iconOriginPath = haxe.io.Path.join([PlatformConfiguration.getData().ICON_PATH, "drawable-" + icon, "icon.png"]);
+			var iconOriginPath = haxe.io.Path.join([PlatformConfiguration.getData().ICON_PATH, 'drawable-$iconType']);
+            var iconDestinationPath = haxe.io.Path.join([projectDirectory, "res", 'drawable-$iconType']);
 
-			PathHelper.mkdir(destinationPath);
+			PathHelper.mkdir(iconDestinationPath);
 
-			if(!FileSystem.exists(iconOriginPath))
+			if (!FileSystem.exists(iconOriginPath))
 			{
-				LogHelper.println('Icon $icon not found.');
+				LogHelper.println('Icon type "$iconType" not found.');
 				continue;
 			}
 
-			FileHelper.copyIfNewer(iconOriginPath, iconDestinationPath);
+            FileHelper.recursiveCopyFiles(iconOriginPath, iconDestinationPath);
 		}
     }
 

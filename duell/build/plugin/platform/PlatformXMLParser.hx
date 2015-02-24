@@ -46,6 +46,9 @@ class PlatformXMLParser
 				case 'icon':
 					parseIconElement(element);
 
+                case 'app-icon':
+                    parseAppIconElement(element);
+
 				case 'hxcpp-compilation-arg':
 					parseHXCPPCompilationArgElement(element);
 
@@ -127,6 +130,14 @@ class PlatformXMLParser
 			PlatformConfiguration.getData().ICON_PATH = resolvePath(element.att.path);
 		}
 	}
+
+    private static function parseAppIconElement(element : Fast)
+    {
+        if (element.has.drawable)
+        {
+            PlatformConfiguration.getData().APP_ICON = element.att.drawable;
+        }
+    }
 
 	private static function parseHXCPPCompilationArgElement(element : Fast)
 	{

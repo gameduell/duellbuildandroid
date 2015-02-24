@@ -15,7 +15,7 @@
 	<uses-sdk android:minSdkVersion="::PLATFORM.MINIMUM_SDK_VERSION::" android:targetSdkVersion="::PLATFORM.TARGET_SDK_VERSION::"/>
 	
 	<application android:label="::APP.TITLE::" 
-				 android:icon="@drawable/icon"
+				 android:icon="@drawable/::PLATFORM.APP_ICON::"
 				 ::foreach PLATFORM.APPLICATION_PARAMETERS::
 				 android:::NAME::="::VALUE::"::end::
 				 >

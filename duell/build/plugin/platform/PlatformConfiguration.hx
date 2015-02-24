@@ -15,6 +15,7 @@ typedef PlatformConfigurationData = {
 	PLATFORM_NAME : String,
 	ARCHS : Array<String>,
 	ICON_PATH : String,
+    APP_ICON : String,
 	HXCPP_COMPILATION_ARGS : Array<String>, /// not yet used
 	ACTIVITY_EXTENSIONS : Array<String>,
 	JAVA_LIBS : Array<{ NAME : String, PATH : String }>,
@@ -67,6 +68,7 @@ class PlatformConfiguration
 		return  {
 					PLATFORM_NAME : "android",
 					ICON_PATH : "Icons/android",
+                    APP_ICON : "icon",
 					ARCHS : ["armv7"],
 					HXCPP_COMPILATION_ARGS : [],
 					ACTIVITY_EXTENSIONS : [],
