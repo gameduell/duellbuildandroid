@@ -27,6 +27,8 @@ import duell.objects.Arguments;
 import sys.FileSystem;
 import haxe.io.Path;
 
+using StringTools;
+
 class PlatformBuild
 {
 	public var requiredSetups = [{name: "android", version: "1.0.0"}];
