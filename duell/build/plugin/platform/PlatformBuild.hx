@@ -96,6 +96,11 @@ class PlatformBuild
 			isNDKGDB = true;
 		}
 
+        if (Arguments.isSet("-x86"))
+        {
+            Configuration.getData().PLATFORM.ARCHS = ["x86"];
+        }
+
 		if (Arguments.isSet("-fulllogcat"))
 		{
 			isFullLogcat = true;
@@ -133,9 +138,6 @@ class PlatformBuild
 
     public function prepareBuild()
     {		
-    	if (PlatformConfiguration.getData().ARCHS.indexOf("x86") != -1)
-    		throw "x86 is not currently supported, its implemented, but currently not functioning well";
-
     	prepareVariables();
 
 		/// Additional Configuration

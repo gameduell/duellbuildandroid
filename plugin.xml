@@ -118,6 +118,11 @@
 		</documentation>
 	</arg>
 
+    <arg name="-x86" type="void">
+        <documentation>
+            Use this argument if you want to build specifically for x86 platforms.
+        </documentation>
+    </arg>
 
 </plugin>
 
