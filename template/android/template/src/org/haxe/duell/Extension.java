@@ -2,6 +2,7 @@ package org.haxe.duell;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 
 
 public class Extension
@@ -114,6 +115,28 @@ public class Extension
      * See http://developer.android.com/reference/android/content/ComponentCallbacks2.html for the level explanation.
      */
     public void onTrimMemory(int level)
+    {
+
+    }
+
+    /**
+     * Called when a key was pressed down and not handled by any of the views inside of the activity.
+     *
+     * @param keyCode The value in event.getKeyCode().
+     * @param event Description of the key event.
+     */
+    public void onKeyDown(int keyCode, KeyEvent event)
+    {
+
+    }
+
+    /**
+     * Called when a key was released and not handled by any of the views inside of the activity
+     *
+     * @param keyCode The value in event.getKeyCode().
+     * @param event Description of the key event.
+     */
+    public void onKeyUp(int keyCode, KeyEvent event)
     {
 
     }

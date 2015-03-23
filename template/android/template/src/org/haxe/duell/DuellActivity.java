@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import org.haxe.HXCPP;
 
 import java.lang.ref.WeakReference;
@@ -21,6 +23,9 @@ public class DuellActivity extends Activity
 
     private final Handler mainJavaThreadHandler;
     private MainHaxeThreadHandler mainHaxeThreadHandler;
+
+    /** Exposes the parent so that it can be used to set the content view instead */
+    public FrameLayout parent;
 
     /// libraries that initialize a view, may choose to set this, so that other libraries can act upon this
     public WeakReference<View> mainView;
@@ -70,7 +75,10 @@ public class DuellActivity extends Activity
         ::foreach NDLLS::
         System.loadLibrary("::NAME::");::end::
 
-        ;HXCPP.run("HaxeApplication");
+        ;parent = new FrameLayout(this);
+        super.setContentView(parent);
+
+        HXCPP.run("HaxeApplication");
 
         for (Extension extension : extensions)
         {
@@ -228,6 +236,28 @@ public class DuellActivity extends Activity
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        for (Extension extension : extensions)
+        {
+            extension.onKeyDown(keyCode, event);
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event)
+    {
+        for (Extension extension : extensions)
+        {
+            extension.onKeyUp(keyCode, event);
+        }
+
+        return super.onKeyUp(keyCode, event);
+    }
+
     ::if (PLATFORM.TARGET_SDK_VERSION >= 14)::
     @Override
     public void onTrimMemory(int level)
@@ -267,5 +297,11 @@ public class DuellActivity extends Activity
     public void setMainHaxeThreadHandler(MainHaxeThreadHandler handler)
     {
         mainHaxeThreadHandler = handler;
+    }
+
+    @Override
+    public void setContentView(View view)
+    {
+        throw new IllegalStateException("Callers should interact with the parent FrameLayout instead of with the view directly");
     }
 }
