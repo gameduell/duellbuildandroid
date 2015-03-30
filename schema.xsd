@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:d="duell"
+           targetNamespace="duell"
+           elementFormDefault="qualified">
+
+    <xs:include schemaLocation="../duell/schema/common_schema.xsd" />
+
+    <xs:complexType name="android">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="architecture" type="d:Name"/>
+            <xs:element name="icon" type="d:Path"/>
+            <xs:element name="app-icon" type="d:Drawable"/>
+            <xs:element name="hxcpp-compilation-arg" type="d:Value"/>
+            <xs:element name="install-location" type="d:Value"/>
+            <xs:element name="target-sdk" type="d:ValueInteger"/>
+            <xs:element name="minimum-sdk" type="d:ValueInteger"/>
+            <xs:element name="fullscreen" type="d:ValueBoolean"/>
+            <xs:element name="uses" type="d:UsesPermission"/>
+            <xs:element name="permission" type="d:Name"/>
+            <xs:element name="raw-permission" type="d:NameLevelBothRequired"/>
+            <xs:element name="activity-extension" type="d:Name"/>
+            <xs:element name="java-lib" type="d:PathNamePathRequired"/>
+            <xs:element name="jar" type="d:Path"/>
+            <xs:element name="java-source" type="d:PathNamePathRequired"/>
+            <xs:element name="supports-screen" type="d:NameValueBothRequired"/>
+            <xs:element name="string-resource" type="d:NameValueBothRequired"/>
+            <xs:element name="activity-parameter" type="d:NameValueBothRequired"/>
+            <xs:element name="application-parameter" type="d:NameValueBothRequired"/>
+            <xs:element name="keystore" type="d:Keystore"/>
+            <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
+            <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
+            <xs:element name="manifest-application-section" type="d:InnerContent"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="NameLevelBothRequired">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="level" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="NameValueBothRequired">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="value" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="PathNamePathRequired">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="path" type="xs:anyURI" use="required"/>
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Drawable">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="drawable" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="UsesPermission">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+                <xs:attribute name="value" type="xs:string" use="required"/>
+                <xs:attribute name="required" type="xs:boolean" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Keystore">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="path" type="xs:string" use="required"/>
+                <xs:attribute name="alias" type="xs:string" use="optional"/>
+                <xs:attribute name="password" type="xs:string" use="optional"/>
+                <xs:attribute name="aliasPassword" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+</xs:schema>
