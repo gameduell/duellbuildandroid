@@ -150,7 +150,7 @@ class EnvironmentSetup
     {
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
-            LogHelper.info("Please run SDK Manager inside the android SDK and install API16 and 21, Platform-tools, API21 system image, and tools.");
+            LogHelper.info("Please run SDK Manager inside the android SDK and install API16 and 21, Platform-tools, API21 system image for armv7 and x86, and tools.");
             var install = AskHelper.askYesOrNo("Are these packages installed?");
 
             if(!install)
@@ -171,10 +171,48 @@ class EnvironmentSetup
 
             downloadPackages(~/(Android SDK Platform)/);
             downloadPackages(~/(Android SDK Tools)/);
-            downloadPackages(~/(Android SDK Build-tools, revision 21.1.2)/);
+            downloadPackages(~/(Android SDK Build-tools, revision 22.0.1)/);
             downloadPackages(~/(SDK Platform Android 5.0.1, API 21)/);
             downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
             downloadPackages(~/(ARM EABI v7a System Image, Android API 21)/);
+            downloadPackages(~/(Intel x86 Atom System Image, Android API 21)/);
+            downloadPackages(~/(Intel x86 Emulator Accelerator)/);
+
+            var haxmInstall = AskHelper.askYesOrNo("In order to be able to use the x86 android emulator (which is faster), you need to install HAXM. In order to do that you also need the administrator password, or administrator permissions. Would you like to do that now?");
+
+            if (haxmInstall)
+            {
+                var haxmArgs = [];
+                var executable = "";
+
+                if (PlatformHelper.hostPlatform == Platform.WINDOWS)
+                {
+                    executable = "intelhaxm.exe";
+                }
+                else
+                {
+                    executable = "sudo";
+                    haxmArgs = ["sh", "silent_install.sh"];
+                }
+
+                CommandHelper.runCommand(Path.join([androidSDKPath, "extras", "intel", "Hardware_Accelerated_Execution_Manager"]),
+                                    executable,
+                                    haxmArgs,
+                                    {errorMessage: "trying to install HAXM", systemCommand:true});
+
+                LogHelper.info("\x1b[1mCreating x86 emulator...\x1b[0m");
+                CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
+                                            "android",
+                                            ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellx86", "-t", "android-21", "--abi", "x86"],
+                                            {errorMessage: "trying to create x86 emulator", systemCommand:false});
+            }
+
+            LogHelper.info("\x1b[1mCreating armv7a emulator...\x1b[0m");
+            CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
+                                        "android",
+                                        ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellarmv7", "-t", "android-21", "--abi", "armeabi-v7a"],
+                                        {errorMessage: "trying to create x emulator", systemCommand:false});
+
 
             /// NOT SURE WHAT THIS IS FOR
             /*
@@ -196,7 +234,7 @@ class EnvironmentSetup
             androidExec = "android.bat";
         }
         /// numbers "taken from android list sdk --all"
-        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", androidExec, ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download", systemCommand:false}).getCompleteStdout().toString(); 
+        var packageListOutput = new DuellProcess(androidSDKPath + "/tools/", androidExec, ["list", "sdk", "--all"], {block:true, errorMessage: "trying to list the packages to download", systemCommand:false}).getCompleteStdout().toString();
         var rawPackageList = packageListOutput.split("\n");
 
         /// filter the actual package lines, lines starting like " 1-" or " 12-"
@@ -214,7 +252,7 @@ class EnvironmentSetup
             LogHelper.info("Will download " + packageListWithNames.join(", "));
 
             /// numbers "taken from android list sdk --all"
-            CommandHelper.runCommand(androidSDKPath + "/tools/", androidExec, ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages", systemCommand:false}); 
+            CommandHelper.runCommand(androidSDKPath + "/tools/", androidExec, ["update", "sdk", "--no-ui", "--all", "--filter", packageNumberList.join(",")], {errorMessage: "downloading the packages", systemCommand:false});
         }
         else
         {
@@ -413,7 +451,7 @@ class EnvironmentSetup
     private function resolvePath(path : String) : String
     {
         path = PathHelper.unescape(path);
-        
+
         if (PathHelper.isPathRooted(path))
             return path;
 
