@@ -24,6 +24,8 @@ import duell.objects.Haxelib;
 import duell.objects.DuellProcess;
 import duell.objects.Arguments;
 
+import duell.build.helpers.Emulator;
+
 import sys.FileSystem;
 import haxe.io.Path;
 
@@ -33,7 +35,9 @@ class PlatformBuild
 {
 	public var requiredSetups = [{name: "android", version: "1.0.0"}];
 	public var supportedHostPlatforms = [LINUX, WINDOWS, MAC];
-	public static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
+	private static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
+	private static inline var DEFAULT_ARMV7_EMULATOR = "duellarmv7";
+	private static inline var DEFAULT_X86_EMULATOR = "duellx86";
 	private static inline var DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP = 1;
 
 	/// VARIABLES SET AFTER PARSING
@@ -47,11 +51,17 @@ class PlatformBuild
 	var isFullLogcat : Bool = false;
 	var isSignedRelease : Bool = false;
 	var isClean : Bool = false;
+	var isX86 : Bool = false;
+	var isEmulator : Bool = false;
+	var emulatorName : Null<String> = null;
 
 	var	adbPath : String;
 	var	androidPath : String;
 	var	emulatorPath : String;
 	var antPath : String;
+
+	var emulator: Emulator;
+	var logcatProcess: DuellProcess; /// will block here if emulator is not running.
 
 	public function new() : Void
 	{
@@ -85,7 +95,7 @@ class PlatformBuild
 	}
 
 	private function checkArguments()
-	{	
+	{
 		if (Arguments.isSet("-debug"))
 		{
 			isDebug = true;
@@ -98,19 +108,40 @@ class PlatformBuild
 
         if (Arguments.isSet("-x86"))
         {
+			isX86 = true;
             Configuration.getData().PLATFORM.ARCHS = ["x86"];
+        }
+
+        if (Arguments.isSet("-emulator"))
+        {
+			isEmulator = true;
+			if (Arguments.isSet("-emulatorname"))
+			{
+            	emulatorName = Arguments.get("-emulatorname");
+			}
+			else
+			{
+				if (isX86)
+				{
+					emulatorName = DEFAULT_X86_EMULATOR;
+				}
+				else
+				{
+					emulatorName = DEFAULT_ARMV7_EMULATOR;
+				}
+			}
         }
 
 		if (Arguments.isSet("-fulllogcat"))
 		{
 			isFullLogcat = true;
 		}
-		
+
 		if (Arguments.isSet("-signedrelease"))
 		{
 			isSignedRelease = true;
 		}
-		
+
 		if (Arguments.isSet("-test"))
 		{
 			Configuration.addParsingDefine("test");
@@ -137,10 +168,11 @@ class PlatformBuild
 	/// =========
 
     public function prepareBuild()
-    {		
+    {
     	prepareVariables();
 
 		/// Additional Configuration
+		startEmulator();
 		addHXCPPLibs();
 		convertDuellAndHaxelibsIntoHaxeCompilationFlags();
 		addArchitectureInfoToHaxeCompilationFlags();
@@ -152,7 +184,7 @@ class PlatformBuild
 
 		convertArchsToArchABIs();
 
-		prepareAndroidBuild();		
+		prepareAndroidBuild();
     }
 
     private function prepareVariables()
@@ -196,7 +228,7 @@ class PlatformBuild
 	}
 
     private function convertParsingDefinesToCompilationDefines()
-	{		
+	{
 		for (define in DuellProjectXML.getConfig().parsingConditions)
 		{
 			if (define == "cpp") /// not allowed
@@ -272,7 +304,7 @@ class PlatformBuild
 		var destProjectTemplate = projectDirectory;
 
 		TemplateHelper.recursiveCopyTemplatedFiles(originProjectTemplate, destProjectTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
-		
+
 		var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe"]);
 		var destHaxeTemplate = Path.join([targetDirectory, "haxe"]);
 		TemplateHelper.recursiveCopyTemplatedFiles(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
@@ -310,7 +342,7 @@ class PlatformBuild
 	{
 		var destFolder = Path.join([projectDirectory, "libs"]);
 
-		for (archID in 0...3) 
+		for (archID in 0...3)
 		{
 			var arch = ["armv6", "armv7", "x86"][archID];
 
@@ -336,12 +368,12 @@ class PlatformBuild
 				{
 					PathHelper.removeDirectory(destFolderArch);
 				}
-				continue; 
+				continue;
 			}
-			
+
 			PathHelper.mkdir(destFolderArch);
-			
-			for (ndll in Configuration.getData().NDLLS) 
+
+			for (ndll in Configuration.getData().NDLLS)
 			{
 				if (isBuildNDLL)
 				{
@@ -370,15 +402,15 @@ class PlatformBuild
 		}
 
 		var dest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + ".so"]);
-		
+
 		/// Release doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
 		if (!isDebug && !FileSystem.exists(releaseLib))
 		{
 			releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + ".so"]);
 		}
-		
+
 		/// Debug doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
-		if (isDebug && !FileSystem.exists(debugLib)) 
+		if (isDebug && !FileSystem.exists(debugLib))
 		{
 			debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + "-debug" + ".so"]);
 		}
@@ -388,8 +420,8 @@ class PlatformBuild
 		{
 			FileHelper.copyIfNewer(releaseLib, dest);
 		}
-		
-		if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib) 
+
+		if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib)
 		{
 			FileHelper.copyIfNewer (debugLib, dest);
 		}
@@ -443,6 +475,44 @@ class PlatformBuild
 		}
 	}
 
+
+	/// =========
+	///	EMULATOR
+	/// =========
+
+	public function startEmulator()
+	{
+		if (!isEmulator)
+			return;
+
+		emulator = new Emulator(emulatorName);
+		emulator.start();
+	}
+
+	public function waitForEmulatorReady()
+	{
+		if (!isEmulator)
+			return;
+
+		emulator.waitUntilReady();
+	}
+
+	public function waitForEmulatorFinished()
+	{
+		if (!isEmulator)
+			return;
+
+		emulator.waitUntilFinished();
+	}
+
+	public function shutdownEmulator()
+	{
+		if (!isEmulator)
+			return;
+
+		emulator.shutdown();
+	}
+
 	/// =========
 	/// BUILD
 	/// =========
@@ -460,7 +530,7 @@ class PlatformBuild
 
 	    var destFolder = Path.join([projectDirectory, "libs"]);
 
-		for (archID in 0...3) 
+		for (archID in 0...3)
 		{
 			var arch = ["armv6", "armv7", "x86"][archID];
 
@@ -483,7 +553,7 @@ class PlatformBuild
 				{
 					PathHelper.removeDirectory(destFolderArch);
 				}
-				continue; 
+				continue;
 			}
 
 			PathHelper.mkdir(destFolderArch);
@@ -502,9 +572,9 @@ class PlatformBuild
 				FileHelper.copyIfNewer(gdbServerOrigPath,
 									   gdbServerDestPath);
 
-				TemplateHelper.copyTemplateFile(gdbSetupOrig, 
-												gdbSetupDest, 
-												Configuration.getData(), 
+				TemplateHelper.copyTemplateFile(gdbSetupOrig,
+												gdbSetupDest,
+												Configuration.getData(),
 												Configuration.getData().TEMPLATE_FUNCTIONS);
 			}
 			else
@@ -512,7 +582,7 @@ class PlatformBuild
 				if (FileSystem.exists(gdbServerDestPath))
 				{
 					FileSystem.deleteFile(gdbServerDestPath);
-				}			
+				}
 				if (FileSystem.exists(gdbSetupDest))
 				{
 					FileSystem.deleteFile(gdbSetupDest);
@@ -521,7 +591,7 @@ class PlatformBuild
 
 
     		CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
-			
+
 			var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
 			var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
 
@@ -532,14 +602,14 @@ class PlatformBuild
 	private function runAnt()
 	{
 		var ant = Path.join([antPath, "bin", "ant"]);
-		
+
 		var build = "debug";
-		
+
 		if (isSignedRelease) /// not yet done
 		{
 			build = "release";
 		}
-		
+
 		CommandHelper.runCommand(projectDirectory, ant, [build], {errorMessage: "compiling the .apk"});
 	}
 
@@ -548,18 +618,31 @@ class PlatformBuild
 	/// =========
 	public function run()
 	{
+		waitForEmulatorReady();
+
 		install();
 		clearLogcat();
+
 		if (!isNDKGDB)
 		{
 			runActivity();
 			runLogcat();
+
+			if (isEmulator)
+			{
+				waitForEmulatorFinished();
+			}
+			else
+			{
+				logcatProcess.blockUntilFinished();
+			}
 		}
 		else
 		{
 			runNDKGDB();
+			shutdownEmulator();
 		}
-	} 
+	}
 
 	private function install()
 	{
@@ -567,10 +650,10 @@ class PlatformBuild
 
 		var adbProcess = new DuellProcess(
 										adbPath,
-										"adb", 
-										args, 
+										"adb",
+										args,
 										{
-											timeout : 60, 
+											timeout : 60,
 											logOnlyIfVerbose : false,
 											shutdownOnError : true,
 											block : true,
@@ -581,13 +664,13 @@ class PlatformBuild
 	private function runActivity()
 	{
 		var args = ["shell", "am", "start", "-a", "android.intent.action.MAIN", "-n", Configuration.getData().APP.PACKAGE + "/" + Configuration.getData().APP.PACKAGE + "." + "MainActivity"];
-		
+
 		var adbProcess = new DuellProcess(
 										adbPath,
-										"adb", 
-										args, 
+										"adb",
+										args,
 										{
-											timeout : 60, 
+											timeout : 60,
 											logOnlyIfVerbose : false,
 											shutdownOnError : true,
 											block : true,
@@ -601,8 +684,8 @@ class PlatformBuild
 
 		var adbProcess = new DuellProcess(
 										adbPath,
-										"adb", 
-										args.concat(["-c"]), 
+										"adb",
+										args.concat(["-c"]),
 										{
 											logOnlyIfVerbose : false,
 											shutdownOnError : true,
@@ -616,33 +699,26 @@ class PlatformBuild
 		var args = ["logcat"];
 
 
-		if (!isFullLogcat) 
+		if (!isFullLogcat)
 		{
-			if (isDebug) 
+			var filter = "*:E";
+			var includeTags = ["duell", "Main", "DuellActivity", "GLThread", "trace"];
+
+			for (tag in includeTags)
 			{
-				var filter = "*:E";
-				var includeTags = ["duell", "Main", "DuellActivity", "GLThread", "trace"];
-				
-				for (tag in includeTags) 
-				{
-					filter += " " + tag + ":D";
-				}
-				args = args.concat([filter]);
+				filter += " " + tag + ":D";
 			}
-			else 
-			{
-				args = args.concat (["*:S trace:I"]);
-			}
+			args = args.concat([filter]);
 		}
 
 
-		var adbProcess = new DuellProcess(
+		logcatProcess = new DuellProcess(
 										adbPath,
-										"adb", 
-										args, 
+										"adb",
+										args,
 										{
 											logOnlyIfVerbose : false,
-											block : true,
+											loggingPrefix: "[LOGCAT]",
 											errorMessage : "running logcat"
 										});
 	}
@@ -650,10 +726,10 @@ class PlatformBuild
 	private function runNDKGDB()
 	{
 
-		CommandHelper.runCommand(projectDirectory, 
-								 "sh",  
-								 [Path.join([Configuration.getData().PLATFORM.NDK_PATH ,"ndk-gdb"]), 
-								 "--project=" + projectDirectory, "--verbose", "--start", "--force"], 
+		CommandHelper.runCommand(projectDirectory,
+								 "sh",
+								 [Path.join([Configuration.getData().PLATFORM.NDK_PATH ,"ndk-gdb"]),
+								 "--project=" + projectDirectory, "--verbose", "--start", "--force"],
 								 {
 								 	errorMessage: "running ndk-gdb",
 								 	systemCommand: true
@@ -665,6 +741,8 @@ class PlatformBuild
 	/// =========
 	public function test()
 	{
+		waitForEmulatorReady();
+
 		/// DELETE PREVIOUS TEST
 		if (sys.FileSystem.exists(fullTestResultPath))
 		{
@@ -678,13 +756,15 @@ class PlatformBuild
 		install();
 		neko.vm.Thread.create(function()
 			{
-				Sys.sleep(DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP); 
+				Sys.sleep(DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP);
 				runActivity();
 			}
 		);
-		
+
 		/// RUN THE LISTENER
 		TestHelper.runListenerServer(300, 8181, fullTestResultPath);
+
+		shutdownEmulator();
 	}
 
 	/// =========
@@ -701,6 +781,7 @@ class PlatformBuild
 	public function fast()
 	{
 		parse();
+		startEmulator();
 		prepareVariables();
 		build();
 
@@ -726,7 +807,7 @@ class PlatformBuild
 			PathHelper.removeDirectory(targetDirectory);
 		}
 
-		for (ndll in Configuration.getData().NDLLS) 
+		for (ndll in Configuration.getData().NDLLS)
 		{
 			LogHelper.info('Cleaning ndll ' + ndll.NAME + "...");
     		var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH), "clean"], {errorMessage: "cleaning ndll"});
