@@ -199,13 +199,13 @@ class EnvironmentSetup
                                     executable,
                                     haxmArgs,
                                     {errorMessage: "trying to install HAXM", systemCommand:true});
-
-                LogHelper.info("\x1b[1mCreating x86 emulator...\x1b[0m");
-                CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
-                                            "android",
-                                            ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellx86", "-t", "android-21", "--abi", "x86"],
-                                            {errorMessage: "trying to create x86 emulator", systemCommand:false});
             }
+
+            LogHelper.info("\x1b[1mCreating x86 emulator...\x1b[0m");
+            CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
+                                        "android",
+                                        ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellx86", "-t", "android-21", "--abi", "x86"],
+                                        {errorMessage: "trying to create x86 emulator", systemCommand:false});
 
             LogHelper.info("\x1b[1mCreating armv7a emulator...\x1b[0m");
             CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
