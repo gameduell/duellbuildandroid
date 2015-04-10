@@ -40,6 +40,35 @@ class Emulator
 			portToUse += 1;
 		}
 
+		var adbKillServer = new DuellProcess(
+							adbPath,
+							"adb",
+							["kill-server"],
+							{
+								timeout : 0,
+								logOnlyIfVerbose : true,
+								loggingPrefix : "[ADB]",
+								shutdownOnError : true,
+								block : true,
+								errorMessage : "restarting adb",
+								systemCommand: false
+							});
+		adbKillServer.blockUntilFinished();
+
+		var adbStartServer = new DuellProcess(
+							adbPath,
+							"adb",
+							["start-server"],
+							{
+								timeout : 0,
+								logOnlyIfVerbose : true,
+								loggingPrefix : "[ADB]",
+								shutdownOnError : true,
+								block : false,
+								errorMessage : "restarting adb",
+								systemCommand: false
+							});
+
 		var args = ["-avd", emulatorName,
 					"-prop", "persist.sys.language=en",
 					"-prop", "persist.sys.country=GB",
@@ -72,7 +101,8 @@ class Emulator
 
 		var timeStarted = haxe.Timer.stamp();
 
-		var args = ["-s", "emulator-" + portToUse, "shell", "getprop", "dev.bootcomplete"];
+		var argsConnect = ["connect", "localhost:" + portToUse];
+		var argsBoot = ["-s", "emulator-" + portToUse, "shell", "getprop", "dev.bootcomplete"];
 
 		var opts = {
 			timeout : 0.0,
@@ -89,7 +119,10 @@ class Emulator
 			{
 				LogHelper.error("time out connecting to the emulator");
 			}
-			var output = new DuellProcess(adbPath, "adb", args, opts).getCompleteStdout().toString();
+
+			new DuellProcess(adbPath, "adb", argsConnect, opts);
+
+			var output = new DuellProcess(adbPath, "adb", argsBoot, opts).getCompleteStdout().toString();
 
 			if (output.indexOf("1") != -1)
 			{
