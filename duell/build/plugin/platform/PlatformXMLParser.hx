@@ -21,7 +21,7 @@ class PlatformXMLParser
 {
 	public static function parse(xml : Fast) : Void
 	{
-		for (element in xml.elements) 
+		for (element in xml.elements)
 		{
 			switch(element.name)
 			{
@@ -33,16 +33,13 @@ class PlatformXMLParser
 
 	public static function parsePlatform(xml : Fast) : Void
 	{
-		for (element in xml.elements) 
+		for (element in xml.elements)
 		{
 			if (!XMLHelper.isValidElement(element, DuellProjectXML.getConfig().parsingConditions))
 				continue;
 
 			switch(element.name)
 			{
-				case 'architecture':
-					parseArchitectureElement(element);
-
 				case 'icon':
 					parseIconElement(element);
 
@@ -112,17 +109,6 @@ class PlatformXMLParser
 		}
 	}
 
-	private static function parseArchitectureElement(element : Fast)
-	{
-		if (element.has.name)
-		{
-			if (PlatformConfiguration.getData().ARCHS.indexOf(element.att.name) == -1)
-			{
-				PlatformConfiguration.getData().ARCHS.push(element.att.name);
-			}
-		}
-	}
-
 	private static function parseIconElement(element : Fast)
 	{
 		if (element.has.path)
@@ -183,7 +169,7 @@ class PlatformXMLParser
 	}
 
 	private static function parseUsesElement(element : Fast)
-	{		
+	{
 		var name = "name";
 		var value = null;
 		var required = null;
@@ -211,7 +197,7 @@ class PlatformXMLParser
 	}
 
 	private static function parsePermissionElement(element : Fast)
-	{	
+	{
 		if (element.has.name)
 		{
 			PlatformConfiguration.getData().PERMISSIONS.push(element.att.name);
@@ -279,7 +265,7 @@ class PlatformXMLParser
 	}
 
 	private static function parseSupportsScreenElement(element : Fast)
-	{		
+	{
 		var name = null;
 		var value = null;
 

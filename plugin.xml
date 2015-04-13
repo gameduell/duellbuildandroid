@@ -12,10 +12,6 @@
             Use this to specify the icon name, as if you were inputting it as @drawable/icon. By default it is specified as "icon". E.g.: &lt;app-icon drawable="app_icon" /&gt;.
         </elem>
 
-		<elem name="architecture">
-			Use this tag to specify an architecture that the app should be built with. Currently only armv7 is working. By default armv7 is used, and is the only currently working. We have however the possibility to have other architectures like x86 and mips, but it is currently malfunctioning. E.g.: &lt;architecture name="x86" /&gt;.
-		</elem>
-
 		<elem name="hxcpp-compilation-arg">
 			Use this tag if you want to pass an additional compilation argument to the hxcpp compilation of the generated c++ code. E.g.: &lt;hxcpp-compilation-arg value="-DSOMETHING" /&gt;.
 		</elem>
@@ -123,6 +119,18 @@
             Use this argument if you want to build specifically for x86 platforms.
         </documentation>
     </arg>
+
+	<arg name="-armv6" type="void">
+		<documentation>
+			Use this if you want to build for armv6.
+		</documentation>
+	</arg>
+
+	<arg name="-armv7" type="void">
+		<documentation>
+			Use this if you want to build for armv7.
+		</documentation>
+	</arg>
 
     <arg name="-emulator" type="void">
         <documentation>

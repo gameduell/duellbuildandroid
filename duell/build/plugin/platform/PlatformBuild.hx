@@ -51,7 +51,6 @@ class PlatformBuild
 	var isFullLogcat : Bool = false;
 	var isSignedRelease : Bool = false;
 	var isClean : Bool = false;
-	var isX86 : Bool = false;
 	var isEmulator : Bool = false;
 	var emulatorName : Null<String> = null;
 
@@ -106,11 +105,22 @@ class PlatformBuild
 			isNDKGDB = true;
 		}
 
-        if (Arguments.isSet("-x86"))
-        {
-			isX86 = true;
-            Configuration.getData().PLATFORM.ARCHS = ["x86"];
-        }
+		var isArmv6 = Arguments.isSet("-armv6");
+		var isArmv7 = Arguments.isSet("-armv7");
+		var isX86 = Arguments.isSet("-x86");
+
+		if (isArmv7 || isX86)
+		{
+			Configuration.getData().PLATFORM.ARCHS = [];
+
+			if (isArmv6)
+				Configuration.getData().PLATFORM.ARCHS.push("armv6");
+			if (isArmv7)
+				Configuration.getData().PLATFORM.ARCHS.push("armv7");
+			if (isX86)
+				Configuration.getData().PLATFORM.ARCHS.push("x86");
+		}
+
 
         if (Arguments.isSet("-emulator"))
         {
@@ -201,9 +211,9 @@ class PlatformBuild
 		var binPath = Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "bin"]);
 		var buildFilePath = Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "project", "Build.xml"]);
 
-		Configuration.getData().NDLLS.push({NAME : "std", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true});
-		Configuration.getData().NDLLS.push({NAME : "regexp", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true});
-		Configuration.getData().NDLLS.push({NAME : "zlib", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true});
+		Configuration.getData().NDLLS.push({NAME : "std", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
+		Configuration.getData().NDLLS.push({NAME : "regexp", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
+		Configuration.getData().NDLLS.push({NAME : "zlib", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
 	}
 
 	private function convertDuellAndHaxelibsIntoHaxeCompilationFlags()
@@ -388,12 +398,15 @@ class PlatformBuild
 		}
 	}
 
-	private function copyNDLL(ndll : {NAME:String, BIN_PATH:String, BUILD_FILE_PATH:String, REGISTER_STATICS:Bool},
+	private function copyNDLL(ndll : {NAME:String, BIN_PATH:String, BUILD_FILE_PATH:String, REGISTER_STATICS:Bool, DEBUG_SUFFIX:Bool},
 								destFolderName : String, argsForBuild : Array<String>, libExt : String)
 	{
+		/// if there is no suffix, tbe release version might be used.
+		var debugSuffix = ndll.DEBUG_SUFFIX? "-debug": "";
+
 		/// Try debug version
 		var releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + libExt]);
-		var debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + "-debug" + libExt]);
+		var debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + debugSuffix + libExt]);
 
 		/// Doesn't exist, so use the release on as debug
 		if (!FileSystem.exists(debugLib))
@@ -412,7 +425,7 @@ class PlatformBuild
 		/// Debug doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
 		if (isDebug && !FileSystem.exists(debugLib))
 		{
-			debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + "-debug" + ".so"]);
+			debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + debugSuffix + ".so"]);
 		}
 
 		/// Copy!
@@ -423,6 +436,27 @@ class PlatformBuild
 
 		if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib)
 		{
+			FileHelper.copyIfNewer (debugLib, dest);
+		}
+
+
+		/// Copy!
+		if (!isDebug)
+		{
+			if (!FileSystem.exists(releaseLib))
+			{
+				LogHelper.error("Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH);
+			}
+
+			FileHelper.copyIfNewer(releaseLib, dest);
+		}
+		else
+		{
+			if (!FileSystem.exists(debugLib))
+			{
+				LogHelper.error("Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH);
+			}
+
 			FileHelper.copyIfNewer (debugLib, dest);
 		}
 	}
