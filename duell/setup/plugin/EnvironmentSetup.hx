@@ -21,11 +21,11 @@ using StringTools;
 
 class EnvironmentSetup
 {
-    private static var androidLinuxNDKPath = "http://dl.google.com/android/ndk/android-ndk-r8b-linux-x86.tar.bz2";
+    private static var androidLinuxNDKPath = "http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86.bin";
     private static var androidLinuxSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-linux.tgz";
-    private static var androidMacNDKPath = "http://dl.google.com/android/ndk/android-ndk-r8b-darwin-x86.tar.bz2";
+    private static var androidMacNDKPath = "http://dl.google.com/android/ndk/android-ndk-r10d-darwin-x86.bin";
     private static var androidMacSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-macosx.zip";
-    private static var androidWindowsNDKPath = "http://dl.google.com/android/ndk/android-ndk-r8b-windows.zip";
+    private static var androidWindowsNDKPath = "http://dl.google.com/android/ndk/android-ndk-r10d-windows-x86.exe";
     private static var androidWindowsSDKPath = "http://dl.google.com/android/android-sdk_r22.0.5-windows.zip";
     private static var apacheAntUnixPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz";
     private static var apacheAntWindowsPath = "http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.zip";
@@ -265,7 +265,6 @@ class EnvironmentSetup
         /// variable setup
         var downloadPath = "";
         var defaultInstallPath = "";
-        var ignoreRootFolder = "android-ndk-r8b";
 
         defaultInstallPath = haxe.io.Path.join([DuellConfigHelper.getDuellConfigFolderLocation(), "SDKs", "android-ndk"]);
 
@@ -304,8 +303,44 @@ class EnvironmentSetup
             /// create the directory
             PathHelper.mkdir(androidNDKPath);
 
-            /// the extraction
-            ExtractionHelper.extractFile(Path.withoutDirectory(downloadPath), androidNDKPath, ignoreRootFolder);
+            if(PlatformHelper.hostPlatform == Platform.WINDOWS)
+            {
+                CommandHelper.runCommand("", "android-ndk-r10d-windows-x86.exe", ["-o", androidNDKPath], {errorMessage: "extracting ndk", systemCommand: false});
+
+                var rootFolder = "android-ndk-r10d";
+				for (file in FileSystem.readDirectory(rootFolder))
+				{
+					CommandHelper.runCommand("", "move", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
+				}
+            }
+            else if (PlatformHelper.hostPlatform == Platform.LINUX)
+            {
+                var file = "android-ndk-r10d-linux-x86.bin";
+                CommandHelper.runCommand("", "chmod", ["a+x", file], {errorMessage: "changing ndk file permission to extract"});
+                CommandHelper.runCommand("", file, [], {errorMessage: "extracting ndk", systemCommand: false});
+
+                var rootFolder = "android-ndk-r10d";
+				for (file in FileSystem.readDirectory(rootFolder))
+				{
+					CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
+				}
+
+                CommandHelper.runCommand("", "rm", [ "-r", rootFolder], {errorMessage: "copying files to the target directory of the extraction"});
+            }
+            else
+            {
+                var file = "android-ndk-r10d-darwin-x86.bin";
+                CommandHelper.runCommand("", "chmod", ["a+x", file], {errorMessage: "changing ndk file permission to extract"});
+                CommandHelper.runCommand("", file, [], {errorMessage: "extracting ndk", systemCommand: false});
+
+                var rootFolder = "android-ndk-r10d";
+				for (file in FileSystem.readDirectory(rootFolder))
+				{
+					CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
+				}
+
+                CommandHelper.runCommand("", "rm", [ "-Rf", rootFolder], {errorMessage: "copying files to the target directory of the extraction"});
+            }
         }
     }
 
