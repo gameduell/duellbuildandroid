@@ -174,7 +174,7 @@ class EnvironmentSetup
             downloadPackages(~/(Android SDK Build-tools, revision 22.0.1)/);
             downloadPackages(~/(SDK Platform Android 5.0.1, API 21)/);
             downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
-            downloadPackages(~/(ARM EABI v7a System Image, Android API 21)/);
+            downloadPackages(~/(ARM EABI v7a System Image, Android API 21)/, ~/(Android TV)|(Android Wear)/);
             downloadPackages(~/(Intel x86 Atom System Image, Android API 21)/);
             downloadPackages(~/(Intel x86 Emulator Accelerator)/);
 
@@ -226,7 +226,7 @@ class EnvironmentSetup
         }
     }
 
-    private function downloadPackages(regex : EReg)
+    private function downloadPackages(regex : EReg,  ?filter : EReg)
     {
         var androidExec = "android";
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
@@ -243,6 +243,11 @@ class EnvironmentSetup
 
         /// filter the packages we want
         var packageListWithNames = rawPackageList.filter(function(str) { return regex.match(str); });
+
+        if (filter != null)
+        {
+            packageListWithNames = packageListWithNames.filter(function(str) { return !filter.match(str); });
+        }
 
         /// retrieve only the number
         var packageNumberList = packageListWithNames.map(function(str) { return str.substr(0, str.indexOf("-")).ltrim(); });
