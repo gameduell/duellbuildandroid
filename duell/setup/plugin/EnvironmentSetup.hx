@@ -175,7 +175,7 @@ class EnvironmentSetup
             downloadPackages(~/(SDK Platform Android 5.0.1, API 21)/);
             downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
             downloadPackages(~/(ARM EABI v7a System Image, Android API 21)/, ~/(Android TV)|(Android Wear)/);
-            downloadPackages(~/(Intel x86 Atom System Image, Android API 21)/);
+            downloadPackages(~/(Intel x86 Atom System Image, Android API 21)/, ~/(Android TV)|(Android Wear)/);
             downloadPackages(~/(Intel x86 Emulator Accelerator)/);
 
             var haxmInstall = AskHelper.askYesOrNo("In order to be able to use the x86 android emulator (which is faster), you need to install HAXM. In order to do that you also need the administrator password, or administrator permissions. Would you like to do that now?");
