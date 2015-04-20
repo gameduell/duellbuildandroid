@@ -88,6 +88,10 @@
 			This is an advanced android configuration possibility. The xml that is contained inside this element will be directly copied into the manifest in application section. Use this if none of the previous configuration elements allow the setting you need.
 		</elem>
 
+		<elem name="key-store">
+			Use this to specify the keystore you want to use to sign your app. This configuration should mostly be in the duell_user.xml folder since it is private information and should not be committed with your project. E.g.: &lt;key-store path=&quot;androidkey/debug.keystore&quot; alias=&quot;MyDebugKey&quot; password=&quot;password&quot; aliaspassword=&quot;password&quot; /&gt;
+		</elem>
+
 	</configuration>
 
 	<arg name="-debug" type="void">

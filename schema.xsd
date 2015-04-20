@@ -27,7 +27,7 @@
             <xs:element name="string-resource" type="d:NameValueBothRequired"/>
             <xs:element name="activity-parameter" type="d:NameValueBothRequired"/>
             <xs:element name="application-parameter" type="d:NameValueBothRequired"/>
-            <xs:element name="keystore" type="d:Keystore"/>
+            <xs:element name="key-store" type="d:Keystore"/>
             <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
             <xs:element name="manifest-application-section" type="d:InnerContent"/>
@@ -85,7 +85,7 @@
                 <xs:attribute name="path" type="xs:string" use="required"/>
                 <xs:attribute name="alias" type="xs:string" use="optional"/>
                 <xs:attribute name="password" type="xs:string" use="optional"/>
-                <xs:attribute name="aliasPassword" type="xs:string" use="optional"/>
+                <xs:attribute name="aliaspassword" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -639,7 +639,7 @@ class PlatformBuild
 
 		var build = "debug";
 
-		if (isSignedRelease) /// not yet done
+		if (isSignedRelease)
 		{
 			build = "release";
 		}

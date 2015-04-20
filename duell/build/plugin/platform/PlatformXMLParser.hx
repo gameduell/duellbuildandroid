@@ -94,7 +94,7 @@ class PlatformXMLParser
 				case 'application-parameter':
 					parseApplicationParameterElement(element);
 
-				case 'keystore':
+				case 'key-store':
 					parseKeystoreElement(element);
 
 				case 'manifest-main-activity-section':
@@ -352,7 +352,7 @@ class PlatformXMLParser
 	{
 		if (element.has.path)
 		{
-			PlatformConfiguration.getData().KEY_STORE = element.att.path;
+			PlatformConfiguration.getData().KEY_STORE = resolvePath(element.att.path);
 
 			if (element.has.alias)
 			{
@@ -364,9 +364,9 @@ class PlatformXMLParser
 				PlatformConfiguration.getData().KEY_STORE_PASSWORD = element.att.password;
 			}
 
-			if (element.has.aliasPassword)
+			if (element.has.aliaspassword)
 			{
-				PlatformConfiguration.getData().KEY_STORE_ALIAS_PASSWORD = element.att.aliasPassword;
+				PlatformConfiguration.getData().KEY_STORE_ALIAS_PASSWORD = element.att.aliaspassword;
 			}
 		}
 	}
