@@ -8,7 +8,6 @@
 
     <xs:complexType name="android">
         <xs:choice maxOccurs="unbounded">
-            <xs:element name="architecture" type="d:Name"/>
             <xs:element name="icon" type="d:Path"/>
             <xs:element name="app-icon" type="d:Drawable"/>
             <xs:element name="hxcpp-compilation-arg" type="d:Value"/>
