@@ -67,6 +67,10 @@ class EnvironmentSetup
 
             LogHelper.println("");
 
+            setupAndroidEmulators();
+
+            LogHelper.println("");
+
             downloadAndroidNDK();
 
             LogHelper.println("");
@@ -200,29 +204,34 @@ class EnvironmentSetup
                                     haxmArgs,
                                     {errorMessage: "trying to install HAXM", systemCommand:true});
             }
+        }
+    }
+
+    private function setupAndroidEmulators()
+    {
+        // we should maybe support windows later. maybe
+        if (PlatformHelper.hostPlatform != Platform.WINDOWS)
+        {
+            var install = AskHelper.askYesOrNo("Would you like to configure the Duell Android emulators?");
+
+            if (!install)
+            {
+                LogHelper.println('Please then make sure you have a x86 emulator called "duellx86" and an armeabi-v7a emulator called "duellarmv7"');
+                return;
+            }
 
             LogHelper.info("\x1b[1mCreating x86 emulator...\x1b[0m");
             CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
-                                        "android",
-                                        ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellx86", "-t", "android-21", "--abi", "x86"],
-                                        {errorMessage: "trying to create x86 emulator", systemCommand:false});
+            "android",
+            ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellx86", "-t", "android-21", "--abi", "x86"],
+            {errorMessage: "trying to create x86 emulator", systemCommand:false});
 
             LogHelper.info("\x1b[1mCreating armv7a emulator...\x1b[0m");
             CommandHelper.runCommand(   Path.join([androidSDKPath, "tools"]),
-                                        "android",
-                                        ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellarmv7", "-t", "android-21", "--abi", "armeabi-v7a"],
-                                        {errorMessage: "trying to create x emulator", systemCommand:false});
+            "android",
+            ["create", "avd", "-f", "-a", "-c", "512M", "-s", "WVGA800", "-n", "duellarmv7", "-t", "android-21", "--abi", "armeabi-v7a"],
+            {errorMessage: "trying to create x emulator", systemCommand:false});
 
-
-            /// NOT SURE WHAT THIS IS FOR
-            /*
-            if (PlatformHelper.hostPlatform != Platform.WINDOWS && FileSystem.exists (Sys.getEnv ("HOME") + "/.android")) {
-
-                CommandHelper.runCommand ("", "chmod", [ "-R", "777", "~/.android" ], false);
-                CommandHelper.runCommand ("", "cp", [ PathHelper.getHaxelib (new Haxelib ("lime-tools")) + "/templates/bin/debug.keystore", "~/.android/debug.keystore" ], false);
-
-            }
-            */
         }
     }
 
