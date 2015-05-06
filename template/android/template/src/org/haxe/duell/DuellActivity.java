@@ -137,7 +137,7 @@ public class DuellActivity extends Activity
             extension.onDestroy();
         }
 
-        activity = null;
+        activity = new WeakReference<DuellActivity>(null);
         super.onDestroy();
     }
 
