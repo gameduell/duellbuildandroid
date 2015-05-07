@@ -814,7 +814,6 @@ class PlatformBuild
 	/// =========
 	public function fast()
 	{
-		parse();
 		startEmulator();
 		prepareVariables();
 		build();
