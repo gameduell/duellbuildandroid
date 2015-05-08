@@ -26,7 +26,7 @@
             <xs:element name="string-resource" type="d:NameValueBothRequired"/>
             <xs:element name="activity-parameter" type="d:NameValueBothRequired"/>
             <xs:element name="application-parameter" type="d:NameValueBothRequired"/>
-            <xs:element name="key-store" type="d:Keystore"/>
+            <xs:element name="key-store" type="d:KeystoreAndroid"/>
             <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
             <xs:element name="manifest-application-section" type="d:InnerContent"/>
@@ -78,7 +78,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="Keystore">
+    <xs:complexType name="KeystoreAndroid">
         <xs:complexContent>
             <xs:extension base="d:Conditional">
                 <xs:attribute name="path" type="xs:string" use="required"/>
