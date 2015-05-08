@@ -42,6 +42,7 @@ class PlatformBuild
 
 	/// VARIABLES SET AFTER PARSING
 	var targetDirectory : String;
+	var publishDirectory : String;
 	var projectDirectory : String;
 	var duellBuildAndroidPath : String;
 	var fullTestResultPath : String;
@@ -195,6 +196,7 @@ class PlatformBuild
     {
     	/// Set variables
 		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
+		publishDirectory = Path.join([Configuration.getData().PUBLISH, "android"]);
 		fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
 		projectDirectory = Path.join([targetDirectory, "bin"]);
 		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
@@ -800,7 +802,25 @@ class PlatformBuild
 	/// =========
 	public function publish()
 	{
-		throw "Publish is not yet implemented";
+		// remove the old publish android folder
+		if (FileSystem.exists(publishDirectory))
+		{
+			PathHelper.removeDirectory(publishDirectory);
+		}
+
+		// create the publish part for android
+		PathHelper.mkdir(publishDirectory);
+
+        var binaryName: String = Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk";
+        var outputFile: String = Path.join([projectDirectory, "bin", binaryName]);
+        var destinationFile: String = Path.join([publishDirectory, '${Configuration.getData().APP.FILE}.apk']);
+
+        FileHelper.copyIfNewer(outputFile, destinationFile);
+
+        // update the published paths so that the plugins can operate on postPublish
+        Configuration.getData().PLATFORM.PUBLISHED_APK_PATH = destinationFile;
+
+        // TODO run proguard on the resulting file and update PUBLISHED_MAPPING_PATH
 	}
 
 	/// =========

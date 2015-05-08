@@ -45,7 +45,11 @@ typedef PlatformConfigurationData = {
 
 	/// generated
 	ARCH_ABIS : Array<String>,
-	NDK_PATH : String
+	NDK_PATH : String,
+
+	/// generated from publish
+	PUBLISHED_APK_PATH: String,
+	PUBLISHED_MAPPING_PATH: String
 }
 
 class PlatformConfiguration
@@ -107,7 +111,10 @@ class PlatformConfiguration
 					MANIFEST_APPLICATION_SECTIONS : [],
 
 					ARCH_ABIS : [],
-					NDK_PATH : ""
+					NDK_PATH : "",
+
+					PUBLISHED_APK_PATH : "",
+					PUBLISHED_MAPPING_PATH : ""
 				};
 	}
 }
