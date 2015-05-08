@@ -49,7 +49,6 @@ class PlatformBuild
 	var isNDKGDB : Bool = false;
 	var isBuildNDLL : Bool = true;
 	var isFullLogcat : Bool = false;
-	var isSignedRelease : Bool = false;
 	var isClean : Bool = false;
 	var isEmulator : Bool = false;
 	var emulatorName : Null<String> = null;
@@ -145,11 +144,6 @@ class PlatformBuild
 		if (Arguments.isSet("-fulllogcat"))
 		{
 			isFullLogcat = true;
-		}
-
-		if (Arguments.isSet("-signedrelease"))
-		{
-			isSignedRelease = true;
 		}
 
 		if (Arguments.isSet("-test"))
@@ -637,11 +631,11 @@ class PlatformBuild
 	{
 		var ant = Path.join([antPath, "bin", "ant"]);
 
-		var build = "debug";
+		var build = "release";
 
-		if (isSignedRelease)
+		if (isDebug)
 		{
-			build = "release";
+			build = "debug";
 		}
 
 		CommandHelper.runCommand(projectDirectory, ant, [build], {errorMessage: "compiling the .apk"});
@@ -680,7 +674,7 @@ class PlatformBuild
 
 	private function install()
 	{
-		var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isSignedRelease ? "release" : "debug") + ".apk"])];
+		var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk"])];
 
 		var adbProcess = new DuellProcess(
 										adbPath,

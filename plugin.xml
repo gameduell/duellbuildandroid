@@ -106,12 +106,6 @@
 		</documentation>
 	</arg>
 
-	<arg name="-signedrelease" type="void">
-		<documentation>
-			Use this argument if you want to sign the resulting apk.
-		</documentation>
-	</arg>
-
 	<arg name="-ndkgdb" type="void">
 		<documentation>
 			Use this argument if you want to launch gdb on the running app. Debug is option is automatically set for this.
