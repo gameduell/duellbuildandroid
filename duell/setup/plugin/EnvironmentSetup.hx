@@ -72,49 +72,41 @@ class EnvironmentSetup
 
     public function setup() : String
     {
-        try
-        {
+        LogHelper.info("");
+        LogHelper.info("\x1b[2m------");
+        LogHelper.info("Android Setup");
+        LogHelper.info("------\x1b[0m");
+        LogHelper.info("");
 
-            LogHelper.info("");
-            LogHelper.info("\x1b[2m------");
-            LogHelper.info("Android Setup");
-            LogHelper.info("------\x1b[0m");
-            LogHelper.info("");
+        setupJDKInstallation();
 
-            setupJDKInstallation();
+        LogHelper.println("");
 
-            LogHelper.println("");
+        downloadAndroidSDK();
 
-            downloadAndroidSDK();
+        LogHelper.println("");
 
-            LogHelper.println("");
+        setupAndroidSDK();
 
-            setupAndroidSDK();
+        LogHelper.println("");
 
-            LogHelper.println("");
+        setupAndroidEmulators();
 
-            setupAndroidEmulators();
+        LogHelper.println("");
 
-            LogHelper.println("");
+        downloadAndroidNDK();
 
-            downloadAndroidNDK();
+        LogHelper.println("");
 
-            LogHelper.println("");
+        downloadApacheAnt();
 
-            downloadApacheAnt();
+        LogHelper.println("");
 
-            LogHelper.println("");
+        setupHXCPP();
 
-            setupHXCPP();
-
-            LogHelper.info("\x1b[2m------");
-            LogHelper.info("end");
-            LogHelper.info("------\x1b[0m");
-
-        } catch(error : Dynamic)
-        {
-            LogHelper.error("An error occurred, do you need admin permissions to run the script? Check if you have permissions to write on the paths you specify. Error:" + error);
-        }
+        LogHelper.info("\x1b[2m------");
+        LogHelper.info("end");
+        LogHelper.info("------\x1b[0m");
 
         return "success";
     }
@@ -400,7 +392,7 @@ class EnvironmentSetup
 
         if (javaHome == null || javaHome == "")
         {
-            LogHelper.error("Java is not installed or the JAVA_HOME environment variable is not set. Please install java and set the JAVA_HOME variable.");
+            throw "Java is not installed or the JAVA_HOME environment variable is not set. Please install java and set the JAVA_HOME variable.";
         }
 
         javaJDKPath = javaHome;
@@ -412,7 +404,7 @@ class EnvironmentSetup
 
         if(hxcppConfigPath == null)
         {
-            LogHelper.error("Could not find the home folder, no HOME variable is set. Can't find hxcpp_config.xml");
+            throw "Could not find the home folder, no HOME variable is set. Can't find hxcpp_config.xml";
         }
 
         var hxcppXML = HXCPPConfigXML.getConfig(hxcppConfigPath);
@@ -449,7 +441,7 @@ class EnvironmentSetup
         }
         else
         {
-            LogHelper.error("Path specified for android SDK doesn't exist!");
+            throw "Path specified for android SDK doesn't exist!";
         }
 
         if(FileSystem.exists(androidNDKPath))
@@ -458,7 +450,7 @@ class EnvironmentSetup
         }
         else
         {
-            LogHelper.error("Path specified for android NDK doesn't exist!");
+            throw "Path specified for android NDK doesn't exist!";
         }
 
         if(FileSystem.exists(apacheANTPath))
@@ -467,7 +459,7 @@ class EnvironmentSetup
         }
         else
         {
-            LogHelper.error("Path specified for apache Ant doesn't exist!");
+            throw "Path specified for apache Ant doesn't exist!";
         }
 
         if(PlatformHelper.hostPlatform != Platform.MAC)
@@ -478,7 +470,7 @@ class EnvironmentSetup
             }
             else
             {
-                LogHelper.error("Path specified for Java JDK doesn't exist!");
+                throw "Path specified for Java JDK doesn't exist!";
             }
         }
 
