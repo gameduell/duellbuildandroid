@@ -407,7 +407,7 @@ class PlatformBuild
 	        		var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH)].concat(argsForBuild), {errorMessage: "building ndll"});
 
 					if (result != 0)
-						LogHelper.error("Problem building ndll " + ndll.NAME);
+						throw "Problem building ndll " + ndll.NAME;
 				}
 
 				copyNDLL(ndll, folderName, argsForBuild, extension);
@@ -462,7 +462,7 @@ class PlatformBuild
 		{
 			if (!FileSystem.exists(releaseLib))
 			{
-				LogHelper.error("Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH);
+				throw "Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH;
 			}
 
 			FileHelper.copyIfNewer(releaseLib, dest);
@@ -471,7 +471,7 @@ class PlatformBuild
 		{
 			if (!FileSystem.exists(debugLib))
 			{
-				LogHelper.error("Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH);
+				throw "Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH;
 			}
 
 			FileHelper.copyIfNewer (debugLib, dest);
@@ -881,7 +881,7 @@ class PlatformBuild
     		var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH), "clean"], {errorMessage: "cleaning ndll"});
 
 			if (result != 0)
-				LogHelper.error("Problem cleaning ndll " + ndll.NAME);
+				throw "Problem cleaning ndll " + ndll.NAME;
 
 			var destFolder = Path.join([ndll.BIN_PATH, "Android"]);
 			if (FileSystem.exists(destFolder))

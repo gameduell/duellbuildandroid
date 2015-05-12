@@ -143,7 +143,7 @@ class Emulator
 		{
 			if (timeStarted + SECONDS_BEFORE_GIVINGUP_ON_EMULATOR_LAUNCHING < haxe.Timer.stamp())
 			{
-				LogHelper.error("time out connecting to the emulator");
+				throw "time out connecting to the emulator";
 			}
 
 			new DuellProcess(adbPath, "adb", argsConnect, opts);
