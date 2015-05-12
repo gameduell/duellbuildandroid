@@ -54,7 +54,7 @@ using StringTools;
 
 class PlatformBuild
 {
-	public var requiredSetups = [{name: "android", version: "3.0.0"}];
+	public var requiredSetups = [{name: "android", version: "4.0.0"}];
 	public var supportedHostPlatforms = [LINUX, WINDOWS, MAC];
 	private static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
 	private static inline var DEFAULT_ARMV7_EMULATOR = "duellarmv7";
