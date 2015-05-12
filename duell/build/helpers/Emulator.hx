@@ -74,7 +74,7 @@ class Emulator
 								timeout : 0,
 								logOnlyIfVerbose : true,
 								loggingPrefix : "[ADB]",
-								shutdownOnError : true,
+								shutdownOnError : false,
 								block : true,
 								errorMessage : "restarting adb",
 								systemCommand: false
@@ -89,7 +89,7 @@ class Emulator
 								timeout : 0,
 								logOnlyIfVerbose : true,
 								loggingPrefix : "[ADB]",
-								shutdownOnError : true,
+								shutdownOnError : false,
 								block : false,
 								errorMessage : "restarting adb",
 								systemCommand: false
@@ -110,7 +110,7 @@ class Emulator
 											timeout : 0,
 											logOnlyIfVerbose : true,
 											loggingPrefix : "[Emulator]",
-											shutdownOnError : true,
+											shutdownOnError : false,
 											block : false,
 											errorMessage : "running emulator",
 											systemCommand: false
