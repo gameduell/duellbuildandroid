@@ -890,4 +890,13 @@ class PlatformBuild
 			}
 		}
 	}
+
+	/// =========
+	/// HANDLE ERROR
+	/// =========
+
+	public function handleError()
+	{
+		shutdownEmulator();
+	}
 }
