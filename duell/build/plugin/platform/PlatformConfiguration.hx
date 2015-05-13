@@ -27,6 +27,7 @@
 package duell.build.plugin.platform;
 
 import haxe.io.Path;
+import duell.helpers.PathHelper;
 
 import duell.objects.Haxelib;
 
@@ -99,7 +100,7 @@ class PlatformConfiguration
 					ACTIVITY_EXTENSIONS : [],
 					JAVA_LIBS : [],
 					JARS : [],
-					JAVA_SOURCES : [{ NAME : "HXCPP", 
+					JAVA_SOURCES : [{ NAME : "HXCPP",
 									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
 									  }],
 					FULLSCREEN : false,
@@ -122,10 +123,10 @@ class PlatformConfiguration
 									{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
 													],
 					APPLICATION_PARAMETERS : [],
-					KEY_STORE : null,
-					KEY_STORE_ALIAS : null,
-					KEY_STORE_PASSWORD : null,
-					KEY_STORE_ALIAS_PASSWORD : null,
+					KEY_STORE : Path.join([PathHelper.getHomeFolder(), ".android", "debug.keystore"]),
+					KEY_STORE_ALIAS : "androiddebugkey",
+					KEY_STORE_PASSWORD : "android",
+					KEY_STORE_ALIAS_PASSWORD : "android",
 
 					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
 					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
