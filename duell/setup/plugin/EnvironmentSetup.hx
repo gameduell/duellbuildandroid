@@ -32,6 +32,7 @@ import duell.helpers.DownloadHelper;
 import duell.helpers.ExtractionHelper;
 import duell.helpers.PathHelper;
 import duell.helpers.LogHelper;
+import duell.helpers.FileHelper;
 import duell.helpers.StringHelper;
 import duell.helpers.CommandHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
@@ -170,24 +171,35 @@ class EnvironmentSetup
 
     private function setupAndroidSDK()
     {
+        var necessaryLibrariesString = "\n" +
+            "     - Android SDK Platform" + "\n" +
+            "     - Android SDK Tools" + "\n" +
+            "     - Android SDK Build-tools, revision 22.0.1" + "\n" +
+            "     - SDK Platform Android 5.0.1, API 21" + "\n" +
+            "     - SDK Platform Android 4.1.2, API 16" + "\n" +
+            "     - ARM EABI v7a System Image, Android API 21" + "\n" +
+            "     - Intel x86 Atom System Image, Android API 21" + "\n" +
+            "     - Intel x86 Emulator Accelerator" + "\n";
+
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
-            LogHelper.info("Please run SDK Manager inside the android SDK and install API16 and 21, Platform-tools, API21 system image for armv7 and x86, and tools.");
+            LogHelper.info("Unfortunately there isn't a command line interface in Windows for installing the android sdk packages automatically.");
+            LogHelper.info("Please run SDK Manager inside the android SDK ('<sdk_path>/SDK Manager.exe') and install:" + necessaryLibrariesString);
             var install = AskHelper.askYesOrNo("Are these packages installed?");
 
             if(!install)
             {
-                LogHelper.println("Please then make sure Android API16 and 21, Platform-tools and API21 system image are installed");
+                LogHelper.println("Please then make sure the previously listed modules are installed");
                 return;
             }
         }
         else
         {
-            var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages (API16 and 21, Platform-tools, API21 system image, and tools)");
+            var install = AskHelper.askYesOrNo("Would you like to install necessary Android packages: " + necessaryLibrariesString);
 
             if(!install)
             {
-                LogHelper.println ("Please then make sure Android API 16 and SDK Platform-tools are installed");
+                LogHelper.println("Please then make sure the previously listed modules are installed");
                 return;
             }
 
@@ -338,13 +350,10 @@ class EnvironmentSetup
 
             if(PlatformHelper.hostPlatform == Platform.WINDOWS)
             {
-                CommandHelper.runCommand("", "android-ndk-r10d-windows-x86.exe", ["-o", androidNDKPath], {errorMessage: "extracting ndk", systemCommand: false});
+                CommandHelper.runCommand("", "android-ndk-r10d-windows-x86.exe", [], {errorMessage: "extracting ndk", systemCommand: false});
 
-                var rootFolder = "android-ndk-r10d";
-				for (file in FileSystem.readDirectory(rootFolder))
-				{
-					CommandHelper.runCommand("", "move", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
-				}
+                FileHelper.recursiveCopyFiles("android-ndk-r10d", androidNDKPath);
+                PathHelper.removeDirectory("android-ndk-r10d");
             }
             else if (PlatformHelper.hostPlatform == Platform.LINUX)
             {
@@ -358,7 +367,7 @@ class EnvironmentSetup
 					CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
 				}
 
-                CommandHelper.runCommand("", "rm", [ "-r", rootFolder], {errorMessage: "copying files to the target directory of the extraction"});
+                CommandHelper.runCommand("", "rm", [ "-Rf", rootFolder], {errorMessage: "copying files to the target directory of the extraction"});
             }
             else
             {
