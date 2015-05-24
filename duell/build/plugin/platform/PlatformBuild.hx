@@ -74,6 +74,7 @@ class PlatformBuild
 	var isClean : Bool = false;
 	var isEmulator : Bool = false;
 	var emulatorName : Null<String> = null;
+	var emulatorArch : EmulatorArchitecture = null;
 
 	var	adbPath : String;
 	var	androidPath : String;
@@ -159,10 +160,12 @@ class PlatformBuild
 				if (isX86)
 				{
 					emulatorName = DEFAULT_X86_EMULATOR;
+					emulatorArch = X86;
 				}
 				else
 				{
 					emulatorName = DEFAULT_ARMV7_EMULATOR;
+					emulatorArch = ARM;
 				}
 			}
         }
@@ -534,7 +537,7 @@ class PlatformBuild
 		if (!isEmulator)
 			return;
 
-		emulator = new Emulator(emulatorName);
+		emulator = new Emulator(emulatorName, emulatorArch);
 		emulator.start();
 	}
 

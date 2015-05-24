@@ -26,19 +26,30 @@
 
 package duell.build.helpers;
 
-import duell.objects.DuellProcess;
-import duell.helpers.LogHelper;
-
-import duell.helpers.HXCPPConfigXMLHelper;
 import duell.objects.HXCPPConfigXML;
+import duell.objects.DuellProcess;
+
+import duell.helpers.LogHelper;
+import duell.helpers.PlatformHelper;
+import duell.helpers.HXCPPConfigXMLHelper;
+import duell.helpers.CommandHelper;
 
 import haxe.io.Path;
+enum EmulatorArchitecture
+{
+	X86;
+	ARM;
 
+	/// MIPS not supported
+}
+
+@:access(duell.objects.DuellProcess)
 class Emulator
 {
-	private static inline var EMULATOR_IS_RUNNING_TIME_TO_CHECK = 1;
+	private static inline var EMULATOR_IS_RUNNING_TIME_TO_CHECK = 3;
 	private static inline var SECONDS_BEFORE_GIVINGUP_ON_EMULATOR_LAUNCHING = 300;
 	private var emulatorName: String;
+	private var emulatorArchitecture: EmulatorArchitecture;
 
 	private var emulatorProcess: DuellProcess;
 
@@ -47,9 +58,10 @@ class Emulator
 	private var adbPath: String;
 	private var emulatorPath: String;
 
-	public function new(emulatorName: String): Void
+	public function new(emulatorName: String, emulatorArchitecture: EmulatorArchitecture = null): Void
 	{
 		this.emulatorName = emulatorName;
+		this.emulatorArchitecture = emulatorArchitecture;
 
 		var hxcppConfig = HXCPPConfigXML.getConfig(HXCPPConfigXMLHelper.getProbableHXCPPConfigLocation());
 		var defines : Map<String, String> = hxcppConfig.getDefines();
@@ -66,6 +78,51 @@ class Emulator
 			portToUse += 1;
 		}
 
+		adbKillStartServer();
+
+		var args = ["-avd", emulatorName,
+					"-prop", "persist.sys.language=en",
+					"-prop", "persist.sys.country=GB",
+					"-port", "" + portToUse,
+					"-no-snapshot-load", "-no-snapshot-save",
+					"-gpu", "on", "-noaudio"];
+
+		var emulator = "emulator";
+		var actualEmulatorPath = emulatorPath;
+		if (PlatformHelper.hostPlatform == Platform.WINDOWS)
+		{
+			if (emulatorArchitecture != null)
+			{
+				switch (emulatorArchitecture)
+				{
+					case ARM:
+						emulator = "../emulator-arm.exe";
+						actualEmulatorPath = Path.join([emulatorPath, "lib"]);
+					case X86:
+						emulator = "../emulator-x86.exe";
+						actualEmulatorPath = Path.join([emulatorPath, "lib"]);
+					default:
+				}
+			}
+		}
+
+		emulatorProcess = new DuellProcess(
+										actualEmulatorPath,
+										emulator,
+										args,
+										{
+											timeout : 0,
+											logOnlyIfVerbose : true,
+											loggingPrefix : "[Emulator]",
+											shutdownOnError : false,
+											block : false,
+											errorMessage : "running emulator",
+											systemCommand: false
+										});
+	}
+
+	private function adbKillStartServer(): Void
+	{
 		var adbKillServer = new DuellProcess(
 							adbPath,
 							"adb",
@@ -79,7 +136,6 @@ class Emulator
 								errorMessage : "restarting adb",
 								systemCommand: false
 							});
-		adbKillServer.blockUntilFinished();
 
 		var adbStartServer = new DuellProcess(
 							adbPath,
@@ -90,36 +146,16 @@ class Emulator
 								logOnlyIfVerbose : true,
 								loggingPrefix : "[ADB]",
 								shutdownOnError : false,
-								block : false,
+								block : true,
 								errorMessage : "restarting adb",
 								systemCommand: false
 							});
-
-		var args = ["-avd", emulatorName,
-					"-prop", "persist.sys.language=en",
-					"-prop", "persist.sys.country=GB",
-					"-port", "" + portToUse,
-					"-no-snapshot-load", "-no-snapshot-save",
-					"-gpu", "on", "-noaudio"];
-
-		emulatorProcess = new DuellProcess(
-										emulatorPath,
-										"emulator",
-										args,
-										{
-											timeout : 0,
-											logOnlyIfVerbose : true,
-											loggingPrefix : "[Emulator]",
-											shutdownOnError : false,
-											block : false,
-											errorMessage : "running emulator",
-											systemCommand: false
-										});
 	}
 
 	public function shutdown(): Void
 	{
-		emulatorProcess.kill();
+		if (emulatorProcess != null)
+			emulatorProcess.kill();
 	}
 
 	public function waitUntilReady(): Void
@@ -132,28 +168,58 @@ class Emulator
 
 		var opts = {
 			timeout : 0.0,
-			mute: true,
+			mute: false,
 			shutdownOnError : false,
 			block : true,
 			errorMessage : "checking if emulator is connected",
 			systemCommand: false
 		};
 
+		var alreadyConnected = false;
+
+		var startKillCounter = 10;
 		while (true)
 		{
+			if (!alreadyConnected && startKillCounter == 0)
+			{
+				adbKillStartServer();
+				startKillCounter = 10;
+			}
 			if (timeStarted + SECONDS_BEFORE_GIVINGUP_ON_EMULATOR_LAUNCHING < haxe.Timer.stamp())
 			{
 				throw "time out connecting to the emulator";
 			}
 
-			new DuellProcess(adbPath, "adb", argsConnect, opts);
+			LogHelper.info("Trying to connect to the emulator...");
 
-			var output = new DuellProcess(adbPath, "adb", argsBoot, opts).getCompleteStdout().toString();
+			if (!alreadyConnected)
+			{
+				new DuellProcess(adbPath, "adb", argsConnect, opts);
+			}
+
+			var proc = new DuellProcess(adbPath, "adb", argsBoot, opts);
+			var output = proc.getCompleteStdout().toString();
+			var outputError = proc.getCompleteStderr().toString();
 
 			if (output.indexOf("1") != -1)
 			{
 				break;
 			}
+
+			if (outputError.indexOf("device not found") != -1)
+			{
+				alreadyConnected = false;
+			}
+			else if(outputError.indexOf("device offline") != -1)
+			{
+				alreadyConnected = false;
+			}
+			else
+			{
+				alreadyConnected = true;
+			}
+
+			startKillCounter--;
 			Sys.sleep(EMULATOR_IS_RUNNING_TIME_TO_CHECK);
 		}
 	}
