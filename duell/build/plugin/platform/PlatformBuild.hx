@@ -83,14 +83,18 @@ class PlatformBuild
 	var emulator: Emulator;
 	var logcatProcess: DuellProcess; /// will block here if emulator is not running.
 
-	public function new() : Void
-	{
+	public function new() : Void {}
+
+    public function parse()
+    {
         checkArguments();
+		prepareVariablesPreParse();
 
-        prepareVars();
-	}
+		var projectXML = DuellProjectXML.getConfig();
+		projectXML.parse();
+    }
 
-	private function prepareVars()
+	private function prepareVariablesPreParse()
 	{
 		var hxcppConfig = HXCPPConfigXML.getConfig(HXCPPConfigXMLHelper.getProbableHXCPPConfigLocation());
 		var defines : Map<String, String> = hxcppConfig.getDefines();
@@ -183,19 +187,13 @@ class PlatformBuild
 		}
 	}
 
-    public function parse()
-    {
-		var projectXML = DuellProjectXML.getConfig();
-		projectXML.parse();
-    }
-
 	/// =========
 	/// PREPARE BUILD
 	/// =========
 
     public function prepareBuild()
     {
-    	prepareVariables();
+    	prepareVariablesPostParse();
 
 		/// Additional Configuration
 		startEmulator();
@@ -213,7 +211,7 @@ class PlatformBuild
 		prepareAndroidBuild();
     }
 
-    private function prepareVariables()
+    private function prepareVariablesPostParse()
     {
     	/// Set variables
 		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
@@ -850,7 +848,7 @@ class PlatformBuild
 	public function fast()
 	{
 		startEmulator();
-		prepareVariables();
+		prepareVariablesPostParse();
 		build();
 
 		if (Arguments.isSet("-test"))
@@ -865,7 +863,7 @@ class PlatformBuild
 
 	public function clean()
 	{
-		prepareVariables();
+		prepareVariablesPostParse();
 		addHXCPPLibs();
 
 		LogHelper.info('Cleaning android part of export folder...');
