@@ -275,6 +275,7 @@ class PlatformBuild
 	{
 		Configuration.getData().PLATFORM.APPLICATION_PARAMETERS.push({NAME : "debuggable", VALUE : "true"});
 		Configuration.getData().HAXE_COMPILE_ARGS.push("-debug");
+		Configuration.getData().PLATFORM.DEBUG = true;
 	}
 
 	private function convertArchsToArchABIs()
