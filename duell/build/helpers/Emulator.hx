@@ -146,7 +146,7 @@ class Emulator
 								logOnlyIfVerbose : true,
 								loggingPrefix : "[ADB]",
 								shutdownOnError : false,
-								block : true,
+								block : false,
 								errorMessage : "restarting adb",
 								systemCommand: false
 							});
