@@ -69,6 +69,7 @@ class PlatformBuild
 	var fullTestResultPath : String;
 	var isDebug : Bool = false;
 	var isNDKGDB : Bool = false;
+    var isVerbose : Bool = false;
 	var isBuildNDLL : Bool = true;
 	var isFullLogcat : Bool = false;
 	var isClean : Bool = false;
@@ -129,6 +130,11 @@ class PlatformBuild
 		if (Arguments.isSet("-ndkgdb"))
 		{
 			isNDKGDB = true;
+		}
+
+		if (Arguments.isSet("-verbose"))
+		{
+			isVerbose = true;
 		}
 
 		var isArmv6 = Arguments.isSet("-armv6");
@@ -578,8 +584,14 @@ class PlatformBuild
 
 	private function buildHaxe()
 	{
+        var args: Array<String> = ["Build.hxml"];
 
-		CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ["Build.hxml"], {errorMessage: "compiling the haxe code into c++"});
+        if (isVerbose)
+        {
+            args.push("-v");
+        }
+
+		CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), args, {errorMessage: "compiling the haxe code into c++"});
 
 	    var destFolder = Path.join([projectDirectory, "libs"]);
 
@@ -663,7 +675,14 @@ class PlatformBuild
 			build = "debug";
 		}
 
-		CommandHelper.runCommand(projectDirectory, ant, [build], {errorMessage: "compiling the .apk"});
+        var args: Array<String> = [build];
+
+        if (isVerbose)
+        {
+            args.push("-v");
+        }
+
+		CommandHelper.runCommand(projectDirectory, ant, args, {errorMessage: "compiling the .apk"});
 	}
 
 	/// =========
