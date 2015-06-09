@@ -54,785 +54,804 @@ using StringTools;
 
 class PlatformBuild
 {
-	public var requiredSetups = [{name: "android", version: "4.0.0"}];
-	public var supportedHostPlatforms = [LINUX, WINDOWS, MAC];
-	private static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
-	private static inline var DEFAULT_ARMV7_EMULATOR = "duellarmv7";
-	private static inline var DEFAULT_X86_EMULATOR = "duellx86";
-	private static inline var DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP = 1;
+    public var requiredSetups = [{name: "android", version: "4.0.0"}];
+    public var supportedHostPlatforms = [LINUX, WINDOWS, MAC];
+    private static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
+    private static inline var DEFAULT_ARMV7_EMULATOR = "duellarmv7";
+    private static inline var DEFAULT_X86_EMULATOR = "duellx86";
+    private static inline var DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP = 1;
 
-	/// VARIABLES SET AFTER PARSING
-	var targetDirectory : String;
-	var publishDirectory : String;
-	var projectDirectory : String;
-	var duellBuildAndroidPath : String;
-	var fullTestResultPath : String;
-	var isDebug : Bool = false;
-	var isNDKGDB : Bool = false;
-	var isBuildNDLL : Bool = true;
-	var isFullLogcat : Bool = false;
-	var isClean : Bool = false;
-	var isEmulator : Bool = false;
-	var emulatorName : Null<String> = null;
-	var emulatorArch : EmulatorArchitecture = null;
+    /// VARIABLES SET AFTER PARSING
+    var targetDirectory : String;
+    var publishDirectory : String;
+    var projectDirectory : String;
+    var duellBuildAndroidPath : String;
+    var fullTestResultPath : String;
+    var isDebug : Bool = false;
+    var isNDKGDB : Bool = false;
+    var isVerbose : Bool = false;
+    var isBuildNDLL : Bool = true;
+    var isFullLogcat : Bool = false;
+    var isClean : Bool = false;
+    var isEmulator : Bool = false;
+    var emulatorName : Null<String> = null;
+    var emulatorArch : EmulatorArchitecture = null;
 
-	var	adbPath : String;
-	var	androidPath : String;
-	var	emulatorPath : String;
-	var antPath : String;
+    var	adbPath : String;
+    var	androidPath : String;
+    var	emulatorPath : String;
+    var antPath : String;
 
-	var emulator: Emulator;
-	var logcatProcess: DuellProcess; /// will block here if emulator is not running.
+    var emulator: Emulator;
+    var logcatProcess: DuellProcess; /// will block here if emulator is not running.
 
-	public function new() : Void {}
+    public function new() : Void {}
 
     public function parse()
     {
         checkArguments();
-		prepareVariablesPreParse();
+        prepareVariablesPreParse();
 
-		var projectXML = DuellProjectXML.getConfig();
-		projectXML.parse();
+        var projectXML = DuellProjectXML.getConfig();
+        projectXML.parse();
     }
 
-	private function prepareVariablesPreParse()
-	{
-		var hxcppConfig = HXCPPConfigXML.getConfig(HXCPPConfigXMLHelper.getProbableHXCPPConfigLocation());
-		var defines : Map<String, String> = hxcppConfig.getDefines();
+    private function prepareVariablesPreParse()
+    {
+        var hxcppConfig = HXCPPConfigXML.getConfig(HXCPPConfigXMLHelper.getProbableHXCPPConfigLocation());
+        var defines : Map<String, String> = hxcppConfig.getDefines();
 
-		if (!defines.exists("ANDROID_SDK"))
-			throw "ANDROID_SDK not set in hxcpp config, did you run duell setup android correctly?";
+        if (!defines.exists("ANDROID_SDK"))
+            throw "ANDROID_SDK not set in hxcpp config, did you run duell setup android correctly?";
 
-		if (!defines.exists("ANT_HOME"))
-			throw "ANT_HOME not set in hxcpp config, did you run duell setup android correctly?";
+        if (!defines.exists("ANT_HOME"))
+            throw "ANT_HOME not set in hxcpp config, did you run duell setup android correctly?";
 
-		if (!defines.exists("ANDROID_NDK_ROOT"))
-			throw "ANDROID_NDK_DIR not set in hxcpp config, did you run duell setup android correctly?";
+        if (!defines.exists("ANDROID_NDK_ROOT"))
+            throw "ANDROID_NDK_DIR not set in hxcpp config, did you run duell setup android correctly?";
 
-		Sys.putEnv("ANDROID_SDK", defines.get("ANDROID_SDK"));
+        Sys.putEnv("ANDROID_SDK", defines.get("ANDROID_SDK"));
 
-		Configuration.getData().PLATFORM.NDK_PATH = defines.get("ANDROID_NDK_ROOT");
+        Configuration.getData().PLATFORM.NDK_PATH = defines.get("ANDROID_NDK_ROOT");
 
-		adbPath = Path.join([defines.get("ANDROID_SDK"), "platform-tools"]);
-		androidPath = Path.join([defines.get("ANDROID_SDK"), "tools"]);
-		emulatorPath = Path.join([defines.get("ANDROID_SDK"), "tools"]);
-		antPath = defines.get("ANT_HOME");
-	}
+        adbPath = Path.join([defines.get("ANDROID_SDK"), "platform-tools"]);
+        androidPath = Path.join([defines.get("ANDROID_SDK"), "tools"]);
+        emulatorPath = Path.join([defines.get("ANDROID_SDK"), "tools"]);
+        antPath = defines.get("ANT_HOME");
+    }
 
-	private function checkArguments()
-	{
-		if (Arguments.isSet("-debug"))
-		{
-			isDebug = true;
-		}
+    private function checkArguments()
+    {
+        if (Arguments.isSet("-debug"))
+        {
+            isDebug = true;
+        }
 
-		if (Arguments.isSet("-ndkgdb"))
-		{
-			isNDKGDB = true;
-		}
+        if (Arguments.isSet("-ndkgdb"))
+        {
+            isNDKGDB = true;
+        }
 
-		var isArmv6 = Arguments.isSet("-armv6");
-		var isArmv7 = Arguments.isSet("-armv7");
-		var isX86 = Arguments.isSet("-x86");
+        if (Arguments.isSet("-verbose"))
+        {
+            isVerbose = true;
+        }
 
-		if (isArmv7 || isX86)
-		{
-			Configuration.getData().PLATFORM.ARCHS = [];
+        var isArmv6 = Arguments.isSet("-armv6");
+        var isArmv7 = Arguments.isSet("-armv7");
+        var isX86 = Arguments.isSet("-x86");
 
-			if (isArmv6)
-				Configuration.getData().PLATFORM.ARCHS.push("armv6");
-			if (isArmv7)
-				Configuration.getData().PLATFORM.ARCHS.push("armv7");
-			if (isX86)
-				Configuration.getData().PLATFORM.ARCHS.push("x86");
-		}
+        if (isArmv7 || isX86)
+        {
+            Configuration.getData().PLATFORM.ARCHS = [];
+
+            if (isArmv6)
+                Configuration.getData().PLATFORM.ARCHS.push("armv6");
+            if (isArmv7)
+                Configuration.getData().PLATFORM.ARCHS.push("armv7");
+            if (isX86)
+                Configuration.getData().PLATFORM.ARCHS.push("x86");
+        }
 
 
         if (Arguments.isSet("-emulator"))
         {
-			isEmulator = true;
-			if (Arguments.isSet("-emulatorname"))
-			{
-            	emulatorName = Arguments.get("-emulatorname");
-			}
-			else
-			{
-				if (isX86)
-				{
-					emulatorName = DEFAULT_X86_EMULATOR;
-					emulatorArch = X86;
-				}
-				else
-				{
-					emulatorName = DEFAULT_ARMV7_EMULATOR;
-					emulatorArch = ARM;
-				}
-			}
+            isEmulator = true;
+            if (Arguments.isSet("-emulatorname"))
+            {
+                emulatorName = Arguments.get("-emulatorname");
+            }
+            else
+            {
+                if (isX86)
+                {
+                    emulatorName = DEFAULT_X86_EMULATOR;
+                    emulatorArch = X86;
+                }
+                else
+                {
+                    emulatorName = DEFAULT_ARMV7_EMULATOR;
+                    emulatorArch = ARM;
+                }
+            }
         }
 
-		if (Arguments.isSet("-fulllogcat"))
-		{
-			isFullLogcat = true;
-		}
+        if (Arguments.isSet("-fulllogcat"))
+        {
+            isFullLogcat = true;
+        }
 
-		if (Arguments.isSet("-test"))
-		{
-			Configuration.addParsingDefine("test");
-		}
+        if (Arguments.isSet("-test"))
+        {
+            Configuration.addParsingDefine("test");
+        }
 
-		if (isDebug)
-		{
-			Configuration.addParsingDefine("debug");
-		}
-		else
-		{
-			Configuration.addParsingDefine("release");
-		}
-	}
+        if (isDebug)
+        {
+            Configuration.addParsingDefine("debug");
+        }
+        else
+        {
+            Configuration.addParsingDefine("release");
+        }
+    }
 
-	/// =========
-	/// PREPARE BUILD
-	/// =========
+    /// =========
+    /// PREPARE BUILD
+    /// =========
 
     public function prepareBuild()
     {
-    	prepareVariablesPostParse();
+        prepareVariablesPostParse();
 
-		/// Additional Configuration
-		startEmulator();
-		addHXCPPLibs();
-		convertDuellAndHaxelibsIntoHaxeCompilationFlags();
-		addArchitectureInfoToHaxeCompilationFlags();
-		convertParsingDefinesToCompilationDefines();
-		forceDeprecationWarnings();
+        /// Additional Configuration
+        startEmulator();
+        addHXCPPLibs();
+        convertDuellAndHaxelibsIntoHaxeCompilationFlags();
+        addArchitectureInfoToHaxeCompilationFlags();
+        convertParsingDefinesToCompilationDefines();
+        forceDeprecationWarnings();
 
-		if (isDebug)
-			addDebuggingInformation();
+        if (isDebug)
+            addDebuggingInformation();
 
-		convertArchsToArchABIs();
+        convertArchsToArchABIs();
 
-		prepareAndroidBuild();
+        prepareAndroidBuild();
     }
 
     private function prepareVariablesPostParse()
     {
-    	/// Set variables
-		targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
-		publishDirectory = Path.join([Configuration.getData().PUBLISH, "android"]);
-		fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
-		projectDirectory = Path.join([targetDirectory, "bin"]);
-		duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
+        /// Set variables
+        targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
+        publishDirectory = Path.join([Configuration.getData().PUBLISH, "android"]);
+        fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
+        projectDirectory = Path.join([targetDirectory, "bin"]);
+        duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
     }
 
-	private function addHXCPPLibs()
-	{
-		var binPath = Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "bin"]);
-		var buildFilePath = Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "project", "Build.xml"]);
+    private function addHXCPPLibs()
+    {
+        var binPath = Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "bin"]);
+        var buildFilePath = Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "project", "Build.xml"]);
 
-		Configuration.getData().NDLLS.push({NAME : "std", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
-		Configuration.getData().NDLLS.push({NAME : "regexp", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
-		Configuration.getData().NDLLS.push({NAME : "zlib", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
-	}
+        Configuration.getData().NDLLS.push({NAME : "std", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
+        Configuration.getData().NDLLS.push({NAME : "regexp", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
+        Configuration.getData().NDLLS.push({NAME : "zlib", BIN_PATH : binPath, BUILD_FILE_PATH : buildFilePath, REGISTER_STATICS : true, DEBUG_SUFFIX : false});
+    }
 
-	private function convertDuellAndHaxelibsIntoHaxeCompilationFlags()
-	{
-		for (haxelib in Configuration.getData().DEPENDENCIES.HAXELIBS)
-		{
+    private function convertDuellAndHaxelibsIntoHaxeCompilationFlags()
+    {
+        for (haxelib in Configuration.getData().DEPENDENCIES.HAXELIBS)
+        {
             var version = haxelib.version;
             if (version.startsWith("ssh") || version.startsWith("http"))
                 version = "git";
             Configuration.getData().HAXE_COMPILE_ARGS.push("-lib " + haxelib.name + (version != "" ? ":" + version : ""));
         }
 
-		for (duelllib in Configuration.getData().DEPENDENCIES.DUELLLIBS)
-		{
-			Configuration.getData().HAXE_COMPILE_ARGS.push("-cp " + DuellLib.getDuellLib(duelllib.name, duelllib.version).getPath());
-		}
+        for (duelllib in Configuration.getData().DEPENDENCIES.DUELLLIBS)
+        {
+            Configuration.getData().HAXE_COMPILE_ARGS.push("-cp " + DuellLib.getDuellLib(duelllib.name, duelllib.version).getPath());
+        }
 
-		for (path in Configuration.getData().SOURCES)
-		{
-			Configuration.getData().HAXE_COMPILE_ARGS.push("-cp " + path);
-		}
-	}
+        for (path in Configuration.getData().SOURCES)
+        {
+            Configuration.getData().HAXE_COMPILE_ARGS.push("-cp " + path);
+        }
+    }
 
     private function convertParsingDefinesToCompilationDefines()
-	{
-		for (define in DuellProjectXML.getConfig().parsingConditions)
-		{
-			if (define == "cpp") /// not allowed
-				continue;
+    {
+        for (define in DuellProjectXML.getConfig().parsingConditions)
+        {
+            if (define == "cpp") /// not allowed
+                continue;
 
-			Configuration.getData().HAXE_COMPILE_ARGS.push("-D " + define);
-		}
-	}
+            Configuration.getData().HAXE_COMPILE_ARGS.push("-D " + define);
+        }
+    }
 
-	private function forceDeprecationWarnings(): Void
-	{
-		Configuration.getData().HAXE_COMPILE_ARGS.push("-D deprecation-warnings");
-	}
+    private function forceDeprecationWarnings(): Void
+    {
+        Configuration.getData().HAXE_COMPILE_ARGS.push("-D deprecation-warnings");
+    }
 
-	private function addDebuggingInformation()
-	{
-		Configuration.getData().PLATFORM.APPLICATION_PARAMETERS.push({NAME : "debuggable", VALUE : "true"});
-		Configuration.getData().HAXE_COMPILE_ARGS.push("-debug");
-		Configuration.getData().PLATFORM.DEBUG = true;
-	}
+    private function addDebuggingInformation()
+    {
+        Configuration.getData().PLATFORM.APPLICATION_PARAMETERS.push({NAME : "debuggable", VALUE : "true"});
+        Configuration.getData().HAXE_COMPILE_ARGS.push("-debug");
+        Configuration.getData().PLATFORM.DEBUG = true;
+    }
 
-	private function convertArchsToArchABIs()
-	{
-		for (arch in Configuration.getData().PLATFORM.ARCHS)
-		{
-			switch (arch)
-			{
-				case "armv6":
-					Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi");
-				case "armv7":
-					Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi-v7a");
-				case "x86":
-					Configuration.getData().PLATFORM.ARCH_ABIS.push("x86");
-			}
-		}
-	}
+    private function convertArchsToArchABIs()
+    {
+        for (arch in Configuration.getData().PLATFORM.ARCHS)
+        {
+            switch (arch)
+            {
+                case "armv6":
+                    Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi");
+                case "armv7":
+                    Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi-v7a");
+                case "x86":
+                    Configuration.getData().PLATFORM.ARCH_ABIS.push("x86");
+            }
+        }
+    }
 
-	private function addArchitectureInfoToHaxeCompilationFlags()
-	{
-		for (arch in Configuration.getData().PLATFORM.ARCHS)
-		{
-			switch (arch)
-			{
-				case "armv6":
-				case "armv7":
-					Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
-				case "x86":
-					Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
-			}
-		}
-	}
+    private function addArchitectureInfoToHaxeCompilationFlags()
+    {
+        for (arch in Configuration.getData().PLATFORM.ARCHS)
+        {
+            switch (arch)
+            {
+                case "armv6":
+                case "armv7":
+                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
+                case "x86":
+                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
+            }
+        }
+    }
 
     private function prepareAndroidBuild() : Void
     {
-		createDirectoriesAndCopyTemplates();
-		handleIcons();
-		handleNDLLs();
-		handleJavaSources();
-		handleJars();
-		handleJavaLibs();
+        createDirectoriesAndCopyTemplates();
+        handleIcons();
+        handleNDLLs();
+        handleJavaSources();
+        handleJars();
+        handleJavaLibs();
     }
 
     private function createDirectoriesAndCopyTemplates() : Void
     {
-		var packageDirectory = Configuration.getData().APP.PACKAGE;
-		packageDirectory = Path.join([projectDirectory, "src"].concat(packageDirectory.split(".")));
-		PathHelper.mkdir(packageDirectory);
+        var packageDirectory = Configuration.getData().APP.PACKAGE;
+        packageDirectory = Path.join([projectDirectory, "src"].concat(packageDirectory.split(".")));
+        PathHelper.mkdir(packageDirectory);
 
-		var originMainActivity = Path.join([duellBuildAndroidPath, "template", "android", "MainActivity.java"]);
-		var destMainActivity = Path.join([packageDirectory, "MainActivity.java"]);
-		TemplateHelper.copyTemplateFile(originMainActivity, destMainActivity, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+        var originMainActivity = Path.join([duellBuildAndroidPath, "template", "android", "MainActivity.java"]);
+        var destMainActivity = Path.join([packageDirectory, "MainActivity.java"]);
+        TemplateHelper.copyTemplateFile(originMainActivity, destMainActivity, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
 
-		var originProjectTemplate = Path.join([duellBuildAndroidPath, "template", "android", "template"]);
-		var destProjectTemplate = projectDirectory;
+        var originProjectTemplate = Path.join([duellBuildAndroidPath, "template", "android", "template"]);
+        var destProjectTemplate = projectDirectory;
 
-		TemplateHelper.recursiveCopyTemplatedFiles(originProjectTemplate, destProjectTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+        TemplateHelper.recursiveCopyTemplatedFiles(originProjectTemplate, destProjectTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
 
-		var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe"]);
-		var destHaxeTemplate = Path.join([targetDirectory, "haxe"]);
-		TemplateHelper.recursiveCopyTemplatedFiles(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+        var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe"]);
+        var destHaxeTemplate = Path.join([targetDirectory, "haxe"]);
+        TemplateHelper.recursiveCopyTemplatedFiles(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
     }
 
     private function handleIcons()
     {
-		if (!FileSystem.exists(PlatformConfiguration.getData().ICON_PATH))
-		{
-			LogHelper.println('Icon path ${PlatformConfiguration.getData().ICON_PATH} is not accessible.');
-			return;
-		}
+        if (!FileSystem.exists(PlatformConfiguration.getData().ICON_PATH))
+        {
+            LogHelper.println('Icon path ${PlatformConfiguration.getData().ICON_PATH} is not accessible.');
+            return;
+        }
 
-		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi" ];
+        var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi" ];
 
-		for (iconType in iconTypes)
-		{
-			var iconOriginPath = haxe.io.Path.join([PlatformConfiguration.getData().ICON_PATH, 'drawable-$iconType']);
+        for (iconType in iconTypes)
+        {
+            var iconOriginPath = haxe.io.Path.join([PlatformConfiguration.getData().ICON_PATH, 'drawable-$iconType']);
             var iconDestinationPath = haxe.io.Path.join([projectDirectory, "res", 'drawable-$iconType']);
 
-			PathHelper.mkdir(iconDestinationPath);
+            PathHelper.mkdir(iconDestinationPath);
 
-			if (!FileSystem.exists(iconOriginPath))
-			{
-				LogHelper.println('Icon type "$iconType" not found.');
-				continue;
-			}
+            if (!FileSystem.exists(iconOriginPath))
+            {
+                LogHelper.println('Icon type "$iconType" not found.');
+                continue;
+            }
 
             FileHelper.recursiveCopyFiles(iconOriginPath, iconDestinationPath);
-		}
+        }
     }
 
 
-	private function handleNDLLs()
-	{
-		var destFolder = Path.join([projectDirectory, "libs"]);
+    private function handleNDLLs()
+    {
+        var destFolder = Path.join([projectDirectory, "libs"]);
 
-		for (archID in 0...3)
-		{
-			var arch = ["armv6", "armv7", "x86"][archID];
+        for (archID in 0...3)
+        {
+            var arch = ["armv6", "armv7", "x86"][archID];
 
-			var argsForBuild = [["-Dandroid"],
-								["-Dandroid", "-DHXCPP_ARMV7"],
-								["-Dandroid", "-DHXCPP_X86"]][archID];
+            var argsForBuild = [["-Dandroid"],
+                                ["-Dandroid", "-DHXCPP_ARMV7"],
+                                ["-Dandroid", "-DHXCPP_X86"]][archID];
 
-			if (isDebug)
-			{
-				argsForBuild.push("-Ddebug");
+            if (isDebug)
+            {
+                argsForBuild.push("-Ddebug");
 
-			}
+            }
 
-			var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
 
-			var extension = [".so", "-v7.so", "-x86.so"][archID];
+            var extension = [".so", "-v7.so", "-x86.so"][archID];
 
-			var destFolderArch = Path.join([destFolder, folderName]);
+            var destFolderArch = Path.join([destFolder, folderName]);
 
-			if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
-			{
-				if (FileSystem.exists(destFolderArch))
-				{
-					PathHelper.removeDirectory(destFolderArch);
-				}
-				continue;
-			}
+            if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
+            {
+                if (FileSystem.exists(destFolderArch))
+                {
+                    PathHelper.removeDirectory(destFolderArch);
+                }
+                continue;
+            }
 
-			PathHelper.mkdir(destFolderArch);
+            PathHelper.mkdir(destFolderArch);
 
-			for (ndll in Configuration.getData().NDLLS)
-			{
-				if (isBuildNDLL)
-				{
-	        		var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH)].concat(argsForBuild), {errorMessage: "building ndll"});
+            for (ndll in Configuration.getData().NDLLS)
+            {
+                if (isBuildNDLL)
+                {
+                    var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH)].concat(argsForBuild), {errorMessage: "building ndll"});
 
-					if (result != 0)
-						throw "Problem building ndll " + ndll.NAME;
-				}
+                    if (result != 0)
+                        throw "Problem building ndll " + ndll.NAME;
+                }
 
-				copyNDLL(ndll, folderName, argsForBuild, extension);
-			}
-		}
-	}
+                copyNDLL(ndll, folderName, argsForBuild, extension);
+            }
+        }
+    }
 
-	private function copyNDLL(ndll : {NAME:String, BIN_PATH:String, BUILD_FILE_PATH:String, REGISTER_STATICS:Bool, DEBUG_SUFFIX:Bool},
-								destFolderName : String, argsForBuild : Array<String>, libExt : String)
-	{
-		/// if there is no suffix, tbe release version might be used.
-		var debugSuffix = ndll.DEBUG_SUFFIX? "-debug": "";
+    private function copyNDLL(ndll : {NAME:String, BIN_PATH:String, BUILD_FILE_PATH:String, REGISTER_STATICS:Bool, DEBUG_SUFFIX:Bool},
+                                destFolderName : String, argsForBuild : Array<String>, libExt : String)
+    {
+        /// if there is no suffix, tbe release version might be used.
+        var debugSuffix = ndll.DEBUG_SUFFIX? "-debug": "";
 
-		/// Try debug version
-		var releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + libExt]);
-		var debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + debugSuffix + libExt]);
+        /// Try debug version
+        var releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + libExt]);
+        var debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + debugSuffix + libExt]);
 
-		/// Doesn't exist, so use the release on as debug
-		if (!FileSystem.exists(debugLib))
-		{
-			debugLib = releaseLib;
-		}
+        /// Doesn't exist, so use the release on as debug
+        if (!FileSystem.exists(debugLib))
+        {
+            debugLib = releaseLib;
+        }
 
-		var dest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + ".so"]);
+        var dest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + ".so"]);
 
-		/// Release doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
-		if (!isDebug && !FileSystem.exists(releaseLib))
-		{
-			releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + ".so"]);
-		}
+        /// Release doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
+        if (!isDebug && !FileSystem.exists(releaseLib))
+        {
+            releaseLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + ".so"]);
+        }
 
-		/// Debug doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
-		if (isDebug && !FileSystem.exists(debugLib))
-		{
-			debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + debugSuffix + ".so"]);
-		}
+        /// Debug doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
+        if (isDebug && !FileSystem.exists(debugLib))
+        {
+            debugLib = Path.join([ndll.BIN_PATH, "Android", "lib" + ndll.NAME + debugSuffix + ".so"]);
+        }
 
-		/// Copy!
-		if (!isDebug)
-		{
-			FileHelper.copyIfNewer(releaseLib, dest);
-		}
+        /// Copy!
+        if (!isDebug)
+        {
+            FileHelper.copyIfNewer(releaseLib, dest);
+        }
 
-		if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib)
-		{
-			FileHelper.copyIfNewer (debugLib, dest);
-		}
-
-
-		/// Copy!
-		if (!isDebug)
-		{
-			if (!FileSystem.exists(releaseLib))
-			{
-				throw "Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH;
-			}
-
-			FileHelper.copyIfNewer(releaseLib, dest);
-		}
-		else
-		{
-			if (!FileSystem.exists(debugLib))
-			{
-				throw "Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH;
-			}
-
-			FileHelper.copyIfNewer (debugLib, dest);
-		}
-	}
+        if (isDebug && FileSystem.exists(debugLib) && debugLib != releaseLib)
+        {
+            FileHelper.copyIfNewer (debugLib, dest);
+        }
 
 
-	private function handleJars() : Void
-	{
-		for (jar in PlatformConfiguration.getData().JARS)
-		{
-			if (jar == "" || !FileSystem.exists(jar))
-			{
-				throw "Invalid Jar path " + jar;
-			}
+        /// Copy!
+        if (!isDebug)
+        {
+            if (!FileSystem.exists(releaseLib))
+            {
+                throw "Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH;
+            }
 
-			FileHelper.copyIfNewer(jar, Path.join([projectDirectory, "libs", Path.withoutDirectory(jar)]));
-		}
-	}
+            FileHelper.copyIfNewer(releaseLib, dest);
+        }
+        else
+        {
+            if (!FileSystem.exists(debugLib))
+            {
+                throw "Could not find release lib for ndll" + ndll.NAME + " built with build file " + ndll.BUILD_FILE_PATH + " and having output folder " + ndll.BIN_PATH;
+            }
 
-	private function handleJavaSources() : Void
-	{
-	    for (javaSource in PlatformConfiguration.getData().JAVA_SOURCES)
-		{
-			if (javaSource.PATH == "" || !FileSystem.exists(javaSource.PATH))
-			{
-				throw "Invalid Java Sources path " + javaSource;
-			}
-
-			if (FileSystem.isDirectory(javaSource.PATH))
-			{
-				TemplateHelper.recursiveCopyTemplatedFiles(javaSource.PATH, Path.join([projectDirectory, "src"]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
-			}
-			else
-			{
-				FileHelper.copyIfNewer(javaSource.PATH, Path.join([projectDirectory, "src", Path.withoutDirectory(javaSource.PATH)]));
-			}
-		}
-	}
-
-	private function handleJavaLibs() : Void
-	{
-	    for (javaLib in PlatformConfiguration.getData().JAVA_LIBS)
-		{
-			if (javaLib.PATH == "" || !FileSystem.isDirectory(javaLib.PATH) )
-				throw "Invalid Java Lib path! " + javaLib;
-
-			if (!FileSystem.exists(haxe.io.Path.join([javaLib.PATH, "project.properties"])))
-				throw "Java Lib path is missing project.properties file. " + javaLib;
-
-			TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
-		}
-	}
+            FileHelper.copyIfNewer (debugLib, dest);
+        }
+    }
 
 
-	/// =========
-	///	EMULATOR
-	/// =========
+    private function handleJars() : Void
+    {
+        for (jar in PlatformConfiguration.getData().JARS)
+        {
+            if (jar == "" || !FileSystem.exists(jar))
+            {
+                throw "Invalid Jar path " + jar;
+            }
 
-	public function startEmulator()
-	{
-		if (!isEmulator)
-			return;
+            FileHelper.copyIfNewer(jar, Path.join([projectDirectory, "libs", Path.withoutDirectory(jar)]));
+        }
+    }
 
-		emulator = new Emulator(emulatorName, emulatorArch);
-		emulator.start();
-	}
+    private function handleJavaSources() : Void
+    {
+        for (javaSource in PlatformConfiguration.getData().JAVA_SOURCES)
+        {
+            if (javaSource.PATH == "" || !FileSystem.exists(javaSource.PATH))
+            {
+                throw "Invalid Java Sources path " + javaSource;
+            }
 
-	public function waitForEmulatorReady()
-	{
-		if (!isEmulator)
-			return;
+            if (FileSystem.isDirectory(javaSource.PATH))
+            {
+                TemplateHelper.recursiveCopyTemplatedFiles(javaSource.PATH, Path.join([projectDirectory, "src"]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+            }
+            else
+            {
+                FileHelper.copyIfNewer(javaSource.PATH, Path.join([projectDirectory, "src", Path.withoutDirectory(javaSource.PATH)]));
+            }
+        }
+    }
 
-		emulator.waitUntilReady();
-	}
+    private function handleJavaLibs() : Void
+    {
+        for (javaLib in PlatformConfiguration.getData().JAVA_LIBS)
+        {
+            if (javaLib.PATH == "" || !FileSystem.isDirectory(javaLib.PATH) )
+                throw "Invalid Java Lib path! " + javaLib;
 
-	public function waitForEmulatorFinished()
-	{
-		if (!isEmulator)
-			return;
+            if (!FileSystem.exists(haxe.io.Path.join([javaLib.PATH, "project.properties"])))
+                throw "Java Lib path is missing project.properties file. " + javaLib;
 
-		emulator.waitUntilFinished();
-	}
-
-	public function shutdownEmulator()
-	{
-		if (!isEmulator)
-			return;
-
-		emulator.shutdown();
-	}
-
-	/// =========
-	/// BUILD
-	/// =========
-
-	public function build()
-	{
-		buildHaxe();
-		runAnt();
-	}
-
-	private function buildHaxe()
-	{
-
-		CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ["Build.hxml"], {errorMessage: "compiling the haxe code into c++"});
-
-	    var destFolder = Path.join([projectDirectory, "libs"]);
-
-		for (archID in 0...3)
-		{
-			var arch = ["armv6", "armv7", "x86"][archID];
-
-			var argsForBuildCpp = [["-Dandroid"],
-								   ["-Dandroid", "-DHXCPP_ARMV7"],
-								   ["-Dandroid", "-DHXCPP_X86"]][archID];
-
-			argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().PLATFORM.HXCPP_COMPILATION_ARGS);
+            TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+        }
+    }
 
 
-			var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+    /// =========
+    ///	EMULATOR
+    /// =========
 
-			var extension = [".so", "-v7.so", "-x86.so"][archID];
+    public function startEmulator()
+    {
+        if (!isEmulator)
+            return;
 
-			var destFolderArch = Path.join([destFolder, folderName]);
+        emulator = new Emulator(emulatorName, emulatorArch);
+        emulator.start();
+    }
 
-			if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
-			{
-				if (FileSystem.exists(destFolderArch))
-				{
-					PathHelper.removeDirectory(destFolderArch);
-				}
-				continue;
-			}
+    public function waitForEmulatorReady()
+    {
+        if (!isEmulator)
+            return;
 
-			PathHelper.mkdir(destFolderArch);
+        emulator.waitUntilReady();
+    }
+
+    public function waitForEmulatorFinished()
+    {
+        if (!isEmulator)
+            return;
+
+        emulator.waitUntilFinished();
+    }
+
+    public function shutdownEmulator()
+    {
+        if (!isEmulator)
+            return;
+
+        emulator.shutdown();
+    }
+
+    /// =========
+    /// BUILD
+    /// =========
+
+    public function build()
+    {
+        buildHaxe();
+        runAnt();
+    }
+
+    private function buildHaxe()
+    {
+        var args: Array<String> = ["Build.hxml"];
+
+        if (isVerbose)
+        {
+            args.push("-v");
+        }
+
+        CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), args, {errorMessage: "compiling the haxe code into c++"});
+
+        var destFolder = Path.join([projectDirectory, "libs"]);
+
+        for (archID in 0...3)
+        {
+            var arch = ["armv6", "armv7", "x86"][archID];
+
+            var argsForBuildCpp = [["-Dandroid"],
+                                   ["-Dandroid", "-DHXCPP_ARMV7"],
+                                   ["-Dandroid", "-DHXCPP_X86"]][archID];
+
+            argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().PLATFORM.HXCPP_COMPILATION_ARGS);
 
 
-			var gdbSetupOrig = Path.join([duellBuildAndroidPath, "template", "android", "gdb.setup"]);
-			var gdbSetupDest = Path.join([destFolderArch, "gdb.setup"]);
+            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+
+            var extension = [".so", "-v7.so", "-x86.so"][archID];
+
+            var destFolderArch = Path.join([destFolder, folderName]);
+
+            if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
+            {
+                if (FileSystem.exists(destFolderArch))
+                {
+                    PathHelper.removeDirectory(destFolderArch);
+                }
+                continue;
+            }
+
+            PathHelper.mkdir(destFolderArch);
+
+
+            var gdbSetupOrig = Path.join([duellBuildAndroidPath, "template", "android", "gdb.setup"]);
+            var gdbSetupDest = Path.join([destFolderArch, "gdb.setup"]);
 
             var gdbServerPath = ["android-arm", "android-arm", "android-x86"][archID];
             var gdbServerOrigPath = Path.join([Configuration.getData().PLATFORM.NDK_PATH, "prebuilt", gdbServerPath, "gdbserver", "gdbserver"]);
             var gdbServerDestPath = Path.join([destFolderArch, "gdbserver"]);
 
-			if (isDebug)
-			{
-				argsForBuildCpp.push("-Ddebug");
-				FileHelper.copyIfNewer(gdbServerOrigPath,
-									   gdbServerDestPath);
+            if (isDebug)
+            {
+                argsForBuildCpp.push("-Ddebug");
+                FileHelper.copyIfNewer(gdbServerOrigPath,
+                                       gdbServerDestPath);
 
-				TemplateHelper.copyTemplateFile(gdbSetupOrig,
-												gdbSetupDest,
-												Configuration.getData(),
-												Configuration.getData().TEMPLATE_FUNCTIONS);
-			}
-			else
-			{
-				if (FileSystem.exists(gdbServerDestPath))
-				{
-					FileSystem.deleteFile(gdbServerDestPath);
-				}
-				if (FileSystem.exists(gdbSetupDest))
-				{
-					FileSystem.deleteFile(gdbSetupDest);
-				}
-			}
-
-
-    		CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
-
-			var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
-			var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
-
-			FileHelper.copyIfNewer(lib, dest);
-		}
-	}
-
-	private function runAnt()
-	{
-		var ant = Path.join([antPath, "bin", "ant"]);
-
-		var build = "release";
-
-		if (isDebug)
-		{
-			build = "debug";
-		}
-
-		CommandHelper.runCommand(projectDirectory, ant, [build], {errorMessage: "compiling the .apk"});
-	}
-
-	/// =========
-	/// RUN
-	/// =========
-	public function run()
-	{
-		waitForEmulatorReady();
-
-		install();
-		clearLogcat();
-
-		if (!isNDKGDB)
-		{
-			runActivity();
-			runLogcat();
-
-			if (isEmulator)
-			{
-				waitForEmulatorFinished();
-			}
-			else
-			{
-				logcatProcess.blockUntilFinished();
-			}
-		}
-		else
-		{
-			runNDKGDB();
-			shutdownEmulator();
-		}
-	}
-
-	private function install()
-	{
-		var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk"])];
-
-		var adbProcess = new DuellProcess(
-										adbPath,
-										"adb",
-										args,
-										{
-											timeout : 60,
-											logOnlyIfVerbose : false,
-											shutdownOnError : true,
-											block : true,
-											errorMessage : "installing on device"
-										});
-	}
-
-	private function runActivity()
-	{
-		var args = ["shell", "am", "start", "-a", "android.intent.action.MAIN", "-n", Configuration.getData().APP.PACKAGE + "/" + Configuration.getData().APP.PACKAGE + "." + "MainActivity"];
-
-		var adbProcess = new DuellProcess(
-										adbPath,
-										"adb",
-										args,
-										{
-											timeout : 60,
-											logOnlyIfVerbose : false,
-											shutdownOnError : true,
-											block : true,
-											errorMessage : "running the app on the device"
-										});
-	}
-
-	private function clearLogcat()
-	{
-		var args = ["logcat"];
-
-		var adbProcess = new DuellProcess(
-										adbPath,
-										"adb",
-										args.concat(["-c"]),
-										{
-											logOnlyIfVerbose : false,
-											shutdownOnError : true,
-											block : true,
-											errorMessage : "clearing logcat"
-										});
-	}
-
-	private function runLogcat()
-	{
-		var args = ["logcat"];
+                TemplateHelper.copyTemplateFile(gdbSetupOrig,
+                                                gdbSetupDest,
+                                                Configuration.getData(),
+                                                Configuration.getData().TEMPLATE_FUNCTIONS);
+            }
+            else
+            {
+                if (FileSystem.exists(gdbServerDestPath))
+                {
+                    FileSystem.deleteFile(gdbServerDestPath);
+                }
+                if (FileSystem.exists(gdbSetupDest))
+                {
+                    FileSystem.deleteFile(gdbSetupDest);
+                }
+            }
 
 
-		if (!isFullLogcat)
-		{
-			var filter = "*:E";
-			var includeTags = ["duell", "Main", "DuellActivity", "GLThread", "trace"];
+            CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
 
-			for (tag in includeTags)
-			{
-				filter += " " + tag + ":D";
-			}
-			args = args.concat([filter]);
-		}
+            var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
+            var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
+
+            FileHelper.copyIfNewer(lib, dest);
+        }
+    }
+
+    private function runAnt()
+    {
+        var ant = Path.join([antPath, "bin", "ant"]);
+
+        var build = "release";
+
+        if (isDebug)
+        {
+            build = "debug";
+        }
+
+        var args: Array<String> = [build];
+
+        if (isVerbose)
+        {
+            args.push("-v");
+        }
+
+        CommandHelper.runCommand(projectDirectory, ant, args, {errorMessage: "compiling the .apk"});
+    }
+
+    /// =========
+    /// RUN
+    /// =========
+    public function run()
+    {
+        waitForEmulatorReady();
+
+        install();
+        clearLogcat();
+
+        if (!isNDKGDB)
+        {
+            runActivity();
+            runLogcat();
+
+            if (isEmulator)
+            {
+                waitForEmulatorFinished();
+            }
+            else
+            {
+                logcatProcess.blockUntilFinished();
+            }
+        }
+        else
+        {
+            runNDKGDB();
+            shutdownEmulator();
+        }
+    }
+
+    private function install()
+    {
+        var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk"])];
+
+        var adbProcess = new DuellProcess(
+                                        adbPath,
+                                        "adb",
+                                        args,
+                                        {
+                                            timeout : 60,
+                                            logOnlyIfVerbose : false,
+                                            shutdownOnError : true,
+                                            block : true,
+                                            errorMessage : "installing on device"
+                                        });
+    }
+
+    private function runActivity()
+    {
+        var args = ["shell", "am", "start", "-a", "android.intent.action.MAIN", "-n", Configuration.getData().APP.PACKAGE + "/" + Configuration.getData().APP.PACKAGE + "." + "MainActivity"];
+
+        var adbProcess = new DuellProcess(
+                                        adbPath,
+                                        "adb",
+                                        args,
+                                        {
+                                            timeout : 60,
+                                            logOnlyIfVerbose : false,
+                                            shutdownOnError : true,
+                                            block : true,
+                                            errorMessage : "running the app on the device"
+                                        });
+    }
+
+    private function clearLogcat()
+    {
+        var args = ["logcat"];
+
+        var adbProcess = new DuellProcess(
+                                        adbPath,
+                                        "adb",
+                                        args.concat(["-c"]),
+                                        {
+                                            logOnlyIfVerbose : false,
+                                            shutdownOnError : true,
+                                            block : true,
+                                            errorMessage : "clearing logcat"
+                                        });
+    }
+
+    private function runLogcat()
+    {
+        var args = ["logcat"];
 
 
-		logcatProcess = new DuellProcess(
-										adbPath,
-										"adb",
-										args,
-										{
-											logOnlyIfVerbose : false,
-											loggingPrefix: "[LOGCAT]",
-											errorMessage : "running logcat"
-										});
-	}
+        if (!isFullLogcat)
+        {
+            var filter = "*:E";
+            var includeTags = ["duell", "Main", "DuellActivity", "GLThread", "trace"];
 
-	private function runNDKGDB()
-	{
+            for (tag in includeTags)
+            {
+                filter += " " + tag + ":D";
+            }
+            args = args.concat([filter]);
+        }
 
-		CommandHelper.runCommand(projectDirectory,
-								 "sh",
-								 [Path.join([Configuration.getData().PLATFORM.NDK_PATH ,"ndk-gdb"]),
-								 "--project=" + projectDirectory, "--verbose", "--start", "--force"],
-								 {
-								 	errorMessage: "running ndk-gdb",
-								 	systemCommand: true
-								 });
-	}
 
-	/// =========
-	/// TEST
-	/// =========
-	public function test()
-	{
-		waitForEmulatorReady();
+        logcatProcess = new DuellProcess(
+                                        adbPath,
+                                        "adb",
+                                        args,
+                                        {
+                                            logOnlyIfVerbose : false,
+                                            loggingPrefix: "[LOGCAT]",
+                                            errorMessage : "running logcat"
+                                        });
+    }
 
-		/// DELETE PREVIOUS TEST
-		if (sys.FileSystem.exists(fullTestResultPath))
-		{
-			sys.FileSystem.deleteFile(fullTestResultPath);
-		}
+    private function runNDKGDB()
+    {
 
-		/// CREATE TARGET FOLDER
-		PathHelper.mkdir(Path.directory(fullTestResultPath));
+        CommandHelper.runCommand(projectDirectory,
+                                 "sh",
+                                 [Path.join([Configuration.getData().PLATFORM.NDK_PATH ,"ndk-gdb"]),
+                                 "--project=" + projectDirectory, "--verbose", "--start", "--force"],
+                                 {
+                                    errorMessage: "running ndk-gdb",
+                                    systemCommand: true
+                                 });
+    }
 
-		/// RUN THE APP
-		install();
-		neko.vm.Thread.create(function()
-			{
-				Sys.sleep(DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP);
-				runActivity();
-			}
-		);
+    /// =========
+    /// TEST
+    /// =========
+    public function test()
+    {
+        waitForEmulatorReady();
 
-		/// RUN THE LISTENER
-		TestHelper.runListenerServer(300, 8181, fullTestResultPath);
+        /// DELETE PREVIOUS TEST
+        if (sys.FileSystem.exists(fullTestResultPath))
+        {
+            sys.FileSystem.deleteFile(fullTestResultPath);
+        }
 
-		shutdownEmulator();
-	}
+        /// CREATE TARGET FOLDER
+        PathHelper.mkdir(Path.directory(fullTestResultPath));
 
-	/// =========
-	/// PUBLISH
-	/// =========
-	public function publish()
-	{
-		// remove the old publish android folder
-		if (FileSystem.exists(publishDirectory))
-		{
-			PathHelper.removeDirectory(publishDirectory);
-		}
+        /// RUN THE APP
+        install();
+        neko.vm.Thread.create(function()
+            {
+                Sys.sleep(DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP);
+                runActivity();
+            }
+        );
 
-		// create the publish part for android
-		PathHelper.mkdir(publishDirectory);
+        /// RUN THE LISTENER
+        TestHelper.runListenerServer(300, 8181, fullTestResultPath);
+
+        shutdownEmulator();
+    }
+
+    /// =========
+    /// PUBLISH
+    /// =========
+    public function publish()
+    {
+        // remove the old publish android folder
+        if (FileSystem.exists(publishDirectory))
+        {
+            PathHelper.removeDirectory(publishDirectory);
+        }
+
+        // create the publish part for android
+        PathHelper.mkdir(publishDirectory);
 
         var binaryName: String = Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk";
         var outputFile: String = Path.join([projectDirectory, "bin", binaryName]);
@@ -844,61 +863,61 @@ class PlatformBuild
         Configuration.getData().PLATFORM.PUBLISHED_APK_PATH = destinationFile;
 
         // TODO run proguard on the resulting file and update PUBLISHED_MAPPING_PATH
-	}
+    }
 
-	/// =========
-	/// FAST
-	/// =========
-	public function fast()
-	{
-		startEmulator();
-		prepareVariablesPostParse();
-		build();
+    /// =========
+    /// FAST
+    /// =========
+    public function fast()
+    {
+        startEmulator();
+        prepareVariablesPostParse();
+        build();
 
-		if (Arguments.isSet("-test"))
-			test()
-		else
-			run();
-	}
+        if (Arguments.isSet("-test"))
+            test()
+        else
+            run();
+    }
 
-	/// =========
-	/// CLEAN
-	/// =========
+    /// =========
+    /// CLEAN
+    /// =========
 
-	public function clean()
-	{
-		prepareVariablesPostParse();
-		addHXCPPLibs();
+    public function clean()
+    {
+        prepareVariablesPostParse();
+        addHXCPPLibs();
 
-		LogHelper.info('Cleaning android part of export folder...');
+        LogHelper.info('Cleaning android part of export folder...');
 
-		if (FileSystem.exists(targetDirectory))
-		{
-			PathHelper.removeDirectory(targetDirectory);
-		}
+        if (FileSystem.exists(targetDirectory))
+        {
+            PathHelper.removeDirectory(targetDirectory);
+        }
 
-		for (ndll in Configuration.getData().NDLLS)
-		{
-			LogHelper.info('Cleaning ndll ' + ndll.NAME + "...");
-    		var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH), "clean"], {errorMessage: "cleaning ndll"});
+        for (ndll in Configuration.getData().NDLLS)
+        {
+            LogHelper.info('Cleaning ndll ' + ndll.NAME + "...");
+            var result = CommandHelper.runHaxelib(Path.directory(ndll.BUILD_FILE_PATH), ["run", "hxcpp", Path.withoutDirectory(ndll.BUILD_FILE_PATH), "clean"], {errorMessage: "cleaning ndll"});
 
-			if (result != 0)
-				throw "Problem cleaning ndll " + ndll.NAME;
+            if (result != 0)
+                throw "Problem cleaning ndll " + ndll.NAME;
 
-			var destFolder = Path.join([ndll.BIN_PATH, "Android"]);
-			if (FileSystem.exists(destFolder))
-			{
-				PathHelper.removeDirectory(destFolder);
-			}
-		}
-	}
+            var destFolder = Path.join([ndll.BIN_PATH, "Android"]);
+            if (FileSystem.exists(destFolder))
+            {
+                PathHelper.removeDirectory(destFolder);
+            }
+        }
+    }
 
-	/// =========
-	/// HANDLE ERROR
-	/// =========
+    /// =========
+    /// HANDLE ERROR
+    /// =========
 
-	public function handleError()
-	{
-		shutdownEmulator();
-	}
+    public function handleError()
+    {
+        shutdownEmulator();
+    }
 }
