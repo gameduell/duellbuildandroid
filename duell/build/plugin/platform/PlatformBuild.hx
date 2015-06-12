@@ -353,7 +353,7 @@ class PlatformBuild
             return;
         }
 
-        var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi" ];
+		var iconTypes = [ "ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi" ];
 
         for (iconType in iconTypes)
         {
