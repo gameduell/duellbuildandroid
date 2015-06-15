@@ -111,6 +111,7 @@ class PlatformBuild
             throw "ANDROID_NDK_DIR not set in hxcpp config, did you run duell setup android correctly?";
 
         Sys.putEnv("ANDROID_SDK", defines.get("ANDROID_SDK"));
+        Sys.putEnv("ANDROID_HOME", defines.get("ANDROID_SDK"));
 
         Configuration.getData().PLATFORM.NDK_PATH = defines.get("ANDROID_NDK_ROOT");
 
@@ -585,11 +586,6 @@ class PlatformBuild
     private function buildHaxe()
     {
         var args: Array<String> = ["Build.hxml"];
-
-        if (isVerbose)
-        {
-            args.push("-v");
-        }
 
         CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), args, {errorMessage: "compiling the haxe code into c++"});
 
