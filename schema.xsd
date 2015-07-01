@@ -19,7 +19,7 @@
             <xs:element name="permission" type="d:Name"/>
             <xs:element name="raw-permission" type="d:NameLevelBothRequired"/>
             <xs:element name="activity-extension" type="d:Name"/>
-            <xs:element name="java-lib" type="d:PathNamePathRequired"/>
+            <xs:element name="java-lib" type="d:JavaLib"/>
             <xs:element name="jar" type="d:Path"/>
             <xs:element name="java-source" type="d:PathNamePathRequired"/>
             <xs:element name="supports-screen" type="d:NameValueBothRequired"/>
@@ -58,6 +58,15 @@
                 <xs:attribute name="name" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="JavaLib">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="provided" type="d:Path"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="d:Conditional" />
+        <xs:attribute name="path" type="xs:anyURI" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="Drawable">

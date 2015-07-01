@@ -532,6 +532,21 @@ class PlatformBuild
                 throw "Java Lib path is missing project.properties file. " + javaLib;
 
             TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+
+            /// Handling Provided jars
+            for (providedItem  in  javaLib.PROVIDED)
+            {
+                var providedSrcPath: String = Path.join([projectDirectory, "libs", providedItem]);
+                var providedDestPath: String = Path.join([projectDirectory, "deps", javaLib.NAME, "libs", providedItem]);
+                if(FileSystem.exists(providedSrcPath))
+                {
+                    FileHelper.copyIfNewer(providedSrcPath,providedDestPath);
+                }
+                else
+                {
+                    throw 'Ivalid jar path $providedItem, provided for java-lib ${javaLib.NAME}';
+                }
+            }
         }
     }
 

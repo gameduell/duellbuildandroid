@@ -254,8 +254,12 @@ class PlatformXMLParser
 			{
 				name = element.att.name;
 			}
-
-			PlatformConfiguration.getData().JAVA_LIBS.push({PATH : path, NAME : name});
+			var provided: Array<String> = [];
+			for (providedItem in element.nodes.provided)
+			{
+				provided.push(providedItem.att.path);
+			}
+			PlatformConfiguration.getData().JAVA_LIBS.push({PATH : path, NAME : name, PROVIDED : provided});
 		}
 	}
 
