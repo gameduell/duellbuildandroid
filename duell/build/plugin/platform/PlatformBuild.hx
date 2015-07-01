@@ -533,11 +533,17 @@ class PlatformBuild
 
             TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
 
+            /// Make sure the libs folder is there
+            var libsDirectoryPath: String = Path.join([projectDirectory, "deps", javaLib.NAME, "libs"]);
+            if(!FileSystem.exists(libsDirectoryPath) && javaLib.PROVIDED.length > 0)
+            {
+                PathHelper.mkdir(libsDirectoryPath);
+            }
             /// Handling Provided jars
             for (providedItem  in  javaLib.PROVIDED)
             {
                 var providedSrcPath: String = Path.join([projectDirectory, "libs", providedItem]);
-                var providedDestPath: String = Path.join([projectDirectory, "deps", javaLib.NAME, "libs", providedItem]);
+                var providedDestPath: String = Path.join([libsDirectoryPath, providedItem]);
                 if(FileSystem.exists(providedSrcPath))
                 {
                     FileHelper.copyIfNewer(providedSrcPath,providedDestPath);
