@@ -40,7 +40,7 @@ typedef PlatformConfigurationData = {
     APP_ICON : String,
 	HXCPP_COMPILATION_ARGS : Array<String>, /// not yet used
 	ACTIVITY_EXTENSIONS : Array<String>,
-	JAVA_LIBS : Array<{ NAME : String, PATH : String }>,
+	JAVA_LIBS : Array<{ NAME : String, PATH : String, PROVIDED : Array<String>}>,
 	JAVA_SOURCES : Array<{NAME : String, PATH : String}>,
 	JARS : Array<String>,
 	FULLSCREEN : Bool,
