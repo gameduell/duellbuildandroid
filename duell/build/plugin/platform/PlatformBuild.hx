@@ -850,8 +850,9 @@ class PlatformBuild
             }
         );
 
+        trace('!!! Android test port set to: ' + Configuration.getData().TEST_PORT + ' !!!');
         /// RUN THE LISTENER
-        TestHelper.runListenerServer(300, 8181, fullTestResultPath);
+        TestHelper.runListenerServer(300, Configuration.getData().TEST_PORT, fullTestResultPath);
 
         shutdownEmulator();
     }
