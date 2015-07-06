@@ -850,9 +850,12 @@ class PlatformBuild
             }
         );
 
-        trace('!!!!! Set DUELLBUILDANDROID TEST_PORT to: ' + Configuration.getData().TEST_PORT + ' !!!!!');
+        // TODO: Find a better/central place for the hardcoded fallback port 8181 ?
+        var testPort:Int = untyped Configuration.getData().TEST_PORT == null ?
+            8181 : Configuration.getData().TEST_PORT;
+
         /// RUN THE LISTENER
-        TestHelper.runListenerServer(300, Configuration.getData().TEST_PORT, fullTestResultPath);
+        TestHelper.runListenerServer(300, testPort, fullTestResultPath);
 
         shutdownEmulator();
     }
