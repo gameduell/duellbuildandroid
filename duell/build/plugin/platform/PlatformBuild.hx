@@ -64,6 +64,7 @@ class PlatformBuild
     /// VARIABLES SET AFTER PARSING
     var targetDirectory : String;
     var publishDirectory : String;
+    var libsWithSymbolsDirectory : String;
     var projectDirectory : String;
     var duellBuildAndroidPath : String;
     var fullTestResultPath : String;
@@ -225,6 +226,7 @@ class PlatformBuild
     {
         /// Set variables
         targetDirectory = Path.join([Configuration.getData().OUTPUT, "android"]);
+        libsWithSymbolsDirectory = Path.join([targetDirectory, "libswithsym"]);
         publishDirectory = Path.join([Configuration.getData().PUBLISH, "android"]);
         fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
         projectDirectory = Path.join([targetDirectory, "bin"]);
@@ -376,15 +378,13 @@ class PlatformBuild
 
     private function handleNDLLs()
     {
-        var destFolder = Path.join([projectDirectory, "libs"]);
-
         for (archID in 0...3)
         {
             var arch = ["armv6", "armv7", "x86"][archID];
 
-            var argsForBuild = [["-Dandroid"],
-                                ["-Dandroid", "-DHXCPP_ARMV7"],
-                                ["-Dandroid", "-DHXCPP_X86"]][archID];
+            var argsForBuild = [["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip"],
+                                ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARMV7"],
+                                ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"]][archID];
 
             if (isDebug)
             {
@@ -396,8 +396,9 @@ class PlatformBuild
 
             var extension = [".so", "-v7.so", "-x86.so"][archID];
 
-            var destFolderArch = Path.join([destFolder, folderName]);
+            var destFolderArch = Path.join([libsWithSymbolsDirectory, folderName]);
 
+            /// clear if the architecture is not to be built now
             if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
             {
                 if (FileSystem.exists(destFolderArch))
@@ -440,7 +441,7 @@ class PlatformBuild
             debugLib = releaseLib;
         }
 
-        var dest = Path.join([projectDirectory, "libs", destFolderName, "lib" + ndll.NAME + ".so"]);
+        var dest = Path.join([libsWithSymbolsDirectory, destFolderName, "lib" + ndll.NAME + ".so"]);
 
         /// Release doesn't exist so force the extension. Used mainly for trying to compile a armv7 lib without -v7, and universal libs
         if (!isDebug && !FileSystem.exists(releaseLib))
@@ -601,6 +602,8 @@ class PlatformBuild
     public function build()
     {
         buildHaxe();
+        copyLibs();
+        stripSymbols();
         runAnt();
     }
 
@@ -610,15 +613,13 @@ class PlatformBuild
 
         CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), args, {errorMessage: "compiling the haxe code into c++"});
 
-        var destFolder = Path.join([projectDirectory, "libs"]);
-
         for (archID in 0...3)
         {
             var arch = ["armv6", "armv7", "x86"][archID];
 
-            var argsForBuildCpp = [["-Dandroid"],
-                                   ["-Dandroid", "-DHXCPP_ARMV7"],
-                                   ["-Dandroid", "-DHXCPP_X86"]][archID];
+            var argsForBuildCpp = [["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip"],
+                                   ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARMV7"],
+                                   ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"]][archID];
 
             argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().PLATFORM.HXCPP_COMPILATION_ARGS);
 
@@ -627,8 +628,9 @@ class PlatformBuild
 
             var extension = [".so", "-v7.so", "-x86.so"][archID];
 
-            var destFolderArch = Path.join([destFolder, folderName]);
+            var destFolderArch = Path.join([libsWithSymbolsDirectory, folderName]);
 
+            /// clear if the architecture is not to be built now
             if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
             {
                 if (FileSystem.exists(destFolderArch))
@@ -678,6 +680,62 @@ class PlatformBuild
             var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
 
             FileHelper.copyIfNewer(lib, dest);
+        }
+    }
+
+    private function copyLibs()
+    {
+        var finalPathOfLibs = Path.join([projectDirectory, "libs"]);
+        if (!FileSystem.exists(finalPathOfLibs))
+        {
+                PathHelper.mkdir(finalPathOfLibs);
+        }
+
+        FileHelper.recursiveCopyFiles(libsWithSymbolsDirectory, finalPathOfLibs);
+    }
+
+    private function stripSymbols()
+    {
+        if (!Arguments.isSet("-stripsym"))
+            return;
+
+        var finalPathOfLibs = Path.join([projectDirectory, "libs"]);
+        var host = "darwin-x86";
+
+        if (PlatformHelper.hostPlatform == Platform.WINDOWS)
+        {
+            host = "windows";
+        }
+        else if(PlatformHelper.hostPlatform == Platform.LINUX)
+        {
+            host = "linux-x86";
+        }
+
+        var ndkRoot = Configuration.getData().PLATFORM.NDK_PATH;
+
+        for (archID in 0...3)
+        {
+            var arch = ["armv6", "armv7", "x86"][archID];
+            var toolchain = ["arm-linux-androideabi-4.8", "arm-linux-androideabi-4.8", "x86-4.8"] [archID];
+            var stripperExe = ["arm-linux-androideabi-strip", "arm-linux-androideabi-strip", "i686-linux-android-strip"] [archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+
+            var basePathForExe = Path.join([ndkRoot, "toolchains", toolchain, "prebuilt", host, "bin"]);
+
+            var abiPath = Path.join([finalPathOfLibs, folderName]);
+
+            if (FileSystem.exists(abiPath))
+            {
+                var libsOfAbi = PathHelper.getRecursiveFileListUnderFolder(abiPath);
+
+                for (lib in libsOfAbi)
+                {
+                    var abi = Path.join([abiPath, lib]);
+
+                    LogHelper.info("stripping symbols of " + abi);
+                    CommandHelper.runCommand(basePathForExe, stripperExe, [abi], {systemCommand:false});
+                }
+            }
         }
     }
 

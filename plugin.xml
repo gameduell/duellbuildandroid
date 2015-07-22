@@ -142,4 +142,10 @@
         </documentation>
     </arg>
 
+    <arg name="-stripsym" type="void">
+        <documentation>
+	        This option will strip all debugging symbols from the binaries. Example usage is when releasing to the public or to a wide audience. The unstripped libraries are still present in a libs folder on the Export for symbolication.
+        </documentation>
+    </arg>
+
 </plugin>
