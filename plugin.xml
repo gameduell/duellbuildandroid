@@ -148,4 +148,10 @@
         </documentation>
     </arg>
 
+	<arg name="-wipeemulator" type="void">
+		<documentation>
+			Use this if you want to wipe the user data with the start of the emulator.
+		</documentation>
+	</arg>
+
 </plugin>
