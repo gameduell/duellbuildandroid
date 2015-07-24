@@ -32,8 +32,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.system.Os;
-import android.system.OsConstants;
+// import android.system.Os;
+// import android.system.OsConstants;
 import android.system.ErrnoException;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -97,15 +97,19 @@ public class DuellActivity extends Activity
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        /// MAKE SURE WE ALWAYS HAVE CRASHLOGS
-        try
-        {
-            Os.prctl(OsConstants.PR_SET_DUMPABLE, 1, 0, 0, 0);
-        }
-        catch(ErrnoException exception)
-        {
-            Log.d("DUELL", "prctl error:" + exception.getMessage());
-        }
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        // {
+        //     /// MAKE SURE WE ALWAYS HAVE CRASHLOGS
+        //     /// Only available for Lolipop and above
+        //     try
+        //     {
+        //         Os.prctl(OsConstants.PR_SET_DUMPABLE, 1, 0, 0, 0);
+        //     }
+        //     catch(ErrnoException exception)
+        //     {
+        //         Log.d("DUELL", "prctl error:" + exception.getMessage());
+        //     }
+        // }
 
         ::if PLATFORM.FULLSCREEN::
         ::if (PLATFORM.TARGET_SDK_VERSION < 19)::
