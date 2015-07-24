@@ -26,6 +26,7 @@
 
 package duell.build.helpers;
 
+import duell.objects.Arguments;
 import duell.objects.HXCPPConfigXML;
 import duell.objects.DuellProcess;
 
@@ -86,6 +87,11 @@ class Emulator
 					"-port", "" + portToUse,
 					"-no-snapshot-load", "-no-snapshot-save",
 					"-gpu", "on", "-noaudio"];
+
+		if (Arguments.isSet("-wipeemulator"))
+		{
+			args.push("-wipe-data");
+		}
 
 		var emulator = "emulator";
 		var actualEmulatorPath = emulatorPath;
