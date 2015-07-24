@@ -83,8 +83,8 @@ class PlatformBuild
     var	emulatorPath : String;
     var antPath : String;
 
-    var emulator: Emulator;
-    var logcatProcess: DuellProcess; /// will block here if emulator is not running.
+    var emulator: Emulator = null;
+    var logcatProcess: DuellProcess = null; /// will block here if emulator is not running.
 
     public function new() : Void {}
 
@@ -590,6 +590,9 @@ class PlatformBuild
     public function shutdownEmulator()
     {
         if (!isEmulator)
+            return;
+
+        if (emulator == null)
             return;
 
         emulator.shutdown();
