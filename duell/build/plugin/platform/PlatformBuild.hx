@@ -735,8 +735,11 @@ class PlatformBuild
                 {
                     var abi = Path.join([abiPath, lib]);
 
-                    LogHelper.info("stripping symbols of " + abi);
-                    CommandHelper.runCommand(basePathForExe, stripperExe, [abi], {systemCommand:false});
+                    if (abi.endsWith(".so"))
+                    {
+                        LogHelper.info("stripping symbols of " + abi);
+                        CommandHelper.runCommand(basePathForExe, stripperExe, [abi], {systemCommand:false});
+                    }
                 }
             }
         }
