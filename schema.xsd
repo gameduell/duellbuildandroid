@@ -27,6 +27,7 @@
             <xs:element name="activity-parameter" type="d:NameValueBothRequired"/>
             <xs:element name="application-parameter" type="d:NameValueBothRequired"/>
             <xs:element name="key-store" type="d:KeystoreAndroid"/>
+            <xs:element name="project-properties" type="d:Value"/>
             <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
             <xs:element name="manifest-application-section" type="d:InnerContent"/>
