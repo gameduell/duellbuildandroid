@@ -118,6 +118,9 @@ class PlatformXMLParser
 				case 'key-store':
 					parseKeystoreElement(element);
 
+				case 'project-properties':
+					parseProjectPropertiesElement(element);
+
 				case 'manifest-main-activity-section':
 					parseManifestMainActivitySectionElement(element);
 
@@ -409,6 +412,11 @@ class PlatformXMLParser
 	private static function parseManifestApplicationSectionElement(element : Fast)
 	{
 		PlatformConfiguration.getData().MANIFEST_APPLICATION_SECTIONS.push(element.innerHTML);
+	}
+
+	private static function parseProjectPropertiesElement(element : Fast)
+	{
+		PlatformConfiguration.getData().PROJECT_PROPERTIES.push(element.att.value);
 	}
 
 	/// HELPERS

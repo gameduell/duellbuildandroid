@@ -76,6 +76,10 @@
 			Use this to add a string resource. E.g.: &lt;string-resource name=&quot;facebook_app_id&quot; value=&quot;1234567&quot; /&gt;.
 		</elem>
 
+		<elem name="project-properties">
+			Specify a line that is inserted into the project.properties file in the Android project. E.g.: &lt;project-properties value=&quot;dex.force.jumbo=true&quot; /&gt;.
+		</elem>
+
 		<elem name="manifest-main-activity-section">
 			This is an advanced android configuration possibility. The xml that is contained inside this element will be directly copied into the manifest in main activity section. Use this if none of the previous configuration elements allow the setting you need.
 		</elem>
