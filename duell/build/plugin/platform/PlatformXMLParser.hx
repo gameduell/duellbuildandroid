@@ -129,6 +129,9 @@ class PlatformXMLParser
 
 				case 'manifest-application-section':
 					parseManifestApplicationSectionElement(element);
+
+				case 'proguard':
+					parseProguardElement(element);
 			}
 		}
 	}
@@ -418,6 +421,12 @@ class PlatformXMLParser
 	{
 		PlatformConfiguration.getData().PROJECT_PROPERTIES.push(element.att.value);
 	}
+
+	private static function parseProguardElement(element : Fast)
+	{
+		PlatformConfiguration.getData().PROGUARD_PATHS.push(resolvePath(element.att.path));
+	}
+
 
 	/// HELPERS
 	private static function addUniqueKeyValueToKeyValueArray(keyValueArray : KeyValueArray, key : String, value : String)

@@ -60,6 +60,7 @@ typedef PlatformConfigurationData = {
 	KEY_STORE_PASSWORD : String,
 	KEY_STORE_ALIAS_PASSWORD : String,
 	PROJECT_PROPERTIES: Array<String>,
+	PROGUARD_PATHS: Array<String>,
 
 	/// THESE ARE PURE XML STRINGS THAT ARE EMBEDDED IN THE MANIFEST
 	MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : Array<String>,
@@ -69,6 +70,8 @@ typedef PlatformConfigurationData = {
 	/// generated
 	ARCH_ABIS : Array<String>,
 	NDK_PATH : String,
+	PROGUARD_CONTENT : Array<String>,
+	PROGUARD_ENABLED : Bool,
 
 	/// generated from publish
 	PUBLISHED_APK_PATH: String,
@@ -128,12 +131,15 @@ class PlatformConfiguration
 					KEY_STORE_ALIAS : "androiddebugkey",
 					KEY_STORE_PASSWORD : "android",
 					KEY_STORE_ALIAS_PASSWORD : "android",
+					PROGUARD_PATHS : [],
 
 					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
 					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],
 					MANIFEST_APPLICATION_SECTIONS : [],
 
 					PROJECT_PROPERTIES : [],
+					PROGUARD_CONTENT: [],
+					PROGUARD_ENABLED: false,
 
 					ARCH_ABIS : [],
 					NDK_PATH : "",
