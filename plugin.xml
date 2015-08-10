@@ -96,6 +96,10 @@
 			Use this to specify the keystore you want to use to sign your app. This configuration should mostly be in the duell_user.xml folder since it is private information and should not be committed with your project. E.g.: &lt;key-store path=&quot;androidkey/debug.keystore&quot; alias=&quot;MyDebugKey&quot; password=&quot;password&quot; aliaspassword=&quot;password&quot; /&gt;
 		</elem>
 
+		<elem name="proguard">
+			Use this to specify the path a proguard file that will be merged into the final master proguard file. E.g.: &lt;proguard path=&quot;someFolder/proguard.cfg&quot;/&gt;
+		</elem>
+
 	</configuration>
 
 	<arg name="-debug" type="void">
@@ -155,6 +159,12 @@
 	<arg name="-wipeemulator" type="void">
 		<documentation>
 			Use this if you want to wipe the user data with the start of the emulator.
+		</documentation>
+	</arg>
+
+	<arg name="-proguard" type="void">
+		<documentation>
+			Use this if you want to run proguard on the release apk.
 		</documentation>
 	</arg>
 

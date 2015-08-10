@@ -48,6 +48,7 @@ import duell.objects.Arguments;
 import duell.build.helpers.Emulator;
 
 import sys.FileSystem;
+import sys.io.File;
 import haxe.io.Path;
 
 using StringTools;
@@ -139,6 +140,11 @@ class PlatformBuild
             isVerbose = true;
         }
 
+        if (Arguments.isSet("-proguard"))
+        {
+            Configuration.getData().PLATFORM.PROGUARD_ENABLED = true;
+        }
+
         var isArmv6 = Arguments.isSet("-armv6");
         var isArmv7 = Arguments.isSet("-armv7");
         var isX86 = Arguments.isSet("-x86");
@@ -154,7 +160,6 @@ class PlatformBuild
             if (isX86)
                 Configuration.getData().PLATFORM.ARCHS.push("x86");
         }
-
 
         if (Arguments.isSet("-emulator"))
         {
@@ -213,6 +218,7 @@ class PlatformBuild
         addArchitectureInfoToHaxeCompilationFlags();
         convertParsingDefinesToCompilationDefines();
         forceDeprecationWarnings();
+        gatherProguardConfigs();
 
         if (isDebug)
             addDebuggingInformation();
@@ -231,6 +237,18 @@ class PlatformBuild
         fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
         projectDirectory = Path.join([targetDirectory, "bin"]);
         duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
+    }
+
+    private function gatherProguardConfigs()
+    {
+        for (proguardFile in Configuration.getData().PLATFORM.PROGUARD_PATHS)
+        {
+            if (!FileSystem.exists(proguardFile))
+            {
+                throw "Configured proguard file " + proguardFile + " was not found";
+            }
+            Configuration.getData().PLATFORM.PROGUARD_CONTENT.push(File.getContent(proguardFile));
+        }
     }
 
     private function addHXCPPLibs()
@@ -952,7 +970,11 @@ class PlatformBuild
         // update the published paths so that the plugins can operate on postPublish
         Configuration.getData().PLATFORM.PUBLISHED_APK_PATH = destinationFile;
 
-        // TODO run proguard on the resulting file and update PUBLISHED_MAPPING_PATH
+        // run proguard on the resulting file and update PUBLISHED_MAPPING_PATH
+        if (Configuration.getData().PLATFORM.PROGUARD_ENABLED)
+        {
+            Configuration.getData().PLATFORM.PUBLISHED_MAPPING_PATH = Path.join([projectDirectory, "bin", "proguard", "mapping.txt"]);
+        }
     }
 
     /// =========

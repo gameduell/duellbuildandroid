@@ -31,6 +31,7 @@
             <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
             <xs:element name="manifest-application-section" type="d:InnerContent"/>
+            <xs:element name="proguard" type="d:Path"/>
         </xs:choice>
     </xs:complexType>
 
