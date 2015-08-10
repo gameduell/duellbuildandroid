@@ -800,13 +800,13 @@ class PlatformBuild
     private function install()
     {
         var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk"])];
-
+        LogHelper.info("Installing with '" + "adb " + args.join(" ") + "'");
         var adbProcess = new DuellProcess(
                                         adbPath,
                                         "adb",
                                         args,
                                         {
-                                            timeout : 60,
+                                            timeout : 300,
                                             logOnlyIfVerbose : false,
                                             shutdownOnError : true,
                                             block : true,
