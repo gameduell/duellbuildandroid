@@ -349,4 +349,13 @@ public class DuellActivity extends Activity
     {
         throw new IllegalStateException("Callers should interact with the parent FrameLayout instead of with the view directly");
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        for (Extension extension : extensions)
+        {
+            extension.onBackPressed();
+        }
+    }
 }

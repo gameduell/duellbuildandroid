@@ -32,8 +32,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 
 
-public class Extension
-{
+public class Extension {
     /**
      * Called when an activity you launched exits, giving you the requestCode you started it with, the resultCode it
      * returned, and any additional data from it.
@@ -150,7 +149,7 @@ public class Extension
      * Called when a key was pressed down and not handled by any of the views inside of the activity.
      *
      * @param keyCode The value in event.getKeyCode().
-     * @param event Description of the key event.
+     * @param event   Description of the key event.
      */
     public void onKeyDown(int keyCode, KeyEvent event)
     {
@@ -161,9 +160,17 @@ public class Extension
      * Called when a key was released and not handled by any of the views inside of the activity
      *
      * @param keyCode The value in event.getKeyCode().
-     * @param event Description of the key event.
+     * @param event   Description of the key event.
      */
     public void onKeyUp(int keyCode, KeyEvent event)
+    {
+
+    }
+
+    /**
+     * Called when the activity has detected the user's press of the back key.
+     */
+    public void onBackPressed()
     {
 
     }
