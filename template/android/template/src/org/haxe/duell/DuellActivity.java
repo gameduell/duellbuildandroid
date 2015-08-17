@@ -58,6 +58,8 @@ public class DuellActivity extends Activity
     /** Exposes the parent so that it can be used to set the content view instead */
     public FrameLayout parent;
 
+    public boolean defaultOnBack;
+
     /// libraries that initialize a view, may choose to set this, so that other libraries can act upon this
     public WeakReference<View> mainView;
 
@@ -79,6 +81,8 @@ public class DuellActivity extends Activity
                 mainJavaThreadHandler.post(runObj);
             }
         };
+
+        defaultOnBack = true;
 
         extensions = new ArrayList<Extension>();
 
@@ -356,6 +360,11 @@ public class DuellActivity extends Activity
         for (Extension extension : extensions)
         {
             extension.onBackPressed();
+        }
+
+        if (defaultOnBack)
+        {
+            super.onBackPressed();
         }
     }
 }
