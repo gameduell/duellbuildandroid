@@ -925,7 +925,7 @@ class PlatformBuild
 
         /// RUN THE APP
         install();
-        neko.vm.Thread.create(function()
+        duell.helpers.ThreadHelper.runInAThread(function()
             {
                 Sys.sleep(DELAY_BETWEEN_PYTHON_LISTENER_AND_RUNNING_THE_APP);
                 runActivity();
