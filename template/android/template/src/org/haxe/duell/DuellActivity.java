@@ -188,6 +188,13 @@ public class DuellActivity extends Activity
 
         activity = new WeakReference<DuellActivity>(null);
         super.onDestroy();
+
+        /// Application should not exist if this activity is killed
+        /// If we do not kill the application, the static variables will
+        /// continue to live, but most importantly, the native libraries
+        /// are still loaded.
+        /// We could potentially fix this with an unload method on the native libraries.
+        System.exit(0);
     }
 
     @Override
