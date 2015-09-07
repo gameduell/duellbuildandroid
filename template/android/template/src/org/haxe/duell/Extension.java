@@ -36,10 +36,11 @@ public class Extension {
     /**
      * Called when an activity you launched exits, giving you the requestCode you started it with, the resultCode it
      * returned, and any additional data from it.
+     * return false when you are not handling the results, true if you do.
      */
     public boolean onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        return true;
+        return false;
     }
 
     /**
