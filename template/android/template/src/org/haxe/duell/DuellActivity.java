@@ -169,7 +169,7 @@ public class DuellActivity extends Activity
     {
         for (Extension extension : extensions)
         {
-            if (!extension.onActivityResult(requestCode, resultCode, data))
+            if (extension.onActivityResult(requestCode, resultCode, data))
             {
                 return;
             }
