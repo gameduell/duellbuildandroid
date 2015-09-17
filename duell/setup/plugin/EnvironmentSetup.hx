@@ -134,7 +134,7 @@ class EnvironmentSetup
         else if (PlatformHelper.hostPlatform == Platform.MAC)
         {
             downloadPath = androidMacSDKPath;
-            ignoreRootFolder = "android-sdk-mac";
+            ignoreRootFolder = "android-sdk-macosx";
         }
 
         var downloadAnswer = AskHelper.askYesOrNo("Download the android SDK");
