@@ -173,7 +173,7 @@ class PlatformXMLParser
 		if (element.has.value)
 		{
 			var value = Std.parseInt(element.att.value);
-			PlatformConfiguration.getData().TARGET_SDK_VERSION = value;
+			PlatformConfiguration.getData().TARGET_SDK_VERSION = Math.floor(Math.max(value, PlatformConfiguration.getData().TARGET_SDK_VERSION));
 		}
 	}
 
@@ -182,7 +182,7 @@ class PlatformXMLParser
 		if (element.has.value)
 		{
 			var value = Std.parseInt(element.att.value);
-			PlatformConfiguration.getData().MINIMUM_SDK_VERSION = value;
+			PlatformConfiguration.getData().MINIMUM_SDK_VERSION = Math.floor(Math.max(value, PlatformConfiguration.getData().MINIMUM_SDK_VERSION));
 		}
 	}
 
