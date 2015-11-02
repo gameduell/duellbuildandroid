@@ -108,7 +108,7 @@ class PlatformConfiguration
 									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
 									  }],
 					FULLSCREEN : false,
-					TARGET_SDK_VERSION : 21,
+					TARGET_SDK_VERSION : 23,
 					INSTALL_LOCATION : "auto",
 					SUPPORTS_SCREENS : [
 									{NAME : "smallScreens", VALUE : "true"},
