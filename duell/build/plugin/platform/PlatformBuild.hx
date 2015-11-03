@@ -349,6 +349,7 @@ class PlatformBuild
     private function createDirectoriesAndCopyTemplates() : Void
     {
         var packageDirectory = Configuration.getData().APP.PACKAGE;
+        checkForInvalidCharacterInPackageName(packageDirectory);
         packageDirectory = Path.join([projectDirectory, "src"].concat(packageDirectory.split(".")));
         PathHelper.mkdir(packageDirectory);
 
@@ -364,6 +365,19 @@ class PlatformBuild
         var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe"]);
         var destHaxeTemplate = Path.join([targetDirectory, "haxe"]);
         TemplateHelper.recursiveCopyTemplatedFiles(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+    }
+
+    private function checkForInvalidCharacterInPackageName(packageName: String): Void
+    {
+        var invalidCharacters: Array<String> = ['-'];
+        for (invalidCharacter in invalidCharacters)
+        {
+            var index = packageName.indexOf(invalidCharacter);
+            if (index != -1)
+            {
+                throw '[ERROR] Invalid character \'$invalidCharacter\' found at pos $index in package name \'$packageName\'';
+            }
+        }
     }
 
     private function handleIcons()
