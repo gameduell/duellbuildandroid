@@ -817,6 +817,11 @@ class PlatformBuild
 
     private function install()
     {
+        if (Arguments.isSet("-test"))
+        {
+            uninstall();
+        }
+
         var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk"])];
         LogHelper.info("Installing with '" + "adb " + args.join(" ") + "'");
         var adbProcess = new DuellProcess(
@@ -830,6 +835,23 @@ class PlatformBuild
                                             block : true,
                                             errorMessage : "installing on device"
                                         });
+    }
+
+    private function uninstall()
+    {
+        var args = ["shell", "pm", "uninstall", Configuration.getData().APP.PACKAGE];
+
+        var adbProcess = new DuellProcess(
+        adbPath,
+        "adb",
+        args,
+        {
+        timeout : 60,
+        logOnlyIfVerbose : false,
+        shutdownOnError : false,
+        block : true,
+        errorMessage : "uninstalling the app from the device"
+        });
     }
 
     private function runActivity()
