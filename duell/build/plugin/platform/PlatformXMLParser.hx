@@ -94,9 +94,6 @@ class PlatformXMLParser
 				case 'activity-extension':
 					parseActivityExtensionElement(element);
 
-				case 'java-lib':
-					parseJavaLibElement(element);
-
 				case 'jar':
 					parseJarElement(element);
 
@@ -132,6 +129,12 @@ class PlatformXMLParser
 
 				case 'proguard':
 					parseProguardElement(element);
+
+				case 'gradle-repository':
+					parseGradleRepositoryElement(element);
+
+				case 'gradle-dependency':
+					parseGradleDependencyElement(element);
 			}
 		}
 	}
@@ -227,7 +230,10 @@ class PlatformXMLParser
 	{
 		if (element.has.name)
 		{
-			PlatformConfiguration.getData().PERMISSIONS.push(element.att.name);
+			if (PlatformConfiguration.getData().PERMISSIONS.indexOf(element.att.name) == -1)
+			{
+				PlatformConfiguration.getData().PERMISSIONS.push(element.att.name);
+			}
 		}
 	}
 
@@ -246,26 +252,6 @@ class PlatformXMLParser
 		{
 			name = element.att.name;
 			PlatformConfiguration.getData().ACTIVITY_EXTENSIONS.push(name);
-		}
-	}
-
-	private static function parseJavaLibElement(element : Fast):Void
-	{
-		if (element.has.path)
-		{
-			var path = resolvePath(element.att.path);
-			var name = null;
-
-			if (element.has.name)
-			{
-				name = element.att.name;
-			}
-			var provided: Array<String> = [];
-			for (providedItem in element.nodes.provided)
-			{
-				provided.push(providedItem.att.path);
-			}
-			PlatformConfiguration.getData().JAVA_LIBS.push({PATH : path, NAME : name, PROVIDED : provided});
 		}
 	}
 
@@ -427,6 +413,15 @@ class PlatformXMLParser
 		PlatformConfiguration.getData().PROGUARD_PATHS.push(resolvePath(element.att.path));
 	}
 
+	private static function parseGradleRepositoryElement(element : Fast)
+	{
+		PlatformConfiguration.getData().GRADLE_REPOSITORIES.push({NAME: element.att.name, URL: element.att.url});
+	}
+
+	private static function parseGradleDependencyElement(element : Fast)
+	{
+		PlatformConfiguration.getData().GRADLE_DEPENDENCIES.push(element.att.value);
+	}
 
 	/// HELPERS
 	private static function addUniqueKeyValueToKeyValueArray(keyValueArray : KeyValueArray, key : String, value : String)

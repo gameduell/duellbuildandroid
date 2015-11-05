@@ -40,7 +40,6 @@ typedef PlatformConfigurationData = {
     APP_ICON : String,
 	HXCPP_COMPILATION_ARGS : Array<String>, /// not yet used
 	ACTIVITY_EXTENSIONS : Array<String>,
-	JAVA_LIBS : Array<{ NAME : String, PATH : String, PROVIDED : Array<String>}>,
 	JAVA_SOURCES : Array<{NAME : String, PATH : String}>,
 	JARS : Array<String>,
 	FULLSCREEN : Bool,
@@ -61,6 +60,8 @@ typedef PlatformConfigurationData = {
 	KEY_STORE_ALIAS_PASSWORD : String,
 	PROJECT_PROPERTIES: Array<String>,
 	PROGUARD_PATHS: Array<String>,
+	GRADLE_REPOSITORIES: Array<{NAME: String, URL: String}>,
+	GRADLE_DEPENDENCIES: Array<String>,
 
 	/// THESE ARE PURE XML STRINGS THAT ARE EMBEDDED IN THE MANIFEST
 	MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : Array<String>,
@@ -102,7 +103,6 @@ class PlatformConfiguration
 					ARCHS : ["armv7"],
 					HXCPP_COMPILATION_ARGS : [],
 					ACTIVITY_EXTENSIONS : [],
-					JAVA_LIBS : [],
 					JARS : [],
 					JAVA_SOURCES : [{ NAME : "HXCPP",
 									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
@@ -119,7 +119,7 @@ class PlatformConfiguration
 					USES : [],
                     RAW_PERMISSIONS: [],
 					PERMISSIONS : [],
-					MINIMUM_SDK_VERSION : 14,
+					MINIMUM_SDK_VERSION : 15,
 					DEBUG : false,
 					STRING_RESOURCES : [],
 					ACTIVITY_PARAMETERS : [
@@ -132,6 +132,8 @@ class PlatformConfiguration
 					KEY_STORE_PASSWORD : "android",
 					KEY_STORE_ALIAS_PASSWORD : "android",
 					PROGUARD_PATHS : [],
+					GRADLE_REPOSITORIES: [],
+					GRADLE_DEPENDENCIES: [],
 
 					MANIFEST_MAIN_ACTIVITY_INTENT_FILTER_SECTIONS : [],
 					MANIFEST_MAIN_ACTIVITY_SECTIONS : [],

@@ -235,7 +235,7 @@ class PlatformBuild
         libsWithSymbolsDirectory = Path.join([targetDirectory, "libswithsym"]);
         publishDirectory = Path.join([Configuration.getData().PUBLISH, "android"]);
         fullTestResultPath = Path.join([Configuration.getData().OUTPUT, "test", TEST_RESULT_FILENAME]);
-        projectDirectory = Path.join([targetDirectory, "bin"]);
+        projectDirectory = Path.join([targetDirectory, Configuration.getData().APP.FILE]);
         duellBuildAndroidPath = DuellLib.getDuellLib("duellbuildandroid").getPath();
     }
 
@@ -343,7 +343,6 @@ class PlatformBuild
         handleNDLLs();
         handleJavaSources();
         handleJars();
-        handleJavaLibs();
     }
 
     private function createDirectoriesAndCopyTemplates() : Void
@@ -540,42 +539,6 @@ class PlatformBuild
         }
     }
 
-    private function handleJavaLibs() : Void
-    {
-        for (javaLib in PlatformConfiguration.getData().JAVA_LIBS)
-        {
-            if (javaLib.PATH == "" || !FileSystem.isDirectory(javaLib.PATH) )
-                throw "Invalid Java Lib path! " + javaLib;
-
-            if (!FileSystem.exists(haxe.io.Path.join([javaLib.PATH, "project.properties"])))
-                throw "Java Lib path is missing project.properties file. " + javaLib;
-
-            TemplateHelper.recursiveCopyTemplatedFiles(javaLib.PATH, Path.join([projectDirectory, "deps", javaLib.NAME]), Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
-
-            /// Make sure the libs folder is there
-            var libsDirectoryPath: String = Path.join([projectDirectory, "deps", javaLib.NAME, "libs"]);
-            if(!FileSystem.exists(libsDirectoryPath) && javaLib.PROVIDED.length > 0)
-            {
-                PathHelper.mkdir(libsDirectoryPath);
-            }
-            /// Handling Provided jars
-            for (providedItem  in  javaLib.PROVIDED)
-            {
-                var providedSrcPath: String = Path.join([projectDirectory, "libs", providedItem]);
-                var providedDestPath: String = Path.join([libsDirectoryPath, providedItem]);
-                if(FileSystem.exists(providedSrcPath))
-                {
-                    FileHelper.copyIfNewer(providedSrcPath,providedDestPath);
-                }
-                else
-                {
-                    throw 'Ivalid jar path $providedItem, provided for java-lib ${javaLib.NAME}';
-                }
-            }
-        }
-    }
-
-
     /// =========
     ///	EMULATOR
     /// =========
@@ -625,7 +588,7 @@ class PlatformBuild
         buildHaxe();
         copyLibs();
         stripSymbols();
-        runAnt();
+        runGradle();
     }
 
     private function buildHaxe()
@@ -706,7 +669,7 @@ class PlatformBuild
 
     private function copyLibs()
     {
-        var finalPathOfLibs = Path.join([projectDirectory, "libs"]);
+        var finalPathOfLibs = Path.join([projectDirectory, "native-libs"]);
         if (!FileSystem.exists(finalPathOfLibs))
         {
                 PathHelper.mkdir(finalPathOfLibs);
@@ -763,25 +726,36 @@ class PlatformBuild
         }
     }
 
-    private function runAnt()
+    private function runGradle()
     {
-        var ant = Path.join([antPath, "bin", "ant"]);
-
-        var build = "release";
+        var args = ["nativeLibsToJar"];
 
         if (isDebug)
         {
-            build = "debug";
+            args.push("assembleDebug");
+        }
+        else
+        {
+            args.push("assembleRelease");
         }
 
-        var args: Array<String> = [build];
+        var executable = "gradlew";
+
+        if (PlatformHelper.hostPlatform == Platform.WINDOWS)
+        {
+            executable = "gradlew.bat";
+        }
 
         if (isVerbose)
         {
-            args.push("-v");
+            args.push("--stacktrace");
         }
 
-        CommandHelper.runCommand(projectDirectory, ant, args, {errorMessage: "compiling the .apk"});
+
+        CommandHelper.runCommand(projectDirectory, "chmod", ["+x", executable], {errorMessage: "setting permissions on gradlew"});
+
+
+        CommandHelper.runCommand(projectDirectory, executable, args, {errorMessage: "compiling the .apk", systemCommand:false});
     }
 
     /// =========
@@ -817,7 +791,7 @@ class PlatformBuild
 
     private function install()
     {
-        var args = ["install", "-r", Path.join([projectDirectory, "bin", Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk"])];
+        var args = ["install", "-r", Path.join([projectDirectory, "build", "outputs", "apk", Configuration.getData().APP.FILE+ "-" + (isDebug ? "debug" : "release") + ".apk"])];
         LogHelper.info("Installing with '" + "adb " + args.join(" ") + "'");
         var adbProcess = new DuellProcess(
                                         adbPath,
