@@ -623,6 +623,7 @@ class PlatformBuild
     public function build()
     {
         buildHaxe();
+        clearPreviousLibs();
         copyLibs();
         stripSymbols();
         runAnt();
@@ -701,6 +702,27 @@ class PlatformBuild
             var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
 
             FileHelper.copyIfNewer(lib, dest);
+        }
+    }
+
+    private function clearPreviousLibs()
+    {
+        for (archID in 0...3)
+        {
+            var arch = ["armv6", "armv7", "x86"][archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var destFolderArch = Path.join([projectDirectory, "libs", folderName]);
+
+            /// clear if the architecture is not to be built now
+            if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
+            {
+                if (FileSystem.exists(destFolderArch))
+                {
+                    PathHelper.removeDirectory(destFolderArch);
+                }
+
+                continue;
+            }
         }
     }
 
