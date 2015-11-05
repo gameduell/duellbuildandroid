@@ -12,7 +12,7 @@ apply plugin: 'com.android.application'
 
 android {
  compileSdkVersion ::PLATFORM.TARGET_SDK_VERSION::
- buildToolsVersion "22.0.1"
+ buildToolsVersion "::PLATFORM.TARGET_SDK_VERSION::.0.1"
 
  defaultConfig {
    minSdkVersion ::PLATFORM.MINIMUM_SDK_VERSION::
