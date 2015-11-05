@@ -174,7 +174,7 @@ class EnvironmentSetup
         var necessaryLibrariesString = "\n" +
             "     - Android SDK Platform" + "\n" +
             "     - Android SDK Tools" + "\n" +
-            "     - Android SDK Build-tools, revision 22.0.1" + "\n" +
+            "     - Android SDK Build-tools, revision 23.0.1" + "\n" +
             "     - SDK Platform Android 6.0, API 23" + "\n" +
             "     - SDK Platform Android 4.1.2, API 16" + "\n" +
             "     - ARM EABI v7a System Image, Android API 23" + "\n" +
@@ -205,7 +205,7 @@ class EnvironmentSetup
 
             downloadPackages(~/(Android SDK Platform)/);
             downloadPackages(~/(Android SDK Tools)/);
-            downloadPackages(~/(Android SDK Build-tools, revision 22.0.1)/);
+            downloadPackages(~/(Android SDK Build-tools, revision 23.0.1)/);
             downloadPackages(~/(SDK Platform Android 6.0, API 23)/);
             downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
             downloadPackages(~/(ARM EABI v7a System Image, Android API 23)/, ~/(Android TV)|(Android Wear)/);
