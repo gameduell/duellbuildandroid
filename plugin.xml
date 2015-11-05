@@ -48,10 +48,6 @@
 			Use this to specify a class as being an activity extension that will then receive Activity callbacks. This is used together with inserting java classes into the final app. E.g.: &lt;activity-extension name=&quot;com.superlib.SuperLibDelegate&quot; /&gt;.
 		</elem>
 
-		<elem name="java-lib">
-			Use this to specify a java library reference. Usually this is not needed unless a specific external library requests that it be included as a library and not as a jar or sources. E.g.: &lt;java-lib name=&quot;superlib&quot; path=&quot;path/to/lib&quot; /&gt;.
-		</elem>
-
 		<elem name="java-source">
 			Use this to add a folder that contains java sources to be compiled. This should be the top level folder in case the sources are organized in packages. E.g.: &lt;java-source path=&quot;path/to/lib&quot; /&gt;.
 		</elem>
@@ -99,6 +95,15 @@
 		<elem name="proguard">
 			Use this to specify the path a proguard file that will be merged into the final master proguard file. E.g.: &lt;proguard path=&quot;someFolder/proguard.cfg&quot;/&gt;
 		</elem>
+
+		<elem name="gradle-repository">
+			Use this to specify a gradle repository. E.g.: &lt;gradle-repository name=&quot;jcenter&quot; url=&quot;www.someurl.com&quot; /&gt;
+		</elem>
+
+		<elem name="gradle-dependency">
+			Use this to specify a gradle dependency. E.g.: &lt;gradle-dependency value=&quot;com.google.android.gms:play-services-base:8.1.0&quot; /&gt;
+		</elem>
+
 
 	</configuration>
 

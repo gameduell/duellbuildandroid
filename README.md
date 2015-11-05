@@ -1,5 +1,5 @@
 ## Description
- 
+
 Use this plugin to build for the android platform.
 ## Usage:
 `$ duell build android -emulator -debug`
@@ -24,7 +24,7 @@ Use this plugin to build for the android platform.
 
 ## Project Configuration Documentation:
 * `<minimum-sdk>` &ndash; Use this to specify a minimum android sdk. By default it is 14. E.g.: `<minimum-sdk value="16" />`.
- 
+
 * `<supports-screen>` &ndash; Use this to specify that your app supports a specific screen type. E.g.: `<supports-screen name="smallScreens" value="true" />`.
 
 * `<manifest-main-activity-section>` &ndash; This is an advanced android configuration possibility. The xml that is contained inside this element will be directly copied into the manifest in main activity section. Use this if none of the previous configuration elements allow the setting you need.
@@ -47,8 +47,6 @@ Use this plugin to build for the android platform.
 
 * `<install-location>` &ndash; Use this to specify the install location. By default it is auto. E.g.: `<install-location value="preferExternal" />`.
 
-* `<java-lib>` &ndash; Use this to specify a java library reference. Usually this is not needed unless a specific external library requests that it be included as a library and not as a jar or sources. E.g.: `<java-lib name="superlib" path="path/to/lib" />`.
-
 * `<java-source>` &ndash; Use this to add a folder that contains java sources to be compiled. This should be the top level folder in case the sources are organized in packages. E.g.: `<java-source path="path/to/lib" />`.
 
 * `<fullscreen>` &ndash; Use this to use the new android immersive mode which hides the android back/home/etc buttons. By default it is false. E.g.: `<fullscreen value="true" />`.
@@ -66,3 +64,7 @@ Use this plugin to build for the android platform.
 * `<activity-extension>` &ndash; Use this to specify a class as being an activity extension that will then receive Activity callbacks. This is used together with inserting java classes into the final app. E.g.: `<activity-extension name="com.superlib.SuperLibDelegate" />`.
 
 * `<activity-parameter>` &ndash; Use this to specify an android manifest activity parameter. E.g.: `<activity-parameter name="theme" value="@android:style/Theme.NoTitleBar.Fullscreen" />`.
+
+* `<gradle-repository>` &ndash; Use this to specify a gradle repository. E.g.: `<gradle-repository name="jcenter" url="www.someurl.com" />`.
+
+* `<gradle-dependency>` &ndash; Use this to specify a gradle dependency. E.g.: `<gradle-dependency value="com.google.android.gms:play-services-base:8.1.0" />`.
