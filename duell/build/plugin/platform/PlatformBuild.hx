@@ -586,6 +586,7 @@ class PlatformBuild
     public function build()
     {
         buildHaxe();
+        clearPreviousLibs();
         copyLibs();
         stripSymbols();
         runGradle();
@@ -664,6 +665,27 @@ class PlatformBuild
             var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
 
             FileHelper.copyIfNewer(lib, dest);
+        }
+    }
+
+    private function clearPreviousLibs()
+    {
+        for (archID in 0...3)
+        {
+            var arch = ["armv6", "armv7", "x86"][archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var destFolderArch = Path.join([projectDirectory, "libs", folderName]);
+
+            /// clear if the architecture is not to be built now
+            if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
+            {
+                if (FileSystem.exists(destFolderArch))
+                {
+                    PathHelper.removeDirectory(destFolderArch);
+                }
+
+                continue;
+            }
         }
     }
 
@@ -791,7 +813,13 @@ class PlatformBuild
 
     private function install()
     {
+        if (Arguments.isSet("-test"))
+        {
+            uninstall();
+        }
+
         var args = ["install", "-r", Path.join([projectDirectory, "build", "outputs", "apk", Configuration.getData().APP.FILE+ "-" + (isDebug ? "debug" : "release") + ".apk"])];
+
         LogHelper.info("Installing with '" + "adb " + args.join(" ") + "'");
         var adbProcess = new DuellProcess(
                                         adbPath,
@@ -804,6 +832,23 @@ class PlatformBuild
                                             block : true,
                                             errorMessage : "installing on device"
                                         });
+    }
+
+    private function uninstall()
+    {
+        var args = ["shell", "pm", "uninstall", Configuration.getData().APP.PACKAGE];
+
+        var adbProcess = new DuellProcess(
+        adbPath,
+        "adb",
+        args,
+        {
+        timeout : 60,
+        logOnlyIfVerbose : false,
+        shutdownOnError : false,
+        block : true,
+        errorMessage : "uninstalling the app from the device"
+        });
     }
 
     private function runActivity()
