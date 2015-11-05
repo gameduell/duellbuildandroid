@@ -19,7 +19,6 @@
             <xs:element name="permission" type="d:Name"/>
             <xs:element name="raw-permission" type="d:NameLevelBothRequired"/>
             <xs:element name="activity-extension" type="d:Name"/>
-            <xs:element name="java-lib" type="d:JavaLib"/>
             <xs:element name="jar" type="d:Path"/>
             <xs:element name="java-source" type="d:PathNamePathRequired"/>
             <xs:element name="supports-screen" type="d:NameValueBothRequired"/>
@@ -32,6 +31,8 @@
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
             <xs:element name="manifest-application-section" type="d:InnerContent"/>
             <xs:element name="proguard" type="d:Path"/>
+            <xs:element name="gradle-repository" type="d:GradleRepo"/>
+            <xs:element name="gradle-dependency" type="d:Value"/>
         </xs:choice>
     </xs:complexType>
 
@@ -62,13 +63,13 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="JavaLib">
-        <xs:sequence maxOccurs="unbounded">
-            <xs:element name="provided" type="d:Path"/>
-        </xs:sequence>
-        <xs:attributeGroup ref="d:Conditional" />
-        <xs:attribute name="path" type="xs:anyURI" use="required"/>
-        <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:complexType name="GradleRepo">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="url" type="xs:anyURI" use="required"/>
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="Drawable">
