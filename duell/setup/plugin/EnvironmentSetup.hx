@@ -179,7 +179,11 @@ class EnvironmentSetup
             "     - SDK Platform Android 4.1.2, API 16" + "\n" +
             "     - ARM EABI v7a System Image, Android API 23" + "\n" +
             "     - Intel x86 Atom System Image, Android API 23" + "\n" +
-            "     - Intel x86 Emulator Accelerator" + "\n";
+            "     - Intel x86 Emulator Accelerator" + "\n" +
+            "     - Android Support Repository" + "\n" +
+            "     - Android Support Library" + "\n" +
+            "     - Google Play services" + "\n" +
+            "     - Google Repository" + "\n";
 
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
         {
@@ -211,6 +215,10 @@ class EnvironmentSetup
             downloadPackages(~/(ARM EABI v7a System Image, Android API 23)/, ~/(Android TV)|(Android Wear)/);
             downloadPackages(~/(Intel x86 Atom System Image, Android API 23)/, ~/(Android TV)|(Android Wear)/);
             downloadPackages(~/(Intel x86 Emulator Accelerator)/);
+            downloadPackages(~/(Android Support Repository, revision 24)/);
+            downloadPackages(~/(Android Support Library, revision 23.1)/);
+            downloadPackages(~/(Google Play services, revision 28)/);
+            downloadPackages(~/(Google Repository, revision 23)/);
 
             var haxmInstall = AskHelper.askYesOrNo("In order to be able to use the x86 android emulator (which is faster), you need to install HAXM. In order to do that you also need the administrator password, or administrator permissions. Would you like to do that now?");
 
@@ -357,10 +365,10 @@ class EnvironmentSetup
                 CommandHelper.runCommand("", file, [], {errorMessage: "extracting ndk", systemCommand: false});
 
                 var rootFolder = "android-ndk-r10d";
-				for (file in FileSystem.readDirectory(rootFolder))
-				{
-					CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
-				}
+                for (file in FileSystem.readDirectory(rootFolder))
+                {
+                    CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
+                }
 
                 CommandHelper.runCommand("", "rm", [ "-Rf", rootFolder], {errorMessage: "copying files to the target directory of the extraction"});
             }
@@ -371,10 +379,10 @@ class EnvironmentSetup
                 CommandHelper.runCommand("", file, [], {errorMessage: "extracting ndk", systemCommand: false});
 
                 var rootFolder = "android-ndk-r10d";
-				for (file in FileSystem.readDirectory(rootFolder))
-				{
-					CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
-				}
+                for (file in FileSystem.readDirectory(rootFolder))
+                {
+                    CommandHelper.runCommand("", "cp", [ "-R", Path.join([rootFolder, file]), androidNDKPath], {errorMessage: "copying files to the target directory of the extraction"});
+                }
 
                 CommandHelper.runCommand("", "rm", [ "-Rf", rootFolder], {errorMessage: "copying files to the target directory of the extraction"});
             }
