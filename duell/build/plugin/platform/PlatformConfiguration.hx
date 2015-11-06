@@ -44,6 +44,7 @@ typedef PlatformConfigurationData = {
 	JARS : Array<String>,
 	FULLSCREEN : Bool,
 	TARGET_SDK_VERSION : Int,
+	BUILD_TOOLS_VERSION : String,
 	USES : Array<{ NAME : String, VALUE : String, REQUIRED : Bool }>,
 	PERMISSIONS : Array<String>,
     RAW_PERMISSIONS: Array<{ NAME : String, LEVEL : String}>,
@@ -109,6 +110,7 @@ class PlatformConfiguration
 									  }],
 					FULLSCREEN : false,
 					TARGET_SDK_VERSION : 23,
+					BUILD_TOOLS_VERSION : "23.0.1",
 					INSTALL_LOCATION : "auto",
 					SUPPORTS_SCREENS : [
 									{NAME : "smallScreens", VALUE : "true"},
