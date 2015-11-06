@@ -750,7 +750,7 @@ class PlatformBuild
 
     private function runGradle()
     {
-        var args = ["nativeLibsToJar"];
+        var args = [];
 
         if (isDebug)
         {

@@ -58,6 +58,7 @@ android {
      aidl.srcDirs = ['src']
      res.srcDirs = ['res']
      assets.srcDirs = ['assets']
+     jniLibs.srcDirs = ['native-libs']
    }
  }
 
@@ -69,14 +70,6 @@ android {
  lintOptions {
    disable 'InvalidPackage'
  }
-}
-
-task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
-    destinationDir file("libs")
-    baseName 'native-libs'
-    extension 'jar'
-    from fileTree(dir: 'native-libs', include: '**/*.so')
-    into 'lib/'
 }
 
 repositories {
