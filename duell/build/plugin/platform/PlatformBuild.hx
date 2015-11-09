@@ -44,6 +44,7 @@ import duell.objects.DuellLib;
 import duell.objects.Haxelib;
 import duell.objects.DuellProcess;
 import duell.objects.Arguments;
+import duell.objects.SemVer;
 
 import duell.build.helpers.Emulator;
 
@@ -219,6 +220,7 @@ class PlatformBuild
         convertParsingDefinesToCompilationDefines();
         forceDeprecationWarnings();
         gatherProguardConfigs();
+        cleanUpDuplicatedGradleDependencies();
 
         if (isDebug)
             addDebuggingInformation();
@@ -249,6 +251,66 @@ class PlatformBuild
             }
             Configuration.getData().PLATFORM.PROGUARD_CONTENT.push(File.getContent(proguardFile));
         }
+    }
+
+    private function cleanUpDuplicatedGradleDependencies()
+    {
+        var gradleDependencies:Array<{name: String, version: String, raw: String}> = [];
+
+        for (dependency in PlatformConfiguration.getData().GRADLE_DEPENDENCIES)
+        {
+            var split = dependency.split(":");
+            var version = split.pop();
+            var name = split.join(":");
+            gradleDependencies.push({name: name, version: version, raw: dependency});
+        }
+
+        var finalGradleDependencies: Array<String> = [];
+
+        for (i in 0...gradleDependencies.length)
+        {
+            var dependency = gradleDependencies[i];
+
+            if (finalGradleDependencies.indexOf(dependency.raw) != -1)
+                continue;
+
+            var duplicates = [dependency];
+
+            for (j in (i + 1)...gradleDependencies.length)
+            {
+                if (gradleDependencies[j].name == dependency.name)
+                {
+                    duplicates.push(gradleDependencies[j]);
+                }
+            }
+
+            if (duplicates.length == 1)
+            {
+                finalGradleDependencies.push(duplicates[0].raw);
+                continue;
+            }
+
+            var semVerList = duplicates.map(function(dependency) return {raw: dependency.raw, semVer: SemVer.ofString(dependency.version)});
+
+            var highest = semVerList[0];
+
+            for (semVerAndRaw in semVerList)
+            {
+                if (semVerAndRaw.semVer == null)
+                {
+                    throw "invalid gradle dependency. Please specify only simple version, e.g. 1.2.3 - " + semVerAndRaw.raw;
+                }
+
+                if (SemVer.compare(highest.semVer, semVerAndRaw.semVer) > 0)
+                {
+                    highest = semVerAndRaw;
+                }
+            }
+
+            finalGradleDependencies.push(highest.raw);
+        }
+
+        PlatformConfiguration.getData().GRADLE_DEPENDENCIES = finalGradleDependencies;
     }
 
     private function addHXCPPLibs()
