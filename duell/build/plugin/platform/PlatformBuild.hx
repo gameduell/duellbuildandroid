@@ -674,7 +674,7 @@ class PlatformBuild
         {
             var arch = ["armv6", "armv7", "x86"][archID];
             var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
-            var destFolderArch = Path.join([projectDirectory, "libs", folderName]);
+            var destFolderArch = Path.join([projectDirectory, "native-libs", folderName]);
 
             /// clear if the architecture is not to be built now
             if (Configuration.getData().PLATFORM.ARCHS.indexOf(arch) == -1)
@@ -981,7 +981,7 @@ class PlatformBuild
         PathHelper.mkdir(publishDirectory);
 
         var binaryName: String = Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk";
-        var outputFile: String = Path.join([projectDirectory, "bin", binaryName]);
+        var outputFile: String = Path.join([projectDirectory, "build", "outputs", "apk", binaryName]);
         var destinationFile: String = Path.join([publishDirectory, '${Configuration.getData().APP.FILE}.apk']);
 
         FileHelper.copyIfNewer(outputFile, destinationFile);
