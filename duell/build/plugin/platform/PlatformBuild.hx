@@ -1042,7 +1042,9 @@ class PlatformBuild
         // create the publish part for android
         PathHelper.mkdir(publishDirectory);
 
-        var binaryName: String = Configuration.getData().APP.FILE + "-" + (isDebug ? "debug" : "release") + ".apk";
+        var buildType: String = isDebug ? "debug" : "release";
+
+        var binaryName: String = '${Configuration.getData().APP.FILE}-$buildType.apk';
         var outputFile: String = Path.join([projectDirectory, "build", "outputs", "apk", binaryName]);
         var destinationFile: String = Path.join([publishDirectory, '${Configuration.getData().APP.FILE}.apk']);
 
@@ -1054,7 +1056,7 @@ class PlatformBuild
         // run proguard on the resulting file and update PUBLISHED_MAPPING_PATH
         if (Configuration.getData().PLATFORM.PROGUARD_ENABLED)
         {
-            Configuration.getData().PLATFORM.PUBLISHED_MAPPING_PATH = Path.join([projectDirectory, "bin", "proguard", "mapping.txt"]);
+            Configuration.getData().PLATFORM.PUBLISHED_MAPPING_PATH = Path.join([projectDirectory, "build", "outputs", "mapping", buildType, "mapping.txt"]);
         }
     }
 
