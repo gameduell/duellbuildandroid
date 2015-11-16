@@ -215,10 +215,10 @@ class EnvironmentSetup
             downloadPackages(~/(ARM EABI v7a System Image, Android API 23)/, ~/(Android TV)|(Android Wear)/);
             downloadPackages(~/(Intel x86 Atom System Image, Android API 23)/, ~/(Android TV)|(Android Wear)/);
             downloadPackages(~/(Intel x86 Emulator Accelerator)/);
-            downloadPackages(~/(Android Support Repository, revision 24)/);
-            downloadPackages(~/(Android Support Library, revision 23.1)/);
-            downloadPackages(~/(Google Play services, revision 28)/);
-            downloadPackages(~/(Google Repository, revision 23)/);
+            downloadPackages(~/(Android Support Repository)/);
+            downloadPackages(~/(Android Support Library)/);
+            downloadPackages(~/(Google Play services)/);
+            downloadPackages(~/(Google Repository)/);
 
             var haxmInstall = AskHelper.askYesOrNo("In order to be able to use the x86 android emulator (which is faster), you need to install HAXM. In order to do that you also need the administrator password, or administrator permissions. Would you like to do that now?");
 
