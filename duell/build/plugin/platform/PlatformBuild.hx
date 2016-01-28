@@ -767,7 +767,7 @@ class PlatformBuild
         if (!Arguments.isSet("-stripsym"))
             return;
 
-        var finalPathOfLibs = Path.join([projectDirectory, "libs"]);
+        var finalPathOfLibs = Path.join([projectDirectory, "native-libs"]);
         var host = "darwin-x86";
 
         if (PlatformHelper.hostPlatform == Platform.WINDOWS)
