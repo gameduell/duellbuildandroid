@@ -38,6 +38,7 @@ import duell.helpers.TestHelper;
 import duell.helpers.CommandHelper;
 import duell.helpers.HXCPPConfigXMLHelper;
 import duell.helpers.PlatformHelper;
+import duell.helpers.DuellConfigHelper;
 import duell.objects.HXCPPConfigXML;
 
 import duell.objects.DuellLib;
@@ -115,6 +116,16 @@ class PlatformBuild
 
         Sys.putEnv("ANDROID_SDK", defines.get("ANDROID_SDK"));
         Sys.putEnv("ANDROID_HOME", defines.get("ANDROID_SDK"));
+
+        var configFolderLocation = DuellConfigHelper.getDuellConfigFolderLocation();
+        var cacheLocation = Path.join([configFolderLocation, "hxcppcache"]);
+
+        if (!FileSystem.exists(cacheLocation))
+        {
+            PathHelper.mkdir(cacheLocation);
+        }
+
+        Sys.putEnv("HXCPP_COMPILE_CACHE", cacheLocation);
 
         Configuration.getData().PLATFORM.NDK_PATH = defines.get("ANDROID_NDK_ROOT");
 
