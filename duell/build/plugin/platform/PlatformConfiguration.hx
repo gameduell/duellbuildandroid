@@ -110,7 +110,7 @@ class PlatformConfiguration
 									  }],
 					FULLSCREEN : false,
 					TARGET_SDK_VERSION : 23,
-					BUILD_TOOLS_VERSION : "23.0.1",
+					BUILD_TOOLS_VERSION : "23.0.3",
 					INSTALL_LOCATION : "auto",
 					SUPPORTS_SCREENS : [
 									{NAME : "smallScreens", VALUE : "true"},
