@@ -174,7 +174,7 @@ class EnvironmentSetup
         var necessaryLibrariesString = "\n" +
             "     - Android SDK Platform" + "\n" +
             "     - Android SDK Tools" + "\n" +
-            "     - Android SDK Build-tools, revision 23.0.1" + "\n" +
+            "     - Android SDK Build-tools, revision 23.0.3" + "\n" +
             "     - SDK Platform Android 6.0, API 23" + "\n" +
             "     - SDK Platform Android 4.1.2, API 16" + "\n" +
             "     - ARM EABI v7a System Image, Android API 23" + "\n" +
@@ -209,7 +209,7 @@ class EnvironmentSetup
 
             downloadPackages(~/(Android SDK Platform)/);
             downloadPackages(~/(Android SDK Tools)/);
-            downloadPackages(~/(Android SDK Build-tools, revision 23.0.1)/);
+            downloadPackages(~/(Android SDK Build-tools, revision 23.0.3)/);
             downloadPackages(~/(SDK Platform Android 6.0, API 23)/);
             downloadPackages(~/(SDK Platform Android 4.1.2, API 16)/);
             downloadPackages(~/(ARM EABI v7a System Image, Android API 23)/, ~/(Android TV)|(Android Wear)/);
@@ -217,7 +217,7 @@ class EnvironmentSetup
             downloadPackages(~/(Intel x86 Emulator Accelerator)/);
             downloadPackages(~/(Android Support Repository)/);
             downloadPackages(~/(Android Support Library)/);
-            downloadPackages(~/(Google Play services)/);
+            downloadPackages(~/(Google Play services, revision)/); // exclude Play services for Froyo
             downloadPackages(~/(Google Repository)/);
 
             var haxmInstall = AskHelper.askYesOrNo("In order to be able to use the x86 android emulator (which is faster), you need to install HAXM. In order to do that you also need the administrator password, or administrator permissions. Would you like to do that now?");
