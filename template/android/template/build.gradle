@@ -4,7 +4,7 @@ buildscript {
  }
 
  dependencies {
-   classpath 'com.android.tools.build:gradle:1.2.3'
+   classpath 'com.android.tools.build:gradle:2.0.0'
  }
 }
 
@@ -36,6 +36,9 @@ android {
 		::end::
 		signingConfig signingConfigs.sign
         zipAlignEnabled true
+
+        debuggable true
+        jniDebuggable true
     }
     release {
 		::if (PLATFORM.PROGUARD_ENABLED)::
