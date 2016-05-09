@@ -86,7 +86,7 @@ class Emulator
 					"-prop", "persist.sys.country=GB",
 					"-port", "" + portToUse,
 					"-no-snapshot-load", "-no-snapshot-save",
-					"-gpu", "on", "-noaudio"];
+					"-gpu", "on"];
 
 		if (Arguments.isSet("-wipeemulator"))
 		{
