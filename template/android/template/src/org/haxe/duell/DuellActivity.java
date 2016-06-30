@@ -371,7 +371,8 @@ public class DuellActivity extends Activity
     {
         mainHaxeThreadHandler = handler;
     }
-    public void setHaxeRunloopHandler(MainHaxeThreadHandler handler)
+
+    public synchronized void setHaxeRunloopHandler(MainHaxeThreadHandler handler)
     {
         runloopHaxeThreadHandler = handler;
     }
