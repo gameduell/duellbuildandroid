@@ -54,6 +54,7 @@ public class DuellActivity extends Activity
 
     private final Handler mainJavaThreadHandler;
     private MainHaxeThreadHandler mainHaxeThreadHandler;
+    private MainHaxeThreadHandler runloopHaxeThreadHandler;
 
     /** Exposes the parent so that it can be used to set the content view instead */
     public FrameLayout parent;
@@ -79,6 +80,15 @@ public class DuellActivity extends Activity
             public void queueRunnableOnMainHaxeThread(Runnable runObj)
             {
                 mainJavaThreadHandler.post(runObj);
+            }
+        };
+
+        runloopHaxeThreadHandler = new MainHaxeThreadHandler()
+        {
+            @Override
+            public void queueRunnableOnMainHaxeThread(Runnable runObj)
+            {
+                mainHaxeThreadHandler.queueRunnableOnMainHaxeThread(runObj);
             }
         };
 
@@ -350,9 +360,20 @@ public class DuellActivity extends Activity
         mainJavaThreadHandler.post(run);
     }
 
+    /// execute callback through main haxe runloop.
+    /// executes through queueOnHaxeThread while runloop is not initialized yet
+    public void queueOnHaxeRunloop(Runnable run)
+    {
+        runloopHaxeThreadHandler.queueRunnableOnMainHaxeThread(run);
+    }
+
     public void setMainHaxeThreadHandler(MainHaxeThreadHandler handler)
     {
         mainHaxeThreadHandler = handler;
+    }
+    public void setHaxeRunloopHandler(MainHaxeThreadHandler handler)
+    {
+        runloopHaxeThreadHandler = handler;
     }
 
     @Override
