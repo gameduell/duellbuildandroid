@@ -351,7 +351,8 @@ public class DuellActivity extends Activity
     /// defaults to itself
     public void queueOnHaxeThread(Runnable run)
     {
-        mainHaxeThreadHandler.queueRunnableOnMainHaxeThread(run);
+        //mainHaxeThreadHandler.queueRunnableOnMainHaxeThread(run);
+        queueOnHaxeRunloop(run);
     }
 
     /// if you want to force some callback to be executed on the main thread
