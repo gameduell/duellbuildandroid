@@ -17,6 +17,7 @@ android {
  defaultConfig {
    minSdkVersion ::PLATFORM.MINIMUM_SDK_VERSION::
    targetSdkVersion ::PLATFORM.TARGET_SDK_VERSION::
+   applicationId '::APP.PACKAGE::'
  }
 
  signingConfigs {
