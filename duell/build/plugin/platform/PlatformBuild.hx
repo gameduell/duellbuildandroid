@@ -686,9 +686,6 @@ class PlatformBuild
 
     private function buildHaxe()
     {
-        var args: Array<String> = ["Build.hxml"];
-
-        CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), args, {errorMessage: "compiling the haxe code into c++"});
 
         for (archID in 0...3)
         {
@@ -758,7 +755,8 @@ class PlatformBuild
 
             trace('dir: $targetDirectory');
             trace(argsForBuildCpp);
-            CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", 'Build-$arch.xml'].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
+            CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ['Build-$arch.hxml'], {errorMessage: "compiling the haxe code into c++"});
+            CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", 'Build.xml'].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
 
             var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
             trace(lib);
