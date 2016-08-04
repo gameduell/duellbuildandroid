@@ -430,7 +430,9 @@ class PlatformBuild
             }
 
             var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe", "Build.hxml"]);
-            var destHaxeTemplate = Path.join([targetDirectory, "haxe", 'Build-$arch.hxml']);
+            var haxeBuildfileDirectory = Path.join([targetDirectory, "haxe"]);
+            PathHelper.mkdir(haxeBuildfileDirectory);
+            var destHaxeTemplate = Path.join([haxeBuildfileDirectory, 'Build-$arch.hxml']);
             TemplateHelper.copyTemplateFile(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
             Configuration.getData().HAXE_COMPILE_ARGS.pop();
         }
