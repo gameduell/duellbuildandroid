@@ -227,7 +227,6 @@ class PlatformBuild
         startEmulator();
         addHXCPPLibs();
         convertDuellAndHaxelibsIntoHaxeCompilationFlags();
-        addArchitectureInfoToHaxeCompilationFlags();
         convertParsingDefinesToCompilationDefines();
         forceDeprecationWarnings();
         gatherProguardConfigs();
@@ -394,21 +393,6 @@ class PlatformBuild
         }
     }
 
-    private function addArchitectureInfoToHaxeCompilationFlags()
-    {
-        for (arch in Configuration.getData().PLATFORM.ARCHS)
-        {
-            switch (arch)
-            {
-                case "armv6":
-                case "armv7":
-                    //Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
-                case "x86":
-                    //Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
-            }
-        }
-    }
-
     private function prepareAndroidBuild() : Void
     {
         createDirectoriesAndCopyTemplates();
@@ -446,15 +430,12 @@ class PlatformBuild
             }
 
             var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe", "Build.hxml"]);
-            var destHaxeTemplate = Path.join([targetDirectory, "haxe", 'Build-$arch.hxml']);
+            var haxeBuildfileDirectory = Path.join([targetDirectory, "haxe"]);
+            PathHelper.mkdir(haxeBuildfileDirectory);
+            var destHaxeTemplate = Path.join([haxeBuildfileDirectory, 'Build-$arch.hxml']);
             TemplateHelper.copyTemplateFile(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
             Configuration.getData().HAXE_COMPILE_ARGS.pop();
         }
-    }
-
-    private function createBuildFile()
-    {
-
     }
 
     private function handleIcons()
@@ -691,7 +672,6 @@ class PlatformBuild
         {
             var arch = ["armv6", "armv7", "x86"][archID];
 
-
             var argsForBuildCpp = [["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip"],
                                    ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARMV7"],
                                    ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"]][archID];
@@ -702,7 +682,6 @@ class PlatformBuild
             var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
 
             var extension = [".so", "-v7.so", "-x86.so"][archID];
-
 
             var destFolderArch = Path.join([libsWithSymbolsDirectory, folderName]);
 
@@ -715,9 +694,6 @@ class PlatformBuild
                 }
                 continue;
             }
-
-            trace('building arch $arch');
-            trace('extension $extension');
 
             PathHelper.mkdir(destFolderArch);
 
@@ -753,13 +729,10 @@ class PlatformBuild
             }
 
 
-            trace('dir: $targetDirectory');
-            trace(argsForBuildCpp);
             CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ['Build-$arch.hxml'], {errorMessage: "compiling the haxe code into c++"});
-            CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", 'Build.xml'].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
+            CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
 
             var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
-            trace(lib);
             var dest = Path.join([destFolderArch, "libHaxeApplication.so"]);
 
             FileHelper.copyIfNewer(lib, dest);
