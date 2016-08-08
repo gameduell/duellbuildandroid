@@ -227,7 +227,6 @@ class PlatformBuild
         startEmulator();
         addHXCPPLibs();
         convertDuellAndHaxelibsIntoHaxeCompilationFlags();
-        addArchitectureInfoToHaxeCompilationFlags();
         convertParsingDefinesToCompilationDefines();
         forceDeprecationWarnings();
         gatherProguardConfigs();
@@ -394,21 +393,6 @@ class PlatformBuild
         }
     }
 
-    private function addArchitectureInfoToHaxeCompilationFlags()
-    {
-        for (arch in Configuration.getData().PLATFORM.ARCHS)
-        {
-            switch (arch)
-            {
-                case "armv6":
-                case "armv7":
-                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
-                case "x86":
-                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
-            }
-        }
-    }
-
     private function prepareAndroidBuild() : Void
     {
         createDirectoriesAndCopyTemplates();
@@ -433,9 +417,25 @@ class PlatformBuild
 
         TemplateHelper.recursiveCopyTemplatedFiles(originProjectTemplate, destProjectTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
 
-        var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe"]);
-        var destHaxeTemplate = Path.join([targetDirectory, "haxe"]);
-        TemplateHelper.recursiveCopyTemplatedFiles(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+        for (arch in Configuration.getData().PLATFORM.ARCHS)
+        {
+            switch (arch)
+            {
+                case "armv6":
+                    continue;
+                case "armv7":
+                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
+                case "x86":
+                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
+            }
+
+            var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe", "Build.hxml"]);
+            var haxeBuildfileDirectory = Path.join([targetDirectory, "haxe"]);
+            PathHelper.mkdir(haxeBuildfileDirectory);
+            var destHaxeTemplate = Path.join([haxeBuildfileDirectory, 'Build-$arch.hxml']);
+            TemplateHelper.copyTemplateFile(originHaxeTemplate, destHaxeTemplate, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
+            Configuration.getData().HAXE_COMPILE_ARGS.pop();
+        }
     }
 
     private function handleIcons()
@@ -667,9 +667,6 @@ class PlatformBuild
 
     private function buildHaxe()
     {
-        var args: Array<String> = ["Build.hxml"];
-
-        CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), args, {errorMessage: "compiling the haxe code into c++"});
 
         for (archID in 0...3)
         {
@@ -732,6 +729,7 @@ class PlatformBuild
             }
 
 
+            CommandHelper.runHaxe(Path.join([targetDirectory, "haxe"]), ['Build-$arch.hxml'], {errorMessage: "compiling the haxe code into c++"});
             CommandHelper.runHaxelib(Path.join([targetDirectory, "haxe", "build"]), ["run", "hxcpp", "Build.xml"].concat(argsForBuildCpp), {errorMessage: "compiling the generated c++ code"});
 
             var lib = Path.join([targetDirectory, "haxe", "build", "lib" + Configuration.getData().MAIN + (isDebug ? "-debug" : "") + extension]);
