@@ -33,6 +33,8 @@
             <xs:element name="proguard" type="d:Path"/>
             <xs:element name="gradle-repository" type="d:GradleRepo"/>
             <xs:element name="gradle-dependency" type="d:Value"/>
+            <xs:element name="gradle-binary-plugin" type="d:Value"/>
+            <xs:element name="gradle-build-script-dependency" type="d:Value"/>
         </xs:choice>
     </xs:complexType>
 

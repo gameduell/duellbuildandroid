@@ -68,3 +68,7 @@ Use this plugin to build for the android platform.
 * `<gradle-repository>` &ndash; Use this to specify a gradle repository. E.g.: `<gradle-repository name="jcenter" url="www.someurl.com" />`.
 
 * `<gradle-dependency>` &ndash; Use this to specify a gradle dependency. E.g.: `<gradle-dependency value="com.google.android.gms:play-services-base:8.1.0" />`.
+
+* `<gradle-binary-plugin>` &ndash; Use this to specify a gradle apply plugin. E.g.: `<gradle-binary-plugin value="com.google.gms.google-services" />`.
+
+* `<gradle-build-script-dependency>` &ndash; Use this to specify a gradle build script dependency. E.g.: `<gradle-build-script-dependency value="com.google.gms:google-services:3.0.0" />`.

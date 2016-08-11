@@ -5,6 +5,10 @@ buildscript {
 
  dependencies {
    classpath 'com.android.tools.build:gradle:2.0.0'
+
+   ::foreach PLATFORM.GRADLE_BUILD_SCRIPT_DEPENDENCIES::
+   classpath '::__current__::'
+   ::end::
  }
 }
 
@@ -97,3 +101,7 @@ dependencies {
 
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+::foreach PLATFORM.GRADLE_BINARY_PLUGINS::
+apply plugin: '::__current__::'
+::end::

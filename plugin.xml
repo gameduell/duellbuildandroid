@@ -104,6 +104,13 @@
 			Use this to specify a gradle dependency. E.g.: &lt;gradle-dependency value=&quot;com.google.android.gms:play-services-base:8.1.0&quot; /&gt;
 		</elem>
 
+		<elem name="gradle-binary-plugin">
+			Use this to specify a gradle apply plugin. E.g.: &lt;gradle-binary-plugin value=&quot;com.google.gms.google-services&quot; /&gt;
+		</elem>
+
+		<elem name="gradle-build-script-dependency">
+			Use this to specify a gradle build script dependency. E.g.: &lt;gradle-build-script-dependency value=&quot;com.google.gms:google-services:3.0.0&quot; /&gt;
+		</elem>
 
 	</configuration>
 

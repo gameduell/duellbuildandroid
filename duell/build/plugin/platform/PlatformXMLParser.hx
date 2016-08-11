@@ -135,6 +135,12 @@ class PlatformXMLParser
 
 				case 'gradle-dependency':
 					parseGradleDependencyElement(element);
+
+				case 'gradle-binary-plugin':
+					parseGradleBinaryPluginElement(element);
+
+				case 'gradle-build-script-dependency':
+					parseGradleBuildScriptDependencyElement(element);
 			}
 		}
 	}
@@ -421,6 +427,16 @@ class PlatformXMLParser
 	private static function parseGradleDependencyElement(element : Fast)
 	{
 		PlatformConfiguration.getData().GRADLE_DEPENDENCIES.push(element.att.value);
+	}
+
+	private static function parseGradleBinaryPluginElement(element : Fast)
+	{
+		PlatformConfiguration.getData().GRADLE_BINARY_PLUGINS.push(element.att.value);
+	}
+
+	private static function parseGradleBuildScriptDependencyElement(element : Fast)
+	{
+		PlatformConfiguration.getData().GRADLE_BUILD_SCRIPT_DEPENDENCIES.push(element.att.value);
 	}
 
 	/// HELPERS
