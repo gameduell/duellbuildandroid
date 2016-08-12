@@ -46,6 +46,7 @@ import org.haxe.HXCPP;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 
 public class DuellActivity extends Activity
@@ -65,6 +66,7 @@ public class DuellActivity extends Activity
     public WeakReference<View> mainView;
 
     private final List<Extension> extensions;
+    private Vector<Runnable> queuedForHaxe = new Vector<Runnable>();
 
     public DuellActivity()
     {
@@ -80,15 +82,6 @@ public class DuellActivity extends Activity
             public void queueRunnableOnMainHaxeThread(Runnable runObj)
             {
                 mainJavaThreadHandler.post(runObj);
-            }
-        };
-
-        runloopHaxeThreadHandler = new MainHaxeThreadHandler()
-        {
-            @Override
-            public void queueRunnableOnMainHaxeThread(Runnable runObj)
-            {
-                mainHaxeThreadHandler.queueRunnableOnMainHaxeThread(runObj);
             }
         };
 
@@ -365,12 +358,24 @@ public class DuellActivity extends Activity
     /// executes through queueOnHaxeThread while runloop is not initialized yet
     public void queueOnHaxeRunloop(Runnable run)
     {
-        runloopHaxeThreadHandler.queueRunnableOnMainHaxeThread(run);
+        if (runloopHaxeThreadHandler != null)
+        {
+            runloopHaxeThreadHandler.queueRunnableOnMainHaxeThread(run);
+            return;
+        }
+
+        queuedForHaxe.add(run);
     }
 
     public void setMainHaxeThreadHandler(MainHaxeThreadHandler handler)
     {
         mainHaxeThreadHandler = handler;
+        for (Runnable run : queuedForHaxe)
+        {
+            queueOnHaxeRunloop(run);
+        }
+
+        queuedForHaxe.clear();
     }
 
     public synchronized void setHaxeRunloopHandler(MainHaxeThreadHandler handler)
