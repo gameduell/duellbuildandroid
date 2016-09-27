@@ -858,7 +858,10 @@ class PlatformBuild
     {
         waitForEmulatorReady();
 
-        install();
+        if (!install())
+        {
+            throw "Failed to install apk to device";
+        }
         clearLogcat();
 
         if (!isNDKGDB)
@@ -882,7 +885,7 @@ class PlatformBuild
         }
     }
 
-    private function install()
+    private function install(): Bool
     {
         if (Arguments.isSet("-test"))
         {
@@ -903,6 +906,13 @@ class PlatformBuild
                                             block : true,
                                             errorMessage : "installing on device"
                                         });
+
+        if (adbProcess.lastLine.startsWith("Failure"))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private function uninstall()
