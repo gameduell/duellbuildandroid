@@ -1090,7 +1090,7 @@ class PlatformBuild
 
         if (Arguments.isSet("-test"))
             test()
-        else
+        else if (!Arguments.isSet("-norun"))
             run();
     }
 
