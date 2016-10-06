@@ -16,7 +16,7 @@
             <xs:element name="minimum-sdk" type="d:ValueInteger"/>
             <xs:element name="fullscreen" type="d:ValueBoolean"/>
             <xs:element name="uses" type="d:UsesPermission"/>
-            <xs:element name="permission" type="d:Name"/>
+            <xs:element name="permission" type="d:NameMaxLevel"/>
             <xs:element name="raw-permission" type="d:NameLevelBothRequired"/>
             <xs:element name="activity-extension" type="d:Name"/>
             <xs:element name="jar" type="d:Path"/>
@@ -36,6 +36,15 @@
             <xs:element name="gradle-binary-plugin" type="d:Value"/>
             <xs:element name="gradle-build-script-dependency" type="d:Value"/>
         </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="NameMaxLevel">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="maxLevel" type="xs:positiveInteger" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="NameLevelBothRequired">

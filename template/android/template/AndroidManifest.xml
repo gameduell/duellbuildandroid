@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="::APP.PACKAGE::" android:versionCode="::APP.BUILD_NUMBER::" android:versionName="::APP.VERSION::" android:installLocation="::PLATFORM.INSTALL_LOCATION::">
+<manifest xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android" package="::APP.PACKAGE::" android:versionCode="::APP.BUILD_NUMBER::" android:versionName="::APP.VERSION::" android:installLocation="::PLATFORM.INSTALL_LOCATION::">
 	
 	::foreach PLATFORM.USES::
 	<uses-feature android:::NAME::="::VALUE::" android:required="::if (REQUIRED)::true::else::false::end::" />::end::
 	::foreach PLATFORM.PERMISSIONS::
-	<uses-permission android:name="::__current__::" />::end::
+	<uses-permission android:name="::NAME::" ::if (MAX_LEVEL > 0)::tools:replace="android:maxSdkVersion" android:maxSdkVersion="::MAX_LEVEL::"::end:: />::end::
 
     ::foreach PLATFORM.RAW_PERMISSIONS::
     <permission android:name="::NAME::" android:protectionLevel="::LEVEL::" />::end::
