@@ -57,7 +57,7 @@ using StringTools;
 
 class PlatformBuild
 {
-    public var requiredSetups = [{name: "android", version: "5.1.0"}];
+    public var requiredSetups = [{name: "android", version: "6.0.0"}];
     public var supportedHostPlatforms = [LINUX, WINDOWS, MAC];
     private static inline var TEST_RESULT_FILENAME = "test_result_android.xml";
     private static inline var DEFAULT_ARMV7_EMULATOR = "duellarmv7";
@@ -858,7 +858,10 @@ class PlatformBuild
     {
         waitForEmulatorReady();
 
-        install();
+        if (!install())
+        {
+            throw "Failed to install apk to device";
+        }
         clearLogcat();
 
         if (!isNDKGDB)
@@ -882,7 +885,7 @@ class PlatformBuild
         }
     }
 
-    private function install()
+    private function install(): Bool
     {
         if (Arguments.isSet("-test"))
         {
@@ -903,6 +906,13 @@ class PlatformBuild
                                             block : true,
                                             errorMessage : "installing on device"
                                         });
+
+        if (adbProcess.lastLine.startsWith("Failure"))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private function uninstall()
@@ -1080,7 +1090,7 @@ class PlatformBuild
 
         if (Arguments.isSet("-test"))
             test()
-        else
+        else if (!Arguments.isSet("-norun"))
             run();
     }
 
