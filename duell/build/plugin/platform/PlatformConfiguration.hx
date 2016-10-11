@@ -46,7 +46,7 @@ typedef PlatformConfigurationData = {
 	TARGET_SDK_VERSION : Int,
 	BUILD_TOOLS_VERSION : String,
 	USES : Array<{ NAME : String, VALUE : String, REQUIRED : Bool }>,
-	PERMISSIONS : Array<String>,
+	PERMISSIONS : Array<{ NAME : String, MAX_LEVEL : Int}>,
     RAW_PERMISSIONS: Array<{ NAME : String, LEVEL : String}>,
 	SUPPORTS_SCREENS : KeyValueArray,
 	MINIMUM_SDK_VERSION : Int,

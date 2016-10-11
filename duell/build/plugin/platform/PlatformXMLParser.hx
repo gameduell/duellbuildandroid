@@ -236,10 +236,20 @@ class PlatformXMLParser
 	{
 		if (element.has.name)
 		{
-			if (PlatformConfiguration.getData().PERMISSIONS.indexOf(element.att.name) == -1)
+			for (permission in PlatformConfiguration.getData().PERMISSIONS)
 			{
-				PlatformConfiguration.getData().PERMISSIONS.push(element.att.name);
+				if (permission.NAME == element.att.name)
+				{
+					if (element.has.maxLevel)
+					{
+						permission.MAX_LEVEL = Std.int(Math.max(permission.MAX_LEVEL, Std.parseInt(element.att.maxLevel)));
+					}
+
+					return;
+				}
 			}
+
+			PlatformConfiguration.getData().PERMISSIONS.push({NAME: element.att.name, MAX_LEVEL: 0});
 		}
 	}
 
