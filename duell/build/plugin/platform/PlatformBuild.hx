@@ -229,6 +229,7 @@ class PlatformBuild
         convertDuellAndHaxelibsIntoHaxeCompilationFlags();
         convertParsingDefinesToCompilationDefines();
         forceDeprecationWarnings();
+        forceCPP11();
         gatherProguardConfigs();
         cleanUpDuplicatedGradleDependencies();
 
@@ -368,6 +369,11 @@ class PlatformBuild
     private function forceDeprecationWarnings(): Void
     {
         Configuration.getData().HAXE_COMPILE_ARGS.push("-D deprecation-warnings");
+    }
+
+    private function forceCPP11(): Void
+    {
+        Configuration.getData().HAXE_COMPILE_ARGS.push("-D NDKV9");
     }
 
     private function addDebuggingInformation()
