@@ -40,6 +40,7 @@ typedef PlatformConfigurationData = {
     APP_ICON : String,
 	HXCPP_COMPILATION_ARGS : Array<String>, /// not yet used
 	ACTIVITY_EXTENSIONS : Array<String>,
+	APPLICATION_EXTENSIONS : Array<String>,
 	JAVA_SOURCES : Array<{NAME : String, PATH : String}>,
 	JARS : Array<String>,
 	FULLSCREEN : Bool,
@@ -106,6 +107,7 @@ class PlatformConfiguration
 					ARCHS : ["armv7"],
 					HXCPP_COMPILATION_ARGS : [],
 					ACTIVITY_EXTENSIONS : [],
+					APPLICATION_EXTENSIONS : [],
 					JARS : [],
 					JAVA_SOURCES : [{ NAME : "HXCPP",
 									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
@@ -127,7 +129,7 @@ class PlatformConfiguration
 					DEBUG : false,
 					STRING_RESOURCES : [],
 					ACTIVITY_PARAMETERS : [
-									{NAME : "launchMode", VALUE : "singleTask"},
+									{NAME : "launchMode", VALUE : "singleInstance"},
 									{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
 													],
 					APPLICATION_PARAMETERS : [],

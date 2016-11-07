@@ -86,7 +86,7 @@ public class DuellActivity extends Activity
 
         extensions = new ArrayList<Extension>();
 
-        ::foreach PLATFORM.ACTIVITY_EXTENSIONS::;
+        ::foreach PLATFORM.ACTIVITY_EXTENSIONS::
         extensions.add(new ::__current__:: ());::end::
     }
 

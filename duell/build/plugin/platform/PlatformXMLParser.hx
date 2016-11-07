@@ -94,6 +94,9 @@ class PlatformXMLParser
 				case 'activity-extension':
 					parseActivityExtensionElement(element);
 
+				case 'application-extension':
+					parseApplicationExtensionElement(element);
+
 				case 'jar':
 					parseJarElement(element);
 
@@ -268,6 +271,16 @@ class PlatformXMLParser
 		{
 			name = element.att.name;
 			PlatformConfiguration.getData().ACTIVITY_EXTENSIONS.push(name);
+		}
+	}
+
+	private static function parseApplicationExtensionElement(element : Fast)
+	{
+		var name = null;
+		if (element.has.name)
+		{
+			name = element.att.name;
+			PlatformConfiguration.getData().APPLICATION_EXTENSIONS.push(name);
 		}
 	}
 
