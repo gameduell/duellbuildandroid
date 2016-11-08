@@ -65,6 +65,8 @@ Use this plugin to build for the android platform.
 
 * `<activity-parameter>` &ndash; Use this to specify an android manifest activity parameter. E.g.: `<activity-parameter name="theme" value="@android:style/Theme.NoTitleBar.Fullscreen" />`.
 
+* `<application-extension>` &ndash; Use this to specify a class as being an application extension that will then receive Application callbacks. This is used together with inserting java classes into the final app. E.g.: `<application-extension name="com.superlib.SuperLibAppDelegate" />`.
+
 * `<gradle-repository>` &ndash; Use this to specify a gradle repository. E.g.: `<gradle-repository name="jcenter" url="www.someurl.com" />`.
 
 * `<gradle-dependency>` &ndash; Use this to specify a gradle dependency. E.g.: `<gradle-dependency value="com.google.android.gms:play-services-base:8.1.0" />`.

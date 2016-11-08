@@ -19,6 +19,7 @@
             <xs:element name="permission" type="d:NameMaxLevel"/>
             <xs:element name="raw-permission" type="d:NameLevelBothRequired"/>
             <xs:element name="activity-extension" type="d:Name"/>
+            <xs:element name="application-extension" type="d:Name"/>
             <xs:element name="jar" type="d:Path"/>
             <xs:element name="java-source" type="d:PathNamePathRequired"/>
             <xs:element name="supports-screen" type="d:NameValueBothRequired"/>

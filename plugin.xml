@@ -48,6 +48,10 @@
 			Use this to specify a class as being an activity extension that will then receive Activity callbacks. This is used together with inserting java classes into the final app. E.g.: &lt;activity-extension name=&quot;com.superlib.SuperLibDelegate&quot; /&gt;.
 		</elem>
 
+		<elem name="application-extension">
+			Use this to specify a class as being an application extension that will then receive Application callbacks. This is used together with inserting java classes into the final app. E.g.: &lt;application-extension name=&quot;com.superlib.SuperLibAppDelegate&quot; /&gt;.
+		</elem>
+
 		<elem name="java-source">
 			Use this to add a folder that contains java sources to be compiled. This should be the top level folder in case the sources are organized in packages. E.g.: &lt;java-source path=&quot;path/to/lib&quot; /&gt;.
 		</elem>
