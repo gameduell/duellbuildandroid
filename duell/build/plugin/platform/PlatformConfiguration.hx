@@ -129,7 +129,7 @@ class PlatformConfiguration
 					DEBUG : false,
 					STRING_RESOURCES : [],
 					ACTIVITY_PARAMETERS : [
-									{NAME : "launchMode", VALUE : "singleInstance"},
+									{NAME : "launchMode", VALUE : "singleTask"},
 									{NAME : "configChanges", VALUE : "keyboard|keyboardHidden|orientation|screenSize"}
 													],
 					APPLICATION_PARAMETERS : [],
