@@ -116,6 +116,14 @@
 			Use this to specify a gradle build script dependency. E.g.: &lt;gradle-build-script-dependency value=&quot;com.google.gms:google-services:3.0.0&quot; /&gt;
 		</elem>
 
+		<elem name="gradle-compilation-dependency">
+			Use this to specify a gradle compilation dependency. E.g.: &lt;gradle-compilation-dependency value=&quot;com.fyber:fyber-annotations:1.2.0&quot; /&gt;
+		</elem>
+
+		<elem name="gradle-annotation-processor">
+			Use this to specify a gradle annotation processors. E.g.: &lt;gradle-annotation-processor value=&quot;com.fyber:fyber-annotations-compiler:1.3.0&quot; /&gt;
+		</elem>
+
 	</configuration>
 
 	<arg name="-debug" type="void">

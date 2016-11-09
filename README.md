@@ -74,3 +74,7 @@ Use this plugin to build for the android platform.
 * `<gradle-binary-plugin>` &ndash; Use this to specify a gradle apply plugin. E.g.: `<gradle-binary-plugin value="com.google.gms.google-services" />`.
 
 * `<gradle-build-script-dependency>` &ndash; Use this to specify a gradle build script dependency. E.g.: `<gradle-build-script-dependency value="com.google.gms:google-services:3.0.0" />`.
+
+* `<gradle-compilation-dependency>` &ndash; Use this to specify a gradle compilation dependency. E.g.: `<gradle-compilation-dependency value="com.fyber:fyber-annotations:1.2.0" />`.
+
+* `<gradle-annotation-processor>` &ndash; Use this to specify a gradle annotation processor. E.g.: `<gradle-annotation-processor value="com.fyber:fyber-annotations-compiler:1.3.0" />`.

@@ -144,6 +144,12 @@ class PlatformXMLParser
 
 				case 'gradle-build-script-dependency':
 					parseGradleBuildScriptDependencyElement(element);
+
+				case 'gradle-compilation-dependency':
+					parseGradleCompilationDependencyElement(element);
+
+				case 'gradle-annotation-processor':
+					parseGradleAnnotationProcessorElement(element);
 			}
 		}
 	}
@@ -460,6 +466,16 @@ class PlatformXMLParser
 	private static function parseGradleBuildScriptDependencyElement(element : Fast)
 	{
 		PlatformConfiguration.getData().GRADLE_BUILD_SCRIPT_DEPENDENCIES.push(element.att.value);
+	}
+
+	private static function parseGradleCompilationDependencyElement(element : Fast)
+	{
+		PlatformConfiguration.getData().GRADLE_COMPILATION_DEPENDENCIES.push(element.att.value);
+	}
+
+	private static function parseGradleAnnotationProcessorElement(element : Fast)
+	{
+		PlatformConfiguration.getData().GRADLE_ANNOTATION_PROCESSORS.push(element.att.value);
 	}
 
 	/// HELPERS
