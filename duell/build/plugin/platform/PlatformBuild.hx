@@ -397,6 +397,11 @@ class PlatformBuild
                     Configuration.getData().PLATFORM.ARCH_ABIS.push("x86");
             }
         }
+
+        if (Configuration.getData().PLATFORM.ARCH_ABIS.length > 0)
+        {
+            Configuration.getData().PLATFORM.GRADLE_NDK_ABI_FILTER = "'" + Configuration.getData().PLATFORM.ARCH_ABIS.join("', '") + "'";
+        }
     }
 
     private function prepareAndroidBuild() : Void
