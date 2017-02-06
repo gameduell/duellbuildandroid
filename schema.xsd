@@ -14,6 +14,7 @@
             <xs:element name="install-location" type="d:Value"/>
             <xs:element name="target-sdk" type="d:ValueInteger"/>
             <xs:element name="minimum-sdk" type="d:ValueInteger"/>
+            <xs:element name="buildtools-version" type="d:Version"/>
             <xs:element name="fullscreen" type="d:ValueBoolean"/>
             <xs:element name="uses" type="d:UsesPermission"/>
             <xs:element name="permission" type="d:NameMaxLevel"/>

@@ -76,6 +76,9 @@ class PlatformXMLParser
 				case 'target-sdk':
 					parseTargetSDKElement(element);
 
+				case "buildtools-version":
+					parseBuildToolsVersion(element);
+
 				case 'minimum-sdk':
 					parseMinimumSDKElement(element);
 
@@ -192,6 +195,14 @@ class PlatformXMLParser
 		{
 			var value = Std.parseInt(element.att.value);
 			PlatformConfiguration.getData().TARGET_SDK_VERSION = Math.floor(Math.max(value, PlatformConfiguration.getData().TARGET_SDK_VERSION));
+		}
+	}
+
+	private static function parseBuildToolsVersion(element : Fast)
+	{
+		if (element.has.value)
+		{
+			PlatformConfiguration.getData().BUILD_TOOLS_VERSION = element.att.value;
 		}
 	}
 
