@@ -4,8 +4,6 @@
            targetNamespace="duell"
            elementFormDefault="qualified">
 
-    <xs:include schemaLocation="https://raw.githubusercontent.com/gameduell/duell/master/schema/common_schema.xsd" />
-
     <xs:complexType name="android">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="icon" type="d:Path"/>
@@ -31,7 +29,7 @@
             <xs:element name="project-properties" type="d:Value"/>
             <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
-            <xs:element name="manifest-application-section" type="d:InnerContent"/>
+            <xs:element name="manifest-application-section" type="d:IgnoreContents"/>
             <xs:element name="proguard" type="d:Path"/>
             <xs:element name="gradle-repository" type="d:GradleRepo"/>
             <xs:element name="gradle-dependency" type="d:Value"/>
