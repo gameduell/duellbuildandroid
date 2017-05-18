@@ -29,7 +29,7 @@
             <xs:element name="project-properties" type="d:Value"/>
             <xs:element name="manifest-main-activity-section" type="d:InnerContent"/>
             <xs:element name="manifest-main-activity-intent-filter-section" type="d:InnerContent"/>
-            <xs:element name="manifest-application-section" type="d:IgnoreContents"/>
+            <xs:element name="manifest-application-section" type="d:ConditionalUnboundContent"/>
             <xs:element name="proguard" type="d:Path"/>
             <xs:element name="gradle-repository" type="d:GradleRepo"/>
             <xs:element name="gradle-dependency" type="d:Value"/>
@@ -38,6 +38,16 @@
             <xs:element name="gradle-binary-plugin" type="d:Value"/>
             <xs:element name="gradle-build-script-dependency" type="d:Value"/>
         </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="ConditionalUnboundContent">
+        <xs:complexContent>
+            <xs:extension base="d:Conditional">
+                <xs:sequence>
+                    <xs:any maxOccurs="unbounded" processContents="skip" />
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="NameMaxLevel">
