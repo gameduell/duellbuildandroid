@@ -32,10 +32,11 @@ import java.util.List;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import android.support.multidex.MultiDexApplication;
 
 import org.haxe.duell.DuellApplicationExtension;
 
-public class DuellApplication extends Application
+public class DuellApplication extends MultiDexApplication
 {
     private static final String TAG = "DuellApplication";
 
