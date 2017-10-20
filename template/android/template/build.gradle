@@ -22,6 +22,7 @@ android {
    minSdkVersion ::PLATFORM.MINIMUM_SDK_VERSION::
    targetSdkVersion ::PLATFORM.TARGET_SDK_VERSION::
    applicationId '::APP.PACKAGE::'
+   multiDexEnabled true
    ndk {
        abiFilters ::PLATFORM.GRADLE_NDK_ABI_FILTER::
    }
