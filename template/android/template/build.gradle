@@ -15,7 +15,7 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
- compileSdkVersion ::PLATFORM.TARGET_SDK_VERSION::
+ compileSdkVersion ::PLATFORM.COMPILE_SDK_VERSION::
  buildToolsVersion "::PLATFORM.BUILD_TOOLS_VERSION::"
 
  defaultConfig {
@@ -88,6 +88,8 @@ sourceSets {
 
 repositories {
     jcenter()
+
+    maven { url "https://maven.google.com" }
 
     ::foreach PLATFORM.GRADLE_REPOSITORIES::
     ::NAME:: {

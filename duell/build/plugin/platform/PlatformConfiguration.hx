@@ -44,6 +44,7 @@ typedef PlatformConfigurationData = {
 	JAVA_SOURCES : Array<{NAME : String, PATH : String}>,
 	JARS : Array<String>,
 	FULLSCREEN : Bool,
+	COMPILE_SDK_VERSION : Int,
 	TARGET_SDK_VERSION : Int,
 	BUILD_TOOLS_VERSION : String,
 	USES : Array<{ NAME : String, VALUE : String, REQUIRED : Bool }>,
@@ -116,8 +117,9 @@ class PlatformConfiguration
 									  PATH : haxe.io.Path.join([Haxelib.getHaxelib("hxcpp").getPath(), "java"])
 									  }],
 					FULLSCREEN : false,
+					COMPILE_SDK_VERSION : 26,
 					TARGET_SDK_VERSION : 24,
-					BUILD_TOOLS_VERSION : "24.0.2",
+					BUILD_TOOLS_VERSION : "26.0.2",
 					INSTALL_LOCATION : "auto",
 					SUPPORTS_SCREENS : [
 									{NAME : "smallScreens", VALUE : "true"},
