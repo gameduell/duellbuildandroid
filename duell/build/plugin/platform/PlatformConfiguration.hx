@@ -118,7 +118,7 @@ class PlatformConfiguration
 									  }],
 					FULLSCREEN : false,
 					COMPILE_SDK_VERSION : 26,
-					TARGET_SDK_VERSION : 24,
+					TARGET_SDK_VERSION : 26,
 					BUILD_TOOLS_VERSION : "26.0.2",
 					INSTALL_LOCATION : "auto",
 					SUPPORTS_SCREENS : [
