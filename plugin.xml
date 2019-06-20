@@ -162,6 +162,12 @@
 		</documentation>
 	</arg>
 
+	<arg name="-arm64" type="void">
+		<documentation>
+			Use this if you want to build for arm64.
+		</documentation>
+	</arg>
+
     <arg name="-emulator" type="void">
         <documentation>
 	        Use the emulator to run the app. If x86 is specified, the x86 will launch, otherwise the armv7 will run. If the emulator is already running this will fail. If that is the case, then run without this option, as the emulator counts as a normal device. The default emulators that this uses are called "duellarmv7a" and "duellx86".

@@ -160,6 +160,7 @@ class PlatformBuild
         var isArmv6 = Arguments.isSet("-armv6");
         var isArmv7 = Arguments.isSet("-armv7");
         var isX86 = Arguments.isSet("-x86");
+        var isarm64 = Arguments.isSet("-arm64");
 
         if (isArmv7 || isX86)
         {
@@ -171,6 +172,8 @@ class PlatformBuild
                 Configuration.getData().PLATFORM.ARCHS.push("armv7");
             if (isX86)
                 Configuration.getData().PLATFORM.ARCHS.push("x86");
+            if (isarm64)
+                Configuration.getData().PLATFORM.ARCHS.push("arm64");
         }
 
         if (Arguments.isSet("-emulator"))
@@ -395,6 +398,8 @@ class PlatformBuild
                     Configuration.getData().PLATFORM.ARCH_ABIS.push("armeabi-v7a");
                 case "x86":
                     Configuration.getData().PLATFORM.ARCH_ABIS.push("x86");
+                case "arm64":
+                    Configuration.getData().PLATFORM.ARCH_ABIS.push("arm64-v8a");
             }
         }
 
@@ -438,6 +443,8 @@ class PlatformBuild
                     Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARMV7");
                 case "x86":
                     Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_X86");
+                case "arm64":
+                    Configuration.getData().HAXE_COMPILE_ARGS.push("-D HXCPP_ARM64");
             }
 
             var originHaxeTemplate = Path.join([duellBuildAndroidPath, "template", "android", "haxe", "Build.hxml"]);
@@ -481,11 +488,12 @@ class PlatformBuild
     {
         for (archID in 0...3)
         {
-            var arch = ["armv6", "armv7", "x86"][archID];
+            var arch = ["armv6", "armv7", "x86", "arm64"][archID];
 
             var argsForBuild = [["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip"],
                                 ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARMV7"],
-                                ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"]][archID];
+                                ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"],
+                                ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARM64"]][archID];
 
             if (isDebug)
             {
@@ -493,9 +501,9 @@ class PlatformBuild
 
             }
 
-            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86", "arm64-v8a"][archID];
 
-            var extension = [".so", "-v7.so", "-x86.so"][archID];
+            var extension = [".so", "-v7.so", "-x86.so", "v8.so"][archID];
 
             var destFolderArch = Path.join([libsWithSymbolsDirectory, folderName]);
 
@@ -681,18 +689,19 @@ class PlatformBuild
 
         for (archID in 0...3)
         {
-            var arch = ["armv6", "armv7", "x86"][archID];
+            var arch = ["armv6", "armv7", "x86", "arm64"][archID];
 
             var argsForBuildCpp = [["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip"],
                                    ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARMV7"],
-                                   ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"]][archID];
+                                   ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_X86"],
+                                   ["-Dandroid", "-DHXCPP_FULL_DEBUG_LINK", "-Dnostrip", "-DHXCPP_ARM64"]][archID];
 
             argsForBuildCpp = argsForBuildCpp.concat(Configuration.getData().PLATFORM.HXCPP_COMPILATION_ARGS);
 
 
-            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86", "arm64"][archID];
 
-            var extension = [".so", "-v7.so", "-x86.so"][archID];
+            var extension = [".so", "-v7.so", "-x86.so", "-v8.so"][archID];
 
             var destFolderArch = Path.join([libsWithSymbolsDirectory, folderName]);
 
@@ -712,7 +721,7 @@ class PlatformBuild
             var gdbSetupOrig = Path.join([duellBuildAndroidPath, "template", "android", "gdb.setup"]);
             var gdbSetupDest = Path.join([destFolderArch, "gdb.setup"]);
 
-            var gdbServerPath = ["android-arm", "android-arm", "android-x86"][archID];
+            var gdbServerPath = ["android-arm", "android-arm", "android-x86", "android-arm64"][archID];
             var gdbServerOrigPath = Path.join([Configuration.getData().PLATFORM.NDK_PATH, "prebuilt", gdbServerPath, "gdbserver", "gdbserver"]);
             var gdbServerDestPath = Path.join([destFolderArch, "gdbserver"]);
 
@@ -754,8 +763,8 @@ class PlatformBuild
     {
         for (archID in 0...3)
         {
-            var arch = ["armv6", "armv7", "x86"][archID];
-            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var arch = ["armv6", "armv7", "x86", "arm64"][archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86", "arm64-v8a"][archID];
             var destFolderArch = Path.join([projectDirectory, "native-libs", folderName]);
 
             /// clear if the architecture is not to be built now
@@ -803,10 +812,10 @@ class PlatformBuild
 
         for (archID in 0...3)
         {
-            var arch = ["armv6", "armv7", "x86"][archID];
-            var toolchain = ["arm-linux-androideabi-4.8", "arm-linux-androideabi-4.8", "x86-4.8"] [archID];
-            var stripperExe = ["arm-linux-androideabi-strip", "arm-linux-androideabi-strip", "i686-linux-android-strip"] [archID];
-            var folderName = ["armeabi", "armeabi-v7a", "x86"][archID];
+            var arch = ["armv6", "armv7", "x86", "arm64"][archID];
+            var toolchain = ["arm-linux-androideabi-4.8", "arm-linux-androideabi-4.8", "x86-4.8", "arm-linux-androideabi-4.8"] [archID];
+            var stripperExe = ["arm-linux-androideabi-strip", "arm-linux-androideabi-strip", "i686-linux-android-strip", "arm-linux-androideabi-strip"] [archID];
+            var folderName = ["armeabi", "armeabi-v7a", "x86", "arm64-v8a"][archID];
 
             var basePathForExe = Path.join([ndkRoot, "toolchains", toolchain, "prebuilt", host, "bin"]);
 
